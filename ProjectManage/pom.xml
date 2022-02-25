@@ -21,17 +21,17 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-logging</artifactId>
-				</exclusion>
-			</exclusions>
+<!-- 			<exclusions> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.springframework.boot</groupId> -->
+<!-- 					<artifactId>spring-boot-starter-logging</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 			</exclusions> -->
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jdbc</artifactId>
@@ -139,7 +139,22 @@
 			<artifactId>guava</artifactId>
 			<version>31.0.1-jre</version>
 		</dependency>
-
+<dependency>
+			<groupId>com.internetitem</groupId>
+			<artifactId>logback-elasticsearch-appender</artifactId>
+			<version>1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback.contrib</groupId>
+			<artifactId>logback-jackson</artifactId>
+			<version>0.1.5</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/ch.qos.logback.contrib/logback-json-classic -->
+		<dependency>
+			<groupId>ch.qos.logback.contrib</groupId>
+			<artifactId>logback-json-classic</artifactId>
+			<version>0.1.5</version>
+		</dependency>
 
 
 	</dependencies>

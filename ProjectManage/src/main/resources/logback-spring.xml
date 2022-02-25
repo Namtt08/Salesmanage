@@ -2,7 +2,7 @@
 <configuration>
 
     <springProfile name="!dev">
-        <property file="application.properties"/>
+        <property file="src/main/resources/application.properties"/>
         <springProperty name="elasticsearch.host" source="elasticsearch.host"/>
         <springProperty name="name.logs" source="name.logs"/>
     </springProfile>
