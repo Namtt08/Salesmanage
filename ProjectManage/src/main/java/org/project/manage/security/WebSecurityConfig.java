@@ -36,8 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
     public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder.userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());
+        
     }
 	@Bean
 	@Override
@@ -53,8 +52,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.cors().and().csrf().disable()
 			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-			.authorizeRequests().antMatchers("/api/auth/**","/home","/css/**","/js/**","/resources/**","/static/**","/login","https://fonts.googleapis.com/**","/favicon.ico").permitAll()
-			.antMatchers("/api/test/**").permitAll()
+			.authorizeRequests().antMatchers("/api/auth/**","/home","/css/**","/js/**","/resources/**","/static/**","https://fonts.googleapis.com/**","/favicon.ico").permitAll()
+			//.antMatchers("/api/test/**").permitAll()
 			.anyRequest().authenticated().and()
 			.formLogin().loginPage("/login").permitAll();
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -1,7 +1,6 @@
 package org.project.manage.controller;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,11 +13,14 @@ import org.project.manage.repository.RoleRepository;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.request.LoginRequest;
 import org.project.manage.request.SignupRequest;
+import org.project.manage.request.UserLoginRequest;
 import org.project.manage.response.JwtResponse;
 import org.project.manage.response.MessageResponse;
 import org.project.manage.security.ERole;
 import org.project.manage.security.JwtUtils;
 import org.project.manage.security.UserDetailsImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import lombok.extern.slf4j.Slf4j;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -47,19 +51,20 @@ public class AuthController {
 	@Autowired
 	JwtUtils jwtUtils;
 
-	@PostMapping("/signin")
-	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		String jwt = jwtUtils.generateJwtToken(authentication);
-
-		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-				.collect(Collectors.toList());
-		return ResponseEntity.ok(
-				new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
-	}
+	 private final Logger logger = LoggerFactory.getLogger(this.getClass());
+//	@PostMapping("/signin")
+//	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+//		Authentication authentication = authenticationManager.authenticate(
+//				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+//		SecurityContextHolder.getContext().setAuthentication(authentication);
+//		String jwt = jwtUtils.generateJwtToken(authentication);
+//
+//		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+//		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+//				.collect(Collectors.toList());
+//		return ResponseEntity.ok(
+//				new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
+//	}
 
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
@@ -96,29 +101,17 @@ public class AuthController {
 				}
 
 			}
-			// }
-			// }
-//			strRoles.forEach(role -> {
-//				switch (role) {
-//				case "admin":
-//					Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-//							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//					roles.add(adminRole);
-//					break;
-//				case "mod":
-//					Role modRole = roleRepository.findByName(ERole.ROLE_PARTNER)
-//							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//					roles.add(modRole);
-//					break;
-//				default:
-//					Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-//							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//					roles.add(userRole);
-//				}
-//			});
 		}
 		user.setRoles(roles);
 		userRepository.save(user);
 		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 	}
+	
+	@PostMapping("/register")
+	public ResponseEntity<?> registerUser1(@Valid @RequestBody UserLoginRequest signUpRequest) {
+		String jwt = jwtUtils.generateJwtToken(signUpRequest.getCuid());
+		logger.info("This is TRACE");
+		return ResponseEntity.ok(new MessageResponse(jwt));
+	}
+	
 }
