@@ -1,34 +1,53 @@
 package org.project.manage.entities;
 
-import org.hibernate.annotations.NaturalId;
-import org.project.manage.security.ERole;
+import java.util.Date;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
-import java.util.List;
-
-import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import lombok.Data;
 
 @Entity
-@Table(name = "users_customer")
-@Setter
-@Getter
-public class UserCustomer {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Data
+@Table(name = "users_customer", uniqueConstraints = { @UniqueConstraint(columnNames = "cuid"),
+		@UniqueConstraint(columnNames = "phoneNumber") })
 
-    private String cuid;
-	private String phonenumber;
+public class UserCustomer {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	private String cuid;
+	private String phoneNumber;
 	private String token;
-    public UserCustomer(String cuid, String phonenumber, String token) {
-    	this.cuid = cuid;
-		this.phonenumber = phonenumber;
+	private String email;
+	private boolean isBlockUser;
+	private String nationalId;
+	private String fullName;
+	private String gender;
+	private String avatar;
+	private String deviceId;
+	private String deviceName;
+	private String platform;
+	private Date createdDate;
+	private Date modifiedDate;
+	
+	
+	public UserCustomer(String cuid, String phoneNumber, String token, String email, String fullName, String nationalId,
+			String gender) {
+		this.cuid = cuid;
+		this.phoneNumber = phoneNumber;
 		this.token = token;
-    }
+		this.email = email;
+		this.fullName = fullName;
+		this.nationalId = nationalId;
+		this.gender = gender;
+	}
+	
+	public UserCustomer() {
+	}
 }

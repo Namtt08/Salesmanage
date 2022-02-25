@@ -14,8 +14,7 @@ public class TestController {
 
 	
 	@PostMapping("/a")
-	public ResponseEntity<?> registerUser2() {
-		
-		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+	public ResponseEntity<?> test() {
+		return ResponseEntity.ok(new MessageResponse(200,"User registered successfully!"));
 	}
 }

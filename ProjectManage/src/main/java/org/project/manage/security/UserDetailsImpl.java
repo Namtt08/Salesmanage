@@ -2,13 +2,10 @@ package org.project.manage.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-import org.project.manage.entities.User;
+import org.project.manage.entities.UserCustomer;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,25 +13,24 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class UserDetailsImpl implements UserDetails {
 	private static final long serialVersionUID = 1L;
 	private Long id;
-	private String username;
+	private String cuid;
+	private String phoneNumber;
 	private String email;
-	@JsonIgnore
-	private String password;
 	private Collection<? extends GrantedAuthority> authorities;
-	public UserDetailsImpl(Long id, String username, String email, String password,
+	public UserDetailsImpl(Long id, String cuid, String phoneNumber, String email,
 			Collection<? extends GrantedAuthority> authorities) {
 		this.id = id;
-		this.username = username;
+		this.cuid = cuid;
+		this.phoneNumber = phoneNumber;
 		this.email = email;
-		this.password = password;
 		this.authorities = authorities;
 	}
-	public static UserDetailsImpl build(User user) {
+	public static UserDetailsImpl build(UserCustomer user) {
 		return new UserDetailsImpl(
 				user.getId(), 
-				user.getUsername(), 
-				user.getEmail(),
-				user.getPassword(), 
+				user.getCuid(), 
+				user.getPhoneNumber(),
+				user.getEmail(), 
 				new ArrayList<GrantedAuthority>());
 	}
 	@Override
@@ -44,17 +40,16 @@ public class UserDetailsImpl implements UserDetails {
 	public Long getId() {
 		return id;
 	}
+	public String getCuid() {
+		return cuid;
+	}
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
 	public String getEmail() {
 		return email;
 	}
-	@Override
-	public String getPassword() {
-		return password;
-	}
-	@Override
-	public String getUsername() {
-		return username;
-	}
+	
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
@@ -79,5 +74,15 @@ public class UserDetailsImpl implements UserDetails {
 			return false;
 		UserDetailsImpl user = (UserDetailsImpl) o;
 		return Objects.equals(id, user.id);
+	}
+	@Override
+	public String getPassword() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
