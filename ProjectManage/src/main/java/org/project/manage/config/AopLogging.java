@@ -77,11 +77,7 @@ public class AopLogging {
         }
         Object result;
         long start = System.currentTimeMillis();
-        // try {
         result = proceedingJoinPoint.proceed();
-        // } catch (Exception exception) {
-        // result = this.errorHandler.handlerException(exception, start);
-        // }
         long took = System.currentTimeMillis() - start;
 
         String resBody = "";

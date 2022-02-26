@@ -1,14 +1,14 @@
 package org.project.manage.security;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import org.project.manage.entities.UserCustomer;
+import org.project.manage.entities.User;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class UserDetailsImpl implements UserDetails {
 	private static final long serialVersionUID = 1L;
@@ -25,13 +25,16 @@ public class UserDetailsImpl implements UserDetails {
 		this.email = email;
 		this.authorities = authorities;
 	}
-	public static UserDetailsImpl build(UserCustomer user) {
+	public static UserDetailsImpl build(User user) {
+		List<GrantedAuthority> authorities = user.getRoles().stream()
+				.map(role -> new SimpleGrantedAuthority(role.getName().name()))
+				.collect(Collectors.toList());
 		return new UserDetailsImpl(
 				user.getId(), 
 				user.getCuid(), 
 				user.getPhoneNumber(),
 				user.getEmail(), 
-				new ArrayList<GrantedAuthority>());
+				authorities);
 	}
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

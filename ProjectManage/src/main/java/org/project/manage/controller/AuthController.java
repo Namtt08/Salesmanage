@@ -2,19 +2,18 @@ package org.project.manage.controller;
 
 import java.util.Date;
 
-import javax.validation.Valid;
-
 import org.project.manage.entities.CustomerLoginHistory;
-import org.project.manage.entities.UserCustomer;
+import org.project.manage.entities.User;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.request.UserLoginRequest;
 import org.project.manage.response.BaseResponse;
 import org.project.manage.response.LoginResponse;
 import org.project.manage.response.LoginView;
-import org.project.manage.response.MessageResponse;
 import org.project.manage.security.JwtUtils;
 import org.project.manage.services.CustomerLoginHistoryService;
-import org.project.manage.services.UserCustomerService;
+import org.project.manage.services.UserService;
+import org.project.manage.util.AppConstants;
+import org.project.manage.util.MessageError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,56 +33,51 @@ public class AuthController {
 
 	@Autowired
 	AuthenticationManager authenticationManager;
+	
+	@Autowired
+    private PasswordEncoder passwordEncoder;
 
 	@Autowired
 	UserRepository userRepository;
 
 	@Autowired
-	PasswordEncoder encoder;
-
-	@Autowired
 	JwtUtils jwtUtils;
 
 	@Autowired
-	private UserCustomerService userCustomerService;
+	private UserService userService;
 	
 	@Autowired
 	private CustomerLoginHistoryService customerLoginHistoryService;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@PostMapping("/register")
-	public ResponseEntity<?> registerUser1(@Valid @RequestBody UserLoginRequest userLoginRequest) {
-		UserCustomer userCustomer = userCustomerService.findByPhoneNumber(userLoginRequest.getCuid()).orElse(null);
+	@PostMapping("/authentication")
+	public ResponseEntity<?> registerUser1(@RequestBody UserLoginRequest userLoginRequest) {
+		User userCustomer = userService.findByPhoneNumber(userLoginRequest.getPhonenumber()).orElse(null);
 		if (userCustomer == null) {
-			userCustomer = userCustomerService.createUserCustomer(userLoginRequest);
+			userCustomer = userService.createUserCustomer(userLoginRequest);
 		}
 		if (userCustomer.isBlockUser()) {
-			return ResponseEntity.ok(new BaseResponse(500, "Bạn đã bị khóa tài khoản vui lòng liên hệ tổng đài viên"));
+			return ResponseEntity.ok(new BaseResponse(AppConstants.RESULT_CODE_SYSTEM_ERROR, MessageError.GRD001_BLOCK));
 		}
 		
 		String jwt = jwtUtils.generateJwtToken(userCustomer.getPhoneNumber());
-		userCustomer.setToken(jwt);
-		userCustomer.setDeviceId(userLoginRequest.getDeviceId());
-		userCustomer.setDeviceName(userLoginRequest.getDeviceName());
-		userCustomer.setPlatform(userLoginRequest.getPlatform());
-		userCustomer = userCustomerService.save(userCustomer);
 		
-		this.saveCustomerLoginHistory(userCustomer);
+		this.saveCustomerLoginHistory(userCustomer, userLoginRequest);
 		
-		return ResponseEntity.ok(new LoginResponse(200, "Thành công",
+		return ResponseEntity.ok(new LoginResponse(AppConstants.RESULT_CODE_SUCCESS, AppConstants.SUCCESS,
 				new LoginView(userCustomer.getCuid(), userCustomer.getPhoneNumber(), jwt,
 						userCustomer.getEmail(), userCustomer.isBlockUser(), userCustomer.getNationalId(),
 						userCustomer.getGender(), userCustomer.getFullName())));
 	}
 
-	private void saveCustomerLoginHistory(UserCustomer userCustomer) {
+	private void saveCustomerLoginHistory(User userCustomer, UserLoginRequest userLoginRequest) {
 		CustomerLoginHistory cusHis = new CustomerLoginHistory();
 		cusHis.setCreatedDate(new Date());
 		cusHis.setUserId(userCustomer.getId());
-		cusHis.setDeviceId(userCustomer.getDeviceId());
-		cusHis.setDeviceName(userCustomer.getDeviceName());
-		cusHis.setPlatform(userCustomer.getPlatform());
+		cusHis.setDeviceId(userLoginRequest.getDeviceId());
+		cusHis.setDeviceName(userLoginRequest.getDeviceName());
+		cusHis.setPlatform(userLoginRequest.getPlatform());
 		customerLoginHistoryService.save(cusHis);
 	}
 }
