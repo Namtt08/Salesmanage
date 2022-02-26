@@ -5,19 +5,10 @@ import java.util.Date;
 import org.project.manage.entities.CustomerLoginHistory;
 import org.project.manage.entities.User;
 import org.project.manage.repository.UserRepository;
-<<<<<<< HEAD
 import org.project.manage.request.UserLoginRequest;
 import org.project.manage.response.BaseResponse;
 import org.project.manage.response.LoginResponse;
 import org.project.manage.response.LoginView;
-=======
-import org.project.manage.request.LoginMobileReQuest;
-import org.project.manage.request.LoginRequest;
-import org.project.manage.request.SignupRequest;
-import org.project.manage.response.JwtResponse;
-import org.project.manage.response.MessageResponse;
-import org.project.manage.security.ERole;
->>>>>>> refs/remotes/origin/main
 import org.project.manage.security.JwtUtils;
 import org.project.manage.services.CustomerLoginHistoryService;
 import org.project.manage.services.UserService;
@@ -29,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
