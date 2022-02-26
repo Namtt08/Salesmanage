@@ -31,7 +31,7 @@ import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.extern.slf4j.Slf4j;
 
 @Aspect
-@Component
+@Configuration
 @Slf4j
 public class AopLogging {
 

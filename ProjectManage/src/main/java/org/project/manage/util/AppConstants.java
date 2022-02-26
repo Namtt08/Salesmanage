@@ -4,17 +4,13 @@ import java.time.ZoneId;
 
 public interface AppConstants {
 
+	String USER_CUSTOMER ="USER_CUSTOMER";
     String DEFAULT_PAGE_NUMBER = "1";
     String DEFAULT_OFFSET_NUMBER = "0";
     String DEFAULT_PAGE_SIZE = "25";
 
     int MAX_PAGE_SIZE = 100;
-    int RESULT_CODE_SUCCESS = 200;
-    int RESULT_CODE_NOT_FOUND = 404;
-    int RESULT_CODE_SYSTEM_ERROR = 500;
-
-    String DATE_FORMAT_ISO = "yyyy-MM-dd";
-
+    
     String DATE_FORMAT = "dd/MM/yyyy";
 
     String DATETIME_FORMAT_ISO = "yyyy-MM-dd HH:mm:ss";
@@ -23,10 +19,6 @@ public interface AppConstants {
 
     String TIME_FORMAT = "HH:mm:ss";
 
-    
-
-    String SUCCESS = "Thành công";
-    String ERROR = "Thất bại";
     String SPACE = " ";
 
     String DENY_APPLICATION = "deny_application";

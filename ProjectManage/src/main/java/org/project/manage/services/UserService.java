@@ -17,4 +17,6 @@ public interface UserService {
 
 	public User save(User userCustomer);
 
+	public Optional<User> findByPhoneNumberAndUserType(String phonenumber, String userCustomer);
+
 }

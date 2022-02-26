@@ -14,7 +14,8 @@ import org.project.manage.repository.UserRepository;
 import org.project.manage.request.UserLoginRequest;
 import org.project.manage.security.ERole;
 import org.project.manage.services.UserService;
-import org.project.manage.util.MessageError;
+import org.project.manage.util.AppConstants;
+import org.project.manage.util.MessageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -51,14 +52,16 @@ public class UserServiceImpl implements UserService {
 		try {
 			List<Role> roles = new ArrayList<>();
 			Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-					.orElseThrow(() -> new RuntimeException(MessageError.GRD002_ROLE));
+					.orElseThrow(() -> new RuntimeException(MessageResult.GRD002_ROLE));
 			roles.add(userRole);
 			User user = new User();
 			user.setUsername(userLoginRequest.getPhonenumber());
 			user.setPassword(passwordEncoder.encode(userLoginRequest.getCuid()));
 			user.setPhoneNumber(userLoginRequest.getPhonenumber());
 			user.setCuid(userLoginRequest.getCuid());
+			user.setUserType(AppConstants.USER_CUSTOMER);
 			user.setCreatedDate(new Date());
+			
 			user.setRoles(roles);
 			userRepository.save(user);
 			return user;
@@ -72,6 +75,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User save(User userCustomer) {
 		return userRepository.save(userCustomer);
+	}
+
+	@Override
+	public Optional<User> findByPhoneNumberAndUserType(String phonenumber, String userCustomer) {
+		return userRepository.findByPhoneNumberAndUserType(phonenumber, userCustomer);
 	}
 
 }
