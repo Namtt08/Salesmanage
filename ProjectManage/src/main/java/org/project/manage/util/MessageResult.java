@@ -31,4 +31,7 @@ public interface MessageResult {
 	String GRD001_BLOCK = " GRD001_Bạn đã bị khóa tài khoản vui lòng liên hệ tổng đài viên";
 
 	String GRD002_ROLE = "GRD002_Role is not found";
+	
+	String GRD003_OTP = "GRD003_Bạn đã vượt quá số lần gửi OTP trong ngày";
+	
 }

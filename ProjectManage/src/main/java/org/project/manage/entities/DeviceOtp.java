@@ -13,19 +13,18 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "customer_login_histories")
+@Table(name = "device_otp")
 
-public class CustomerLoginHistory {
+public class DeviceOtp {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private Long userId;
 	private String deviceId;
 	private String deviceName;
 	private String platform;
 	private String osVersion;
 	private Date createdDate;
 	
-	public CustomerLoginHistory() {
+	public DeviceOtp() {
 	}
 }
