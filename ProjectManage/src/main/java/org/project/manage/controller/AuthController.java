@@ -5,6 +5,7 @@ import java.util.Date;
 import org.project.manage.entities.CustomerLoginHistory;
 import org.project.manage.entities.User;
 import org.project.manage.repository.UserRepository;
+import org.project.manage.request.OtpLoginRequest;
 import org.project.manage.request.UserLoginRequest;
 import org.project.manage.response.BaseResponse;
 import org.project.manage.response.LoginResponse;
@@ -31,16 +32,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
 	@Autowired
-	AuthenticationManager authenticationManager;
-	
-	@Autowired
-    private PasswordEncoder passwordEncoder;
+	private AuthenticationManager authenticationManager;
 
 	@Autowired
-	UserRepository userRepository;
+	private UserRepository userRepository;
 
 	@Autowired
-	JwtUtils jwtUtils;
+	private JwtUtils jwtUtils;
 
 	@Autowired
 	private UserService userService;
@@ -50,9 +48,16 @@ public class AuthController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	@PostMapping("/otp")
+	public ResponseEntity<?> saveOtpLogin(@RequestBody OtpLoginRequest otpLoginRequest) {
+		
+		return null;
+		
+	}
+	
 	@PostMapping("/authentication")
-	public ResponseEntity<?> registerUser1(@RequestBody UserLoginRequest userLoginRequest) {
-		User userCustomer = userService.findByPhoneNumberAndUserType(userLoginRequest.getPhonenumber(), AppConstants.USER_CUSTOMER).orElse(null);
+	public ResponseEntity<?> authentication(@RequestBody UserLoginRequest userLoginRequest) {
+		User userCustomer = userService.findByCuid(userLoginRequest.getPhonenumber()).orElse(null);
 		if (userCustomer == null) {
 			userCustomer = userService.createUserCustomer(userLoginRequest);
 		}
@@ -60,7 +65,7 @@ public class AuthController {
 			return ResponseEntity.ok(new BaseResponse(AppResultCode.AS_NOT_FOUND_RECORD, MessageResult.GRD001_BLOCK));
 		}
 		
-		String jwt = jwtUtils.generateJwtToken(userCustomer.getPhoneNumber());
+		String jwt = jwtUtils.generateJwtToken(userLoginRequest.getCuid());
 		
 		this.saveCustomerLoginHistory(userCustomer, userLoginRequest);
 		

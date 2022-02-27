@@ -102,7 +102,6 @@ public class AopLogging {
         if (isSaveLog) {
             new AppLog(null, response).writeWithLoggerResponse("#RESPONSE#");
         }
-        // new AppLog(request, response).writeWithLogger("USER_REQUEST");
 
         return result;
     }

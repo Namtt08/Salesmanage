@@ -19,9 +19,9 @@ public class UserDetailsServiceImpl implements org.springframework.security.core
 	
 	@Override
 	@Transactional
-	public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
-		User user = userRepository.findByPhoneNumberAndUserType(phoneNumber, AppConstants.USER_CUSTOMER)
-				.orElseThrow(() -> new UsernameNotFoundException("User Not Found with phoneNumber: " + phoneNumber));
+	public UserDetails loadUserByUsername(String cuid) throws UsernameNotFoundException {
+		User user = userRepository.findByCuid(cuid)
+				.orElseThrow(() -> new UsernameNotFoundException("User Not Found with cuid: " + cuid));
 		return UserDetailsImpl.build(user);
 		
 	}
