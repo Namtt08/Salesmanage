@@ -46,9 +46,4 @@ public class User {
 
 	public User() {
 	}
-
-//	public User(String cuid, String phoneNumber, String email, String nationalId) {
-//		
-//	}
-
 }

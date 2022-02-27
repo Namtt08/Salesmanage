@@ -10,4 +10,6 @@ public class UserLoginRequest {
 	private String deviceId;
 	private String deviceName;
 	private String platform;
+	private String osVersion;
+	
 }
