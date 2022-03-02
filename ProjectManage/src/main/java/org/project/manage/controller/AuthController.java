@@ -8,6 +8,7 @@ import org.project.manage.entities.CustomerLoginHistory;
 import org.project.manage.entities.DeviceOtp;
 import org.project.manage.entities.SystemSetting;
 import org.project.manage.entities.User;
+import org.project.manage.exception.AppException;
 import org.project.manage.request.OtpLoginRequest;
 import org.project.manage.request.UserLoginRequest;
 import org.project.manage.response.ApiResponse;
@@ -116,6 +117,7 @@ public class AuthController {
 			String jwt = jwtUtils.generateJwtToken(userLoginRequest.getCuid());
 
 			this.saveCustomerLoginHistory(userCustomer, userLoginRequest);
+			
 			return this.successHandler
 					.handlerSuccess(new LoginView(AppResultCode.SUCCESS, MessageResult.SUCCESS, userCustomer.getCuid(),
 							userCustomer.getPhoneNumber(), jwt, userCustomer.getEmail(), userCustomer.isBlockUser(),
@@ -123,7 +125,7 @@ public class AuthController {
 		} catch (Exception e) {
 			log.error("authentication:" + e.getMessage());
 			e.printStackTrace();
-			return this.errorHandler.handlerException(start);
+			return this.errorHandler.handlerException(e,start);
 		}
 
 	}

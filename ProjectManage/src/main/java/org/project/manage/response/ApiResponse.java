@@ -28,8 +28,15 @@ public class ApiResponse extends BaseResponse implements Serializable {
 	}
 
 	public ApiResponse(long took) {
+		this.took = took;
 		this.setResult_code(AppResultCode.ERROR);
 		this.setResult_description(MessageResult.ERROR_COMMON);
+	}
+
+	public ApiResponse(int code, String message, long took) {
+		this.took = took;
+		this.setResult_code(code);
+		this.setResult_description(message);
 	}
 
 }

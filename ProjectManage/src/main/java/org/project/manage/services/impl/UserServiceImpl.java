@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import org.project.manage.entities.Role;
 import org.project.manage.entities.User;
+import org.project.manage.exception.AppException;
 import org.project.manage.repository.RoleRepository;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.request.UserLoginRequest;
@@ -64,7 +65,9 @@ public class UserServiceImpl implements UserService {
 			
 			user.setRoles(roles);
 			userRepository.save(user);
-			return user;
+			
+			throw new AppException("sad");
+			//return user;
 		} catch (Exception e) {
 			log.error("createUserCustomer" + e.getMessage());
 			throw e;
