@@ -6,8 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-public class LoginView {
+public class LoginView extends MessageResponse {
 
 	private String cuid;
 	private String phoneNumber;
@@ -17,5 +16,18 @@ public class LoginView {
 	private String nationalId;
 	private String gender;
 	private String fullName;
+
+	public LoginView(int code, String message, String cuid, String phoneNumber, String token, String email,
+			boolean isBlockUser, String nationalId, String gender, String fullName) {
+		super(code, message);
+		this.cuid = cuid;
+		this.phoneNumber = phoneNumber;
+		this.token = token;
+		this.email = email;
+		this.isBlockUser = isBlockUser;
+		this.nationalId = nationalId;
+		this.gender = gender;
+		this.fullName = fullName;
+	}
 
 }

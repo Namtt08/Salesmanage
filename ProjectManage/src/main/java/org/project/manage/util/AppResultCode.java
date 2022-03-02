@@ -2,6 +2,8 @@ package org.project.manage.util;
 
 public interface AppResultCode {
 
+	int SUCCESS =0;
+	int ERROR =-99;
 	int AS_SUCCESS = 200;
 	int AS_ERROR = 500;
 	int AS_DB_ERROR = 501;

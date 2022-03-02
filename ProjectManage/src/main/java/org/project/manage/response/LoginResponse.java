@@ -11,5 +11,5 @@ public class LoginResponse extends BaseResponse {
 	public LoginResponse(int result_code, String result_description, LoginView data) {
 		super(result_code, result_description);
 		this.data = data;
-	}	
+	}
 }

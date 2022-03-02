@@ -10,9 +10,11 @@ import org.project.manage.entities.SystemSetting;
 import org.project.manage.entities.User;
 import org.project.manage.request.OtpLoginRequest;
 import org.project.manage.request.UserLoginRequest;
+import org.project.manage.response.ApiResponse;
 import org.project.manage.response.BaseResponse;
 import org.project.manage.response.LoginResponse;
 import org.project.manage.response.LoginView;
+import org.project.manage.response.MessageResponse;
 import org.project.manage.security.JwtUtils;
 import org.project.manage.services.CustomerLoginHistoryService;
 import org.project.manage.services.DeviceOtpService;
@@ -20,7 +22,9 @@ import org.project.manage.services.SystemSettingService;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
 import org.project.manage.util.AppResultCode;
+import org.project.manage.util.ErrorHandler;
 import org.project.manage.util.MessageResult;
+import org.project.manage.util.SuccessHandler;
 import org.project.manage.util.SystemSettingConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +36,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/api/auth")
+@Slf4j
 public class AuthController {
 
 	@Autowired
@@ -54,50 +61,71 @@ public class AuthController {
 	@Autowired
 	private DeviceOtpService deviceOtpService;
 
+	@Autowired
+	private SuccessHandler successHandler;
+
+	@Autowired
+	private ErrorHandler errorHandler;
+
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
 	@PostMapping("/otp")
-	public ResponseEntity<?> saveOtpLogin(@RequestBody OtpLoginRequest otpLoginRequest) {
-		SystemSetting systemSetting = systemSettingService.findByCode(SystemSettingConstants.OTP_BLOCK);
-		if (systemSetting == null) {
-			return ResponseEntity
-					.ok(new BaseResponse(AppResultCode.AS_DB_ERROR, MessageResult.DATA_NOT_FOUND_CORE));
+	public ApiResponse saveOtpLogin(@RequestBody OtpLoginRequest otpLoginRequest) {
+		long start = System.currentTimeMillis();
+		try {
+			SystemSetting systemSetting = systemSettingService.findByCode(SystemSettingConstants.OTP_BLOCK);
+			if (systemSetting == null) {
+				return successHandler.handlerSuccess(
+						new MessageResponse(AppResultCode.AS_DB_ERROR, MessageResult.DATA_NOT_FOUND_CORE), start);
+			}
+			SimpleDateFormat formatter = new SimpleDateFormat(AppConstants.DATE_FORMAT);
+			Date date = new Date();
+			String strDate = formatter.format(date);
+			List<DeviceOtp> deviceOtps = deviceOtpService.findByDeviceIdAndCreatedDate(otpLoginRequest.getDeviceId(),
+					strDate);
+			if (deviceOtps.size() >= Long.valueOf(systemSetting.getValue())) {
+				return successHandler
+						.handlerSuccess(new MessageResponse(AppResultCode.AS_ERROR, MessageResult.GRD003_OTP), start);
+			}
+
+			this.deviceOtpService.save(otpLoginRequest);
+			return this.successHandler
+					.handlerSuccess(new MessageResponse(AppResultCode.AS_SUCCESS, MessageResult.SUCCESS), start);
+		} catch (Exception e) {
+			log.error("saveOtpLogin:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(start);
 		}
-		SimpleDateFormat formatter = new SimpleDateFormat(AppConstants.DATE_FORMAT);
-		Date date = new Date();
-		String strDate = formatter.format(date);
-		List<DeviceOtp> deviceOtps = deviceOtpService.findByDeviceIdAndCreatedDate(otpLoginRequest.getDeviceId(),
-				strDate);
-		if (deviceOtps.size() >= Long.valueOf(systemSetting.getValue())) {
-			return ResponseEntity
-					.ok(new BaseResponse(AppResultCode.AS_ERROR, MessageResult.GRD003_OTP));
-		}
-		DeviceOtp deviceOtp = deviceOtpService.save(otpLoginRequest);
-		return ResponseEntity
-				.ok(new BaseResponse(AppResultCode.AS_SUCCESS, MessageResult.SUCCESS, deviceOtp));
 
 	}
 
 	@PostMapping("/authentication")
-	public ResponseEntity<?> authentication(@RequestBody UserLoginRequest userLoginRequest) {
-		User userCustomer = userService.findByCuid(userLoginRequest.getCuid()).orElse(null);
+	public ApiResponse authentication(@RequestBody UserLoginRequest userLoginRequest) {
+		long start = System.currentTimeMillis();
+		try {
+			User userCustomer = userService.findByCuid(userLoginRequest.getCuid()).orElse(null);
 
-		if (userCustomer == null) {
-			userCustomer = userService.createUserCustomer(userLoginRequest);
+			if (userCustomer == null) {
+				userCustomer = userService.createUserCustomer(userLoginRequest);
+			}
+			if (userCustomer.isBlockUser()) {
+				return successHandler.handlerSuccess(
+						new MessageResponse(AppResultCode.AS_NOT_FOUND_RECORD, MessageResult.GRD001_BLOCK), start);
+			}
+
+			String jwt = jwtUtils.generateJwtToken(userLoginRequest.getCuid());
+
+			this.saveCustomerLoginHistory(userCustomer, userLoginRequest);
+			return this.successHandler
+					.handlerSuccess(new LoginView(AppResultCode.SUCCESS, MessageResult.SUCCESS, userCustomer.getCuid(),
+							userCustomer.getPhoneNumber(), jwt, userCustomer.getEmail(), userCustomer.isBlockUser(),
+							userCustomer.getNationalId(), userCustomer.getGender(), userCustomer.getFullName()), start);
+		} catch (Exception e) {
+			log.error("authentication:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(start);
 		}
-		if (userCustomer.isBlockUser()) {
-			return ResponseEntity.ok(new BaseResponse(AppResultCode.AS_NOT_FOUND_RECORD, MessageResult.GRD001_BLOCK));
-		}
 
-		String jwt = jwtUtils.generateJwtToken(userLoginRequest.getCuid());
-
-		this.saveCustomerLoginHistory(userCustomer, userLoginRequest);
-
-		return ResponseEntity.ok(new LoginResponse(AppResultCode.AS_SUCCESS, MessageResult.SUCCESS,
-				new LoginView(userCustomer.getCuid(), userCustomer.getPhoneNumber(), jwt, userCustomer.getEmail(),
-						userCustomer.isBlockUser(), userCustomer.getNationalId(), userCustomer.getGender(),
-						userCustomer.getFullName())));
 	}
 
 	private void saveCustomerLoginHistory(User userCustomer, UserLoginRequest userLoginRequest) {
