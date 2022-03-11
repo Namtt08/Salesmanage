@@ -65,7 +65,8 @@ public class AopLogging {
 //		}
 
 		AppLog.Request request = new AppLog.Request(method, fullRequestUrl, header, body,
-				poolProxy.getTotalConnections(), poolProxy.getActiveConnections(), poolProxy.getIdleConnections(),
+				poolProxy
+						.getTotalConnections(), poolProxy.getActiveConnections(), poolProxy.getIdleConnections(),
 				poolProxy.getThreadsAwaitingConnection());
 		MDC.put("header", header);
 		if (isSaveLog) {

@@ -8,14 +8,12 @@ import org.project.manage.entities.CustomerLoginHistory;
 import org.project.manage.entities.DeviceOtp;
 import org.project.manage.entities.SystemSetting;
 import org.project.manage.entities.User;
-import org.project.manage.exception.AppException;
 import org.project.manage.request.OtpLoginRequest;
 import org.project.manage.request.UserLoginRequest;
 import org.project.manage.response.ApiResponse;
-import org.project.manage.response.BaseResponse;
-import org.project.manage.response.LoginResponse;
 import org.project.manage.response.LoginView;
 import org.project.manage.response.MessageResponse;
+import org.project.manage.response.MessageSuccessResponse;
 import org.project.manage.security.JwtUtils;
 import org.project.manage.services.CustomerLoginHistoryService;
 import org.project.manage.services.DeviceOtpService;
@@ -30,7 +28,6 @@ import org.project.manage.util.SystemSettingConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -77,7 +74,7 @@ public class AuthController {
 			SystemSetting systemSetting = systemSettingService.findByCode(SystemSettingConstants.OTP_BLOCK);
 			if (systemSetting == null) {
 				return successHandler.handlerSuccess(
-						new MessageResponse(AppResultCode.AS_DB_ERROR, MessageResult.DATA_NOT_FOUND_CORE), start);
+						new MessageResponse(AppResultCode.AS_ERROR, MessageResult.DATA_NOT_FOUND_CORE), start);
 			}
 			SimpleDateFormat formatter = new SimpleDateFormat(AppConstants.DATE_FORMAT);
 			Date date = new Date();
@@ -90,12 +87,11 @@ public class AuthController {
 			}
 
 			this.deviceOtpService.save(otpLoginRequest);
-			return this.successHandler
-					.handlerSuccess(new MessageResponse(AppResultCode.AS_SUCCESS, MessageResult.SUCCESS), start);
+			return this.successHandler.handlerSuccess(new MessageSuccessResponse(), start);
 		} catch (Exception e) {
 			log.error("saveOtpLogin:" + e.getMessage());
 			e.printStackTrace();
-			return this.errorHandler.handlerException(start);
+			return this.errorHandler.handlerException(e, start);
 		}
 
 	}
@@ -117,28 +113,33 @@ public class AuthController {
 			String jwt = jwtUtils.generateJwtToken(userLoginRequest.getCuid());
 
 			this.saveCustomerLoginHistory(userCustomer, userLoginRequest);
-			
-			return this.successHandler
-					.handlerSuccess(new LoginView(AppResultCode.SUCCESS, MessageResult.SUCCESS, userCustomer.getCuid(),
-							userCustomer.getPhoneNumber(), jwt, userCustomer.getEmail(), userCustomer.isBlockUser(),
-							userCustomer.getNationalId(), userCustomer.getGender(), userCustomer.getFullName()), start);
+
+			return this.successHandler.handlerSuccess(new LoginView(userCustomer.getCuid(),
+					userCustomer.getPhoneNumber(), jwt, userCustomer.getEmail(), userCustomer.isBlockUser(),
+					userCustomer.getNationalId(), userCustomer.getGender(), userCustomer.getFullName()), start);
 		} catch (Exception e) {
 			log.error("authentication:" + e.getMessage());
 			e.printStackTrace();
-			return this.errorHandler.handlerException(e,start);
+			return this.errorHandler.handlerException(e, start);
 		}
 
 	}
 
 	private void saveCustomerLoginHistory(User userCustomer, UserLoginRequest userLoginRequest) {
-		CustomerLoginHistory cusHis = new CustomerLoginHistory();
-		cusHis.setCreatedDate(new Date());
-		cusHis.setUserId(userCustomer.getId());
-		cusHis.setDeviceId(userLoginRequest.getDeviceId());
-		cusHis.setDeviceName(userLoginRequest.getDeviceName());
-		cusHis.setPlatform(userLoginRequest.getPlatform());
-		cusHis.setOsVersion(userLoginRequest.getOsVersion());
-		customerLoginHistoryService.save(cusHis);
+		try {
+			CustomerLoginHistory cusHis = new CustomerLoginHistory();
+			cusHis.setCreatedDate(new Date());
+			cusHis.setUserId(userCustomer.getId());
+			cusHis.setDeviceId(userLoginRequest.getDeviceId());
+			cusHis.setDeviceName(userLoginRequest.getDeviceName());
+			cusHis.setPlatform(userLoginRequest.getPlatform());
+			cusHis.setOsVersion(userLoginRequest.getOsVersion());
+			customerLoginHistoryService.save(cusHis);
+		} catch (Exception e) {
+			log.error("saveCustomerLoginHistory:" + e.getMessage());
+			e.printStackTrace();
+		}
+
 	}
 
 }

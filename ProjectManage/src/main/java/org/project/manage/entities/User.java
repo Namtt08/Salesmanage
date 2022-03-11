@@ -30,8 +30,9 @@ public class User {
 	private String username;
 	private String password;
 	private String phoneNumber;
+	private String phoneNumber2;
 	private String email;
-	private boolean isBlockUser;
+	private boolean isBlockUser = false;
 	private String nationalId;
 	private String fullName;
 	private String gender;
@@ -39,9 +40,11 @@ public class User {
 	private Date createdDate;
 	private Date modifiedDate;
 	private String userType;
+	private Date dob;
 
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), 
+	inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private List<Role> roles;
 
 	public User() {

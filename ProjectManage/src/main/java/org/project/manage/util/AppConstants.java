@@ -4,41 +4,45 @@ import java.time.ZoneId;
 
 public interface AppConstants {
 
-	String USER_CUSTOMER ="USER_CUSTOMER";
-    String DEFAULT_PAGE_NUMBER = "1";
-    String DEFAULT_OFFSET_NUMBER = "0";
-    String DEFAULT_PAGE_SIZE = "25";
+	String USER_CUSTOMER = "USER_CUSTOMER";
+	String USER_INFO = "USER_INFO";
+	String DOCUMENT_INFO = "DOCUMENT_INFO";
+	
+	
+	String DEFAULT_PAGE_NUMBER = "1";
+	String DEFAULT_OFFSET_NUMBER = "0";
+	String DEFAULT_PAGE_SIZE = "25";
 
-    int MAX_PAGE_SIZE = 100;
-    
-    String DATE_FORMAT = "dd/MM/yyyy";
+	int MAX_PAGE_SIZE = 100;
 
-    String DATETIME_FORMAT_ISO = "yyyy-MM-dd HH:mm:ss";
+	String DATE_FORMAT = "dd/MM/yyyy";
 
-    String DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+	String DATETIME_FORMAT_ISO = "yyyy-MM-dd HH:mm:ss";
 
-    String TIME_FORMAT = "HH:mm:ss";
+	String DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
-    String SPACE = " ";
+	String TIME_FORMAT = "HH:mm:ss";
 
-    String DENY_APPLICATION = "deny_application";
-    String DEVICE_ID = "DEVICE-ID";
-    String LANGUAGE_EN = "en";
-    String LANGUAGE_VN = "vn";
+	String SPACE = " ";
 
-    String TOKEN = "TOKEN";
+	String DENY_APPLICATION = "deny_application";
+	String DEVICE_ID = "DEVICE-ID";
+	String LANGUAGE_EN = "en";
+	String LANGUAGE_VN = "vn";
 
-    ZoneId VIETNAM_ZONE = ZoneId.of("Vietnam/Hanoi");
+	String TOKEN = "TOKEN";
 
-    String USER_AGENT = "User-Agent";
-    String INTER_VIEW = "interview";
-    String BINDING= "binding";
-    String NUMBER_DAY_CANCEL_FILE = "NomDayCancelFile";
+	ZoneId VIETNAM_ZONE = ZoneId.of("Vietnam/Hanoi");
 
-    String LEVEL = "1";
+	String USER_AGENT = "User-Agent";
+	String INTER_VIEW = "interview";
+	String BINDING = "binding";
+	String NUMBER_DAY_CANCEL_FILE = "NomDayCancelFile";
 
-    interface Header {
+	String LEVEL = "1";
 
-        String ACCEPT_LANGUAGE = "Accept-Language";
-    }
+	interface Header {
+
+		String ACCEPT_LANGUAGE = "Accept-Language";
+	}
 }

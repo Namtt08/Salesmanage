@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.project.manage.entities.User;
+import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.request.UserLoginRequest;
 
 public interface UserService {
@@ -18,5 +19,7 @@ public interface UserService {
 	public User save(User userCustomer);
 
 	public Optional<User> findByPhoneNumberAndUserType(String phonenumber, String userCustomer);
+
+	public void updateUserInfo(UpdateUserInfo otpLoginRequest, User user) throws Exception;
 
 }

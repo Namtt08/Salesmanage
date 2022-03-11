@@ -24,9 +24,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	@Autowired
 	private UserDetailsServiceImpl userDetailsService;
 	private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("application/json;charset=UTF-8");
 		try {
 			String jwt = JwtParse.getJwtFromRequest(request);
 			if (jwt != null && jwtUtils.validateJwtToken(jwt)) {

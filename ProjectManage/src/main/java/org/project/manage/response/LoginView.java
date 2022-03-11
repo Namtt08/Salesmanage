@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginView extends MessageResponse {
+public class LoginView extends MessageSuccessResponse {
 
 	private String cuid;
 	private String phoneNumber;
@@ -17,9 +17,8 @@ public class LoginView extends MessageResponse {
 	private String gender;
 	private String fullName;
 
-	public LoginView(int code, String message, String cuid, String phoneNumber, String token, String email,
+	public LoginView(String cuid, String phoneNumber, String token, String email,
 			boolean isBlockUser, String nationalId, String gender, String fullName) {
-		super(code, message);
 		this.cuid = cuid;
 		this.phoneNumber = phoneNumber;
 		this.token = token;
@@ -29,5 +28,5 @@ public class LoginView extends MessageResponse {
 		this.gender = gender;
 		this.fullName = fullName;
 	}
-
+	
 }

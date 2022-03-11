@@ -15,14 +15,16 @@ public class UserDetailsImpl implements UserDetails {
 	private Long id;
 	private String cuid;
 	private String phoneNumber;
+	private String userName;
 	private String email;
 	private Collection<? extends GrantedAuthority> authorities;
-	public UserDetailsImpl(Long id, String cuid, String phoneNumber, String email,
+	public UserDetailsImpl(Long id, String cuid, String phoneNumber, String email, String userName,
 			Collection<? extends GrantedAuthority> authorities) {
 		this.id = id;
 		this.cuid = cuid;
 		this.phoneNumber = phoneNumber;
 		this.email = email;
+		this.userName = userName;
 		this.authorities = authorities;
 	}
 	public static UserDetailsImpl build(User user) {
@@ -33,7 +35,8 @@ public class UserDetailsImpl implements UserDetails {
 				user.getId(), 
 				user.getCuid(), 
 				user.getPhoneNumber(),
-				user.getEmail(), 
+				user.getEmail(),
+				user.getUsername(),
 				authorities);
 	}
 	@Override
@@ -86,6 +89,6 @@ public class UserDetailsImpl implements UserDetails {
 	@Override
 	public String getUsername() {
 		// TODO Auto-generated method stub
-		return null;
+		return userName;
 	}
 }

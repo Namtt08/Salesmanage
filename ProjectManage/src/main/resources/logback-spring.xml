@@ -1,102 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <springProfile name="!dev">
-        <property file="/opt/application-data/config/application.properties"/>
-        <springProperty name="elasticsearch.host" source="elasticsearch.host"/>
-        <springProperty name="name.logs" source="name.logs"/>
-    </springProfile>
+	<springProfile name="dev">
+		<property
+			file="src/main/resources/application.properties" />
+		<springProperty name="elasticsearch.host"
+			source="elasticsearch.host" />
+		<springProperty name="name.logs" source="name.logs" />
+	</springProfile>
+	<springProfile name="!dev">
+		<property
+			file="/opt/application-data/config/application.properties" />
+		<springProperty name="elasticsearch.host"
+			source="elasticsearch.host" />
+		<springProperty name="name.logs" source="name.logs" />
+	</springProfile>
 
-    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>
-                %green(%d{${DATETIME_ISO8601}}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}):
-                [%cyan(%mdc{traceID})]: %msg%n%throwable
-            </Pattern>
-        </layout>
-    </appender>
+	<appender name="Console"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				%green(%d{${DATETIME_ISO8601}}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}):
+				[%cyan(%mdc{traceID})]: %msg%n%throwable
+			</Pattern>
+		</layout>
+	</appender>
 
-    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.dir}/garaduong.log</file>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <Pattern>%d %p %C{1.} [%t] [%X{traceID}] %m%n</Pattern>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.dir}/archived/garaduong-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>200MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
-        </rollingPolicy>
-    </appender>
+	<appender name="RollingFile"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.dir}/garaduong.log</file>
+		<encoder
+			class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>%d %p %C{1.} [%t] [%X{traceID}] %m%n</Pattern>
+		</encoder>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.dir}/archived/garaduong-%d{yyyy-MM-dd}.%i.log
+			</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>200MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+	</appender>
 
-    <appender name="ELASTIC" class="com.internetitem.logback.elasticsearch.ElasticsearchAppender">
-        <url>http://${elasticsearch.host}/_bulk</url>
-        <index>${name.logs}</index>
-        <loggerName>es-logger</loggerName>
-        <errorLoggerName>es-error-logger</errorLoggerName>
-        <type>log</type>
+	<appender name="ELASTIC"
+		class="com.internetitem.logback.elasticsearch.ElasticsearchAppender">
+		<url>http://${elasticsearch.host}/_bulk</url>
+		<index>${name.logs}</index>
+		<loggerName>es-logger</loggerName>
+		<errorLoggerName>es-error-logger</errorLoggerName>
+		<type>log</type>
 
-        <properties>
-            <property>
-                <name>host</name>
-                <value>${HOSTNAME}</value>
-                <allowEmpty>false</allowEmpty>
-            </property>
-            <property>
-                <name>level</name>
-                <value>%level</value>
-            </property>
-            <property>
-                <name>thread</name>
-                <value>%thread</value>
-            </property>
-            <property>
-                <name>stacktrace</name>
-                <value>%mdc{traceID}</value>
-            </property>
-            <property>
-                <name>logger</name>
-                <value>%logger</value>
-            </property>
-            <property>
-                <name>data</name>
-                <value>%msg</value>
-            </property>
-            <property>
-                <name>header</name>
-                <value>%mdc{header}</value>
-            </property>
-        </properties>
-        <headers>
-            <header>
-                <name>Content-Type</name>
-                <value>application/json</value>
-            </header>
-        </headers>
-    </appender>
+		<properties>
+			<property>
+				<name>host</name>
+				<value>${HOSTNAME}</value>
+				<allowEmpty>false</allowEmpty>
+			</property>
+			<property>
+				<name>level</name>
+				<value>%level</value>
+			</property>
+			<property>
+				<name>thread</name>
+				<value>%thread</value>
+			</property>
+			<property>
+				<name>stacktrace</name>
+				<value>%mdc{traceID}</value>
+			</property>
+			<property>
+				<name>logger</name>
+				<value>%logger</value>
+			</property>
+			<property>
+				<name>data</name>
+				<value>%msg</value>
+			</property>
+			<property>
+				<name>header</name>
+				<value>%mdc{header}</value>
+			</property>
+		</properties>
+		<headers>
+			<header>
+				<name>Content-Type</name>
+				<value>application/json</value>
+			</header>
+		</headers>
+	</appender>
 
-    <root level="info">
-        <appender-ref ref="Console"/>
-        <appender-ref ref="RollingFile"/>
-        <appender-ref ref="ELASTIC"/>
-    </root>
+	<root level="info">
+		<appender-ref ref="Console" />
+		<appender-ref ref="RollingFile" />
+		<appender-ref ref="ELASTIC" />
+	</root>
 
-    <logger name="org.project.manage" level="info" additivity="false">
-        <appender-ref ref="Console"/>
-        <appender-ref ref="RollingFile"/>
-        <appender-ref ref="ELASTIC"/>
-    </logger>
+	<logger name="org.project.manage" level="info"
+		additivity="false">
+		<appender-ref ref="Console" />
+		<appender-ref ref="RollingFile" />
+		<appender-ref ref="ELASTIC" />
+	</logger>
 
 
-    <logger name="es-error-logger" level="OFF"/>
+	<logger name="es-error-logger" level="OFF" />
 
-    <logger name="es-logger" level="INFO" additivity="false">
-        <appender name="ES_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <encoder>
-                <pattern>%msg
-                </pattern>
-            </encoder>
-        </appender>
-    </logger>
+	<logger name="es-logger" level="INFO" additivity="false">
+		<appender name="ES_FILE"
+			class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<encoder>
+				<pattern>%msg
+				</pattern>
+			</encoder>
+		</appender>
+	</logger>
 
 </configuration>

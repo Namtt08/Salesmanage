@@ -65,7 +65,7 @@ public class RequestUtil {
                             name = list.get(0).getClass().getName();
                         }
                     }
-                    return name.contains("vn.com.shinhanfinance.ishinhan") || name.contains("java.util");
+                    return name.contains("org.project.manage") || name.contains("util");
                 })
                 .findAny().orElse(null);
         return obj;
