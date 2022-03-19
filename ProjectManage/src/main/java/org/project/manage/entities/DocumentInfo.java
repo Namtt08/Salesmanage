@@ -20,7 +20,6 @@ public class DocumentInfo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String idCard;
 	private String drivingLicense;
 	private String vehicleModel;
 	private String vehicleYearProd;
@@ -41,8 +40,6 @@ public class DocumentInfo {
 	private Date cooperativeContractDate;
 	private Date cooperativeContractExpDate;
 	private String other;
-	private String docType;
-	private String docName;
 	private Long userId;
 
 	private Date createdDate;

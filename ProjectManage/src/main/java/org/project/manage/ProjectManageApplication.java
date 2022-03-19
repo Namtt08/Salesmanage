@@ -6,14 +6,18 @@ import java.util.Properties;
 import org.project.manage.util.FileStorageProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = { "org.project.manage" })
+@EnableJpaRepositories({ "org.project.manage" })
+@EntityScan({ "org.project.manage.entities" })
 @EnableConfigurationProperties({ FileStorageProperties.class })
 public class ProjectManageApplication extends SpringBootServletInitializer {
 

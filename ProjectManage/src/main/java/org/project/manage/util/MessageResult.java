@@ -28,10 +28,14 @@ public interface MessageResult {
 
 	String AS_OUT_OF_RESEND_TIMES = "Hết số lần gửi lại OTP";
 
-	String GRD001_BLOCK = " GRD001_Bạn đã bị khóa tài khoản vui lòng liên hệ tổng đài viên";
+	String GRD001_BLOCK = " GRD001: Bạn đã bị khóa tài khoản vui lòng liên hệ tổng đài viên";
 
-	String GRD002_ROLE = "GRD002_Role is not found";
+	String GRD002_ROLE = "GRD002: Role is not found";
 	
-	String GRD003_OTP = "GRD003_Bạn đã vượt quá số lần gửi OTP trong ngày";
+	String GRD003_OTP = "GRD003: Bạn đã vượt quá số lần gửi OTP trong ngày";
+	
+	String GRD004_NOT_FOUND = "GRD004: Thông tin người dùng không tồn tại";
+	
+	String GRD005_NOT_FOUND = "GRD005: Tệp tin không tồn tại";
 	
 }

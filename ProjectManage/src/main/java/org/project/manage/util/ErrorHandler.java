@@ -21,7 +21,7 @@ public class ErrorHandler {
 		if (ex instanceof AppException) {
 			return new ApiResponse(took, new MessageResponse(AppResultCode.AS_ERROR, ex.getMessage()));
 		}
-		return new ApiResponse(AppResultCode.ERROR, ex.getMessage(), took);
+		return new ApiResponse(took, new MessageResponse(AppResultCode.ERROR, ex.getMessage()));
 	}
 
 	public ApiResponse handlerException(long took) {

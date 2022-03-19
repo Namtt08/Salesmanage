@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.project.manage.entities.User;
 import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.request.UserLoginRequest;
+import org.project.manage.response.DocumentInfoResponse;
 
 public interface UserService {
 
@@ -21,5 +22,9 @@ public interface UserService {
 	public Optional<User> findByPhoneNumberAndUserType(String phonenumber, String userCustomer);
 
 	public void updateUserInfo(UpdateUserInfo otpLoginRequest, User user) throws Exception;
+
+	public void updateDocumentInfo(UpdateUserInfo otpLoginRequest, User user) throws Exception;
+
+	public DocumentInfoResponse getDocumentInfo(User user);
 
 }

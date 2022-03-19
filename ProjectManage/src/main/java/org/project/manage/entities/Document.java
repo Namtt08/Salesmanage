@@ -26,13 +26,10 @@ public class Document {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-//	@ManyToOne
-//	@JoinColumn(name = "doc_info_id", nullable = false)
-//	private DocumentInfo documentInfo;
 	private Long docInfoId;
+	private Long userId;
 	private String docPath;
-
+	private String docType;
 	private String createdBy;
 	private Date createdDate;
 	private Date modifiedDate;

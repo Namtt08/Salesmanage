@@ -8,25 +8,22 @@ import javax.validation.constraints.Email;
 import lombok.Data;
 
 @Data
-public class UpdateUserInfo {
+public class UserInfoRequest {
 	
-	//user_info
 	private String phoneNumber2;
 	private String dob;
 	@Email
 	private String email;
 	private String fullName;
 	private String gender;
-	private String nationalId;
-	
-	//document_info
+	private String idCard;
 	private String drivingLicense;
 	private String vehicleModel;
 	private String vehicleYearProd;
 	private String vehicleSit;
 	private String vehicleIssueDate;
-	private String vehicleExpiryDate;
-	private String vehicleType;
+	private String vehecleExpiryDate;
+	private String vehecleType;
 	private String cavetNumber;
 	private String insuranceExpiryDate;
 	private Long insuranceFee;
@@ -40,6 +37,9 @@ public class UpdateUserInfo {
 	private String cooperativeContractDate;
 	private String cooperativeContractExpDate;
 	private String other;
+	//private String docType;
+	//private String docName;
+	private String typeUpdate;//PerInfo || Document
 	private List<DocumentRequest> documents;
 
 }
