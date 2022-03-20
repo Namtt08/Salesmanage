@@ -153,18 +153,19 @@ public class UserServiceImpl implements UserService {
 				user.setDob(formatter.parse(userInfoRq.getDob()));
 			}
 			user.setModifiedDate(date);
+			if (StringUtils.isNotBlank(userInfoRq.getAvatarContent())) {
+				byte[] decodedBytes = Base64.decodeBase64(userInfoRq.getAvatarContent());
+				Tika tika = new Tika();
+				String contentType = tika.detect(decodedBytes);
+				String extension = ContentType.getExtension(contentType);
+				String fileName = "AVATAR" + "_" + UUID.randomUUID() + "." + extension;
+				String filePath = user.getPhoneNumber() + "/" + fileName;
+				Path fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir()).toAbsolutePath().normalize();
 
-			byte[] decodedBytes = Base64.decodeBase64(userInfoRq.getAvatarContent());
-			Tika tika = new Tika();
-			String contentType = tika.detect(decodedBytes);
-			String extension = ContentType.getExtension(contentType);
-			String fileName = "AVATAR" + "_" + UUID.randomUUID() + "." + extension;
-			String filePath = user.getPhoneNumber() + "/" + fileName;
-			Path fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir()).toAbsolutePath().normalize();
-
-			Path targetLocation = fileStorageLocation.resolve(filePath);
-			FileUtils.writeByteArrayToFile(targetLocation.toFile(), decodedBytes);
-			user.setAvatar(fileStorageProperties.getUploadDir() + "/" + filePath);
+				Path targetLocation = fileStorageLocation.resolve(filePath);
+				FileUtils.writeByteArrayToFile(targetLocation.toFile(), decodedBytes);
+				user.setAvatar(fileStorageProperties.getUploadDir() + "/" + filePath);
+			}
 			userRepository.save(user);
 		} catch (Exception e) {
 			log.error("updateUserInfo:" + e.getMessage());
