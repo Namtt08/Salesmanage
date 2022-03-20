@@ -113,10 +113,14 @@ public class AuthController {
 			String jwt = jwtUtils.generateJwtToken(userLoginRequest.getCuid());
 
 			this.saveCustomerLoginHistory(userCustomer, userLoginRequest);
-
+			String dob = null;
+			if (userCustomer.getDob() != null) {
+				SimpleDateFormat formatter = new SimpleDateFormat(AppConstants.DATE_FORMAT);
+				dob = formatter.format(userCustomer.getDob());
+			}
 			return this.successHandler.handlerSuccess(new LoginView(userCustomer.getCuid(),
 					userCustomer.getPhoneNumber(), jwt, userCustomer.getEmail(), userCustomer.isBlockUser(),
-					userCustomer.getNationalId(), userCustomer.getGender(), userCustomer.getFullName()), start);
+					userCustomer.getNationalId(), userCustomer.getGender(), userCustomer.getFullName(),userCustomer.getAvatar(), dob, userCustomer.getPhoneNumber2()), start);
 		} catch (Exception e) {
 			log.error("authentication:" + e.getMessage());
 			e.printStackTrace();

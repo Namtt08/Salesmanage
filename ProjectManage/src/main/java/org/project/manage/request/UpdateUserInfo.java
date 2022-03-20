@@ -18,6 +18,7 @@ public class UpdateUserInfo {
 	private String fullName;
 	private String gender;
 	private String nationalId;
+	private String avatarContent;
 	
 	//document_info
 	private String drivingLicense;

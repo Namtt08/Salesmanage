@@ -8,10 +8,11 @@ import lombok.Data;
 
 @Data
 public class DocumentResponse {
-
-	private List<FilePathRespone> files;
 	private String docType;
 	private String fileName;
 	private String docName;
+	private Integer totalDoc;
+	private String uploadType;
+	private List<FilePathRespone> files;
 
 }

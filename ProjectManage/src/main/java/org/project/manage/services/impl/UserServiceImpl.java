@@ -73,13 +73,13 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private FileStorageProperties fileStorageProperties;
-	
+
 	@Autowired
 	private DocumentTypeRepository documentTypeRepository;
 
 	@Bean
 	public ModelMapper modelMapper() {
-	 return new ModelMapper();
+		return new ModelMapper();
 	}
 
 	@Override
@@ -153,6 +153,18 @@ public class UserServiceImpl implements UserService {
 				user.setDob(formatter.parse(userInfoRq.getDob()));
 			}
 			user.setModifiedDate(date);
+
+			byte[] decodedBytes = Base64.decodeBase64(userInfoRq.getAvatarContent());
+			Tika tika = new Tika();
+			String contentType = tika.detect(decodedBytes);
+			String extension = ContentType.getExtension(contentType);
+			String fileName = "AVATAR" + "_" + UUID.randomUUID() + "." + extension;
+			String filePath = user.getPhoneNumber() + "/" + fileName;
+			Path fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir()).toAbsolutePath().normalize();
+
+			Path targetLocation = fileStorageLocation.resolve(filePath);
+			FileUtils.writeByteArrayToFile(targetLocation.toFile(), decodedBytes);
+			user.setAvatar(fileStorageProperties.getUploadDir() + "/" + filePath);
 			userRepository.save(user);
 		} catch (Exception e) {
 			log.error("updateUserInfo:" + e.getMessage());
@@ -330,28 +342,109 @@ public class UserServiceImpl implements UserService {
 		List<DocumentType> documentTypeList = documentTypeRepository.findAll();
 		List<DocumentResponse> docResponse = new ArrayList<>();
 		for (DocumentType documentType : documentTypeList) {
-			List<Document> documentList = this.documentRepository.findByDocTypeAndDocInfoId(documentType.getDocType() ,documentInfo.getId());
-			if(documentList != null && !documentList.isEmpty()) {
-				DocumentResponse documentResponse = new DocumentResponse();
-				documentResponse.setDocType(documentType.getDocType());
-				documentResponse.setDocName(documentType.getDocName());
+			DocumentResponse documentResponse = new DocumentResponse();
+			documentResponse.setDocType(documentType.getDocType());
+			documentResponse.setDocName(documentType.getDocName());
+			documentResponse.setTotalDoc(documentType.getTotalDoc());
+			documentResponse.setUploadType(documentType.getUploadType());
+			List<Document> documentList = this.documentRepository.findByDocTypeAndDocInfoId(documentType.getDocType(),
+					documentInfo.getId());
+			if (documentList != null && !documentList.isEmpty()) {
 				List<FilePathRespone> listFiles = new ArrayList<>();
 				for (Document document : documentList) {
-					FilePathRespone filePath= new FilePathRespone();
-					filePath.setFilePath(document.getDocPath());
+					FilePathRespone filePath = new FilePathRespone();
+					filePath.setPaths(document.getDocPath());
 					listFiles.add(filePath);
 				}
 				documentResponse.setFiles(listFiles);
-				docResponse.add(documentResponse);
+
 			}
+			docResponse.add(documentResponse);
 		}
 		response.setDocuments(docResponse);
 		return response;
 	}
 
 	private DocumentInfoResponse convertDocumentInfoEntityToDto(DocumentInfo documentInfo) {
-		DocumentInfoResponse dto = this.modelMapper().map(documentInfo, DocumentInfoResponse.class);
-		return dto;
+		DocumentInfoResponse info = new DocumentInfoResponse();
+		SimpleDateFormat formatter = new SimpleDateFormat(AppConstants.DATE_FORMAT);
+		if (StringUtils.isNotBlank(documentInfo.getDrivingLicense())) {
+			info.setDrivingLicense(documentInfo.getDrivingLicense());
+		}
+
+		if (StringUtils.isNotBlank(documentInfo.getVehicleModel())) {
+			info.setVehicleModel(documentInfo.getVehicleModel());
+		}
+
+		if (StringUtils.isNotBlank(documentInfo.getVehicleYearProd())) {
+			info.setVehicleYearProd(documentInfo.getVehicleYearProd());
+		}
+
+		if (StringUtils.isNotBlank(documentInfo.getVehicleSit())) {
+			info.setVehicleSit(documentInfo.getVehicleSit());
+		}
+
+		if (documentInfo.getVehicleIssueDate() != null) {
+			info.setVehicleIssueDate(formatter.format(documentInfo.getVehicleIssueDate()));
+		}
+
+		if (documentInfo.getVehicleExpiryDate() != null) {
+			info.setVehicleExpiryDate(formatter.format(documentInfo.getVehicleExpiryDate()));
+		}
+
+		if (StringUtils.isNotBlank(documentInfo.getVehicleType())) {
+			info.setVehicleType(documentInfo.getVehicleType());
+		}
+
+		if (StringUtils.isNotBlank(documentInfo.getCavetNumber())) {
+			info.setCavetNumber(documentInfo.getCavetNumber());
+		}
+
+		if (documentInfo.getInsuranceExpiryDate() != null) {
+			info.setInsuranceExpiryDate(formatter.format(documentInfo.getInsuranceExpiryDate()));
+		}
+
+		if (documentInfo.getInsuranceFee() != null) {
+			info.setInsuranceFee(documentInfo.getInsuranceFee());
+		}
+
+		if (StringUtils.isNotBlank(documentInfo.getInsuranceCompany())) {
+			info.setInsuranceCompany(documentInfo.getInsuranceCompany());
+		}
+
+		if (documentInfo.getCivilInsuranceExpDate() != null) {
+			info.setCivilInsuranceExpDate(formatter.format(documentInfo.getCivilInsuranceExpDate()));
+		}
+
+		if (documentInfo.getCivilInsuranceFee() != null) {
+			info.setCivilInsuranceFee(documentInfo.getCivilInsuranceFee());
+		}
+
+		if (StringUtils.isNotBlank(documentInfo.getCivilInsuranceCompany())) {
+			info.setCivilInsuranceCompany(documentInfo.getCivilInsuranceCompany());
+		}
+
+		if (documentInfo.getCooperativeDate() != null) {
+			info.setCooperativeDate(formatter.format(documentInfo.getCooperativeDate()));
+		}
+
+		if (StringUtils.isNotBlank(documentInfo.getCooperativeDueDate())) {
+			info.setCooperativeDueDate(documentInfo.getCooperativeDueDate());
+		}
+
+		if (documentInfo.getCooperativeContractDate() != null) {
+			info.setCooperativeContractDate(formatter.format(documentInfo.getCooperativeContractDate()));
+		}
+
+		if (documentInfo.getCooperativeContractExpDate() != null) {
+			info.setCooperativeContractExpDate(formatter.format(documentInfo.getCooperativeContractExpDate()));
+		}
+
+		if (StringUtils.isNotBlank(documentInfo.getOther())) {
+			info.setOther(documentInfo.getOther());
+		}
+
+		return info;
 	}
 
 }

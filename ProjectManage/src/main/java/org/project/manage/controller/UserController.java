@@ -101,7 +101,7 @@ public class UserController {
 			return this.successHandler
 					.handlerSuccess(
 							new UserInfoResponse(user.getCuid(), user.getNationalId(), dob, user.getFullName(),
-									user.getPhoneNumber(), user.getEmail(), user.getGender(), user.getPhoneNumber2()),
+									user.getPhoneNumber(), user.getEmail(), user.getGender(), user.getPhoneNumber2(),user.getAvatar()),
 							start);
 		} catch (Exception e) {
 			log.error("getUserInfo:" + e.getMessage());

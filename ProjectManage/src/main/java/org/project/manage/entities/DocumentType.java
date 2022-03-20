@@ -17,6 +17,8 @@ public class DocumentType {
 	private Long id;
 	private String docType;
 	private String docName;
+	private Integer totalDoc;
+	private String uploadType;
 
 	public DocumentType() {
 	}

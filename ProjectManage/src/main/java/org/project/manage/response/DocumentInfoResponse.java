@@ -12,8 +12,8 @@ public class DocumentInfoResponse  extends MessageSuccessResponse{
 	private String vehicleYearProd;
 	private String vehicleSit;
 	private String vehicleIssueDate;
-	private String vehecleExpiryDate;
-	private String vehecleType;
+	private String vehicleExpiryDate;
+	private String vehicleType;
 	private String cavetNumber;
 	private String insuranceExpiryDate;
 	private Long insuranceFee;
