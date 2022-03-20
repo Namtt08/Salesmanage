@@ -13,6 +13,6 @@ public class DocumentResponse {
 	private String docName;
 	private Integer totalDoc;
 	private String uploadType;
-	private List<FilePathRespone> files;
+	private List<FilePathRespone> paths;
 
 }

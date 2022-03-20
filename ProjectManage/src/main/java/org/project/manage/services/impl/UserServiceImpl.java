@@ -354,10 +354,10 @@ public class UserServiceImpl implements UserService {
 				List<FilePathRespone> listFiles = new ArrayList<>();
 				for (Document document : documentList) {
 					FilePathRespone filePath = new FilePathRespone();
-					filePath.setPaths(document.getDocPath());
+					filePath.setFilePath(document.getDocPath());
 					listFiles.add(filePath);
 				}
-				documentResponse.setFiles(listFiles);
+				documentResponse.setPaths(listFiles);
 
 			}
 			docResponse.add(documentResponse);

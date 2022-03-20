@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class FilePathRespone {
 	
-	private String paths;
+	private String filePath;
 
 }
