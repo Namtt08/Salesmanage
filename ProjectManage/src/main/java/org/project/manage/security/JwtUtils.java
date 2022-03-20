@@ -1,26 +1,33 @@
 package org.project.manage.security;
 
 import java.util.Date;
+
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import io.jsonwebtoken.*;
+
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 
 @Component
 public class JwtUtils {
 	private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 	@Value("${bezkoder.app.jwtSecret}")
 	private String jwtSecret;
-	@Value("${bezkoder.app.jwtExpirationMs}")
-	private int jwtExpirationMs;
+	@Value("${bezkoder.app.jwtExpirationDay}")
+	private int jwtExpirationDay;
 
 	public String generateJwtToken(String cuid) {
 		// UserDetailsImpl userPrincipal = (UserDetailsImpl)
 		// authentication.getPrincipal();
 		return Jwts.builder().setSubject(cuid).setIssuedAt(new Date())
-				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+				.setExpiration(DateUtils.addDays(new Date(), jwtExpirationDay))
 				.signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
 	}
 

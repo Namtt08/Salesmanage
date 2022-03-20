@@ -37,6 +37,7 @@ public class DocumentInfo {
 	private Date cooperativeDate;
 	private Date cooperativeExpDate;
 	private String cooperativeDueDate;
+	private String cooperativeContractPeriod;
 	private Date cooperativeContractDate;
 	private Date cooperativeContractExpDate;
 	private String other;

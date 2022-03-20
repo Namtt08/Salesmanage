@@ -261,6 +261,10 @@ public class UserServiceImpl implements UserService {
 			info.setCooperativeDueDate(userInfoRq.getCooperativeDueDate());
 		}
 
+		if (StringUtils.isNotBlank(userInfoRq.getCooperativeContractPeriod())) {
+			info.setCooperativeContractPeriod(userInfoRq.getCooperativeContractPeriod());
+		}
+		
 		if (StringUtils.isNotBlank(userInfoRq.getCooperativeContractDate())) {
 			info.setCooperativeContractDate(formatter.parse(userInfoRq.getCooperativeContractDate()));
 		}
@@ -431,6 +435,10 @@ public class UserServiceImpl implements UserService {
 
 		if (StringUtils.isNotBlank(documentInfo.getCooperativeDueDate())) {
 			info.setCooperativeDueDate(documentInfo.getCooperativeDueDate());
+		}
+		
+		if (StringUtils.isNotBlank(documentInfo.getCooperativeContractPeriod())) {
+			info.setCooperativeContractPeriod(documentInfo.getCooperativeContractPeriod());
 		}
 
 		if (documentInfo.getCooperativeContractDate() != null) {

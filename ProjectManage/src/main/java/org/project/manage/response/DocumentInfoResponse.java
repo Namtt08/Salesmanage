@@ -24,6 +24,7 @@ public class DocumentInfoResponse  extends MessageSuccessResponse{
 	private String cooperativeDate;
 	private String cooperativeExpDate;
 	private String cooperativeDueDate;
+	private String cooperativeContractPeriod;
 	private String cooperativeContractDate;
 	private String cooperativeContractExpDate;
 	private String other;
