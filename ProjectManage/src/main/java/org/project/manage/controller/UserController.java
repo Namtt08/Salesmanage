@@ -59,7 +59,7 @@ public class UserController {
 		long start = System.currentTimeMillis();
 		try {
 			String name = SecurityContextHolder.getContext().getAuthentication().getName();
-			User user = userService.findByPhoneNumber(name)
+			User user = userService.findByUsername(name)
 					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
 			this.userService.updateUserInfo(otpLoginRequest, user);
 			return this.successHandler.handlerSuccess(new MessageSuccessResponse(), start);
@@ -75,7 +75,7 @@ public class UserController {
 		long start = System.currentTimeMillis();
 		try {
 			String name = SecurityContextHolder.getContext().getAuthentication().getName();
-			User user = userService.findByPhoneNumber(name)
+			User user = userService.findByUsername(name)
 					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
 			this.userService.updateDocumentInfo(otpLoginRequest, user);
 			return this.successHandler.handlerSuccess(new MessageSuccessResponse(), start);
@@ -91,7 +91,7 @@ public class UserController {
 		long start = System.currentTimeMillis();
 		try {
 			String name = SecurityContextHolder.getContext().getAuthentication().getName();
-			User user = userService.findByPhoneNumber(name)
+			User user = userService.findByUsername(name)
 					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
 			String dob = null;
 			if (user.getDob() != null) {
@@ -115,7 +115,7 @@ public class UserController {
 		long start = System.currentTimeMillis();
 		try {
 			String name = SecurityContextHolder.getContext().getAuthentication().getName();
-			User user = userService.findByPhoneNumber(name)
+			User user = userService.findByUsername(name)
 					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
 			DocumentInfoResponse response = userService.getDocumentInfo(user);
 			return this.successHandler.handlerSuccess(response, start);
@@ -141,7 +141,7 @@ public class UserController {
 			log.error("getImage1:" + ex.getMessage());
 		}
 		if (contentType == null) {
-			contentType = "application/octet-stream";
+			contentType =MediaType.APPLICATION_OCTET_STREAM_VALUE;
 		}
 
 		return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(resource);

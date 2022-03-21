@@ -264,7 +264,7 @@ public class UserServiceImpl implements UserService {
 		if (StringUtils.isNotBlank(userInfoRq.getCooperativeContractPeriod())) {
 			info.setCooperativeContractPeriod(userInfoRq.getCooperativeContractPeriod());
 		}
-		
+
 		if (StringUtils.isNotBlank(userInfoRq.getCooperativeContractDate())) {
 			info.setCooperativeContractDate(formatter.parse(userInfoRq.getCooperativeContractDate()));
 		}
@@ -341,6 +341,17 @@ public class UserServiceImpl implements UserService {
 		DocumentInfo documentInfo = this.documentInfoRepository.findByUserIdAndDeletedDateIsNull(user.getId())
 				.orElse(null);
 		if (documentInfo == null) {
+			List<DocumentType> documentTypeList = documentTypeRepository.findAll();
+			List<DocumentResponse> docResponse = new ArrayList<>();
+			for (DocumentType documentType : documentTypeList) {
+				DocumentResponse documentResponse = new DocumentResponse();
+				documentResponse.setDocType(documentType.getDocType());
+				documentResponse.setDocName(documentType.getDocName());
+				documentResponse.setTotalDoc(documentType.getTotalDoc());
+				documentResponse.setUploadType(documentType.getUploadType());
+				docResponse.add(documentResponse);
+			}
+			response.setDocuments(docResponse);
 			return response;
 		}
 		response = this.convertDocumentInfoEntityToDto(documentInfo);
@@ -436,7 +447,7 @@ public class UserServiceImpl implements UserService {
 		if (StringUtils.isNotBlank(documentInfo.getCooperativeDueDate())) {
 			info.setCooperativeDueDate(documentInfo.getCooperativeDueDate());
 		}
-		
+
 		if (StringUtils.isNotBlank(documentInfo.getCooperativeContractPeriod())) {
 			info.setCooperativeContractPeriod(documentInfo.getCooperativeContractPeriod());
 		}
@@ -454,6 +465,12 @@ public class UserServiceImpl implements UserService {
 		}
 
 		return info;
+	}
+
+	@Override
+	public Optional<User> findByUsername(String username) {
+
+		return userRepository.findByUsername(username);
 	}
 
 }

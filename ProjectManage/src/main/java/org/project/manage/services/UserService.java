@@ -26,5 +26,7 @@ public interface UserService {
 	public void updateDocumentInfo(UpdateUserInfo otpLoginRequest, User user) throws Exception;
 
 	public DocumentInfoResponse getDocumentInfo(User user);
+	
+	public Optional<User> findByUsername(String username);
 
 }
