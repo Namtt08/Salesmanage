@@ -26,7 +26,7 @@ public class RequestUtil {
     private static final int LENGTH = 8;
 
     public static String getDeviceFromRequest(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader(AppConstants.DEVICE_ID)).orElse(Strings.EMPTY);
+        return Optional.ofNullable(request.getHeader(AppConstants.deviceId)).orElse(Strings.EMPTY);
     }
 
 
@@ -78,9 +78,15 @@ public class RequestUtil {
             String subStringLast = StringUtils.substring(jwt, jwt.length() - RequestUtil.LENGTH);
             jwt = StringUtils.repeat("*", 4) + StringUtils.repeat(".", 3) + subStringLast;
         }
-        String deviceId = request.getHeader(AppConstants.DEVICE_ID);
+        String deviceId = request.getHeader(AppConstants.deviceId);
+        String deviceName = request.getHeader(AppConstants.deviceName);
+        String platform = request.getHeader(AppConstants.platform);
+        String osVersion = request.getHeader(AppConstants.osVersion);
         map.put(AppConstants.TOKEN, jwt);
-        map.put(AppConstants.DEVICE_ID, deviceId);
+        map.put(AppConstants.deviceId, deviceId);
+        map.put(AppConstants.deviceName, deviceName);
+        map.put(AppConstants.platform, platform);
+        map.put(AppConstants.osVersion, osVersion);
         return map.toString();
     }
 

@@ -26,7 +26,12 @@ public interface AppConstants {
 	String SPACE = " ";
 
 	String DENY_APPLICATION = "deny_application";
-	String DEVICE_ID = "DEVICE-ID";
+	
+	String deviceId = "deviceId";
+	String deviceName ="deviceName";
+	String platform ="platform";
+	String osVersion ="osVersion";
+	
 	String LANGUAGE_EN = "en";
 	String LANGUAGE_VN = "vn";
 
