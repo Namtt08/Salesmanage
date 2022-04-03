@@ -64,7 +64,7 @@ public class UserController {
 			this.userService.updateUserInfo(otpLoginRequest, user);
 			return this.successHandler.handlerSuccess(new MessageSuccessResponse(), start);
 		} catch (Exception e) {
-			log.error("update-info:" + e.getMessage());
+			log.error("#updateUserInfo#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
@@ -80,7 +80,7 @@ public class UserController {
 			this.userService.updateDocumentInfo(otpLoginRequest, user);
 			return this.successHandler.handlerSuccess(new MessageSuccessResponse(), start);
 		} catch (Exception e) {
-			log.error("update-info:" + e.getMessage());
+			log.error("#updateDocumentInfo#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
@@ -104,7 +104,7 @@ public class UserController {
 									user.getPhoneNumber(), user.getEmail(), user.getGender(), user.getPhoneNumber2(),user.getAvatar()),
 							start);
 		} catch (Exception e) {
-			log.error("getUserInfo:" + e.getMessage());
+			log.error("#getUserInfo#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
@@ -120,7 +120,7 @@ public class UserController {
 			DocumentInfoResponse response = userService.getDocumentInfo(user);
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
-			log.error("getDocumentInfo:" + e.getMessage());
+			log.error("#getDocumentInfo#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
@@ -157,7 +157,7 @@ public class UserController {
 				throw new AppException(MessageResult.GRD005_NOT_FOUND);
 			}
 		} catch (Exception ex) {
-			log.error("loadFileAsResource:" + ex.getMessage());
+			log.error("#loadFileAsResource#ERROR#:" + ex.getMessage());
 			throw new AppException(MessageResult.GRD005_NOT_FOUND);
 		}
 	}

@@ -89,7 +89,7 @@ public class AuthController {
 			this.deviceOtpService.save(otpLoginRequest);
 			return this.successHandler.handlerSuccess(new MessageSuccessResponse(), start);
 		} catch (Exception e) {
-			log.error("saveOtpLogin:" + e.getMessage());
+			log.error("#saveOtpLogin#ERROR:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
@@ -122,7 +122,7 @@ public class AuthController {
 					userCustomer.getPhoneNumber(), jwt, userCustomer.getEmail(), userCustomer.isBlockUser(),
 					userCustomer.getNationalId(), userCustomer.getGender(), userCustomer.getFullName(),userCustomer.getAvatar(), dob, userCustomer.getPhoneNumber2()), start);
 		} catch (Exception e) {
-			log.error("authentication:" + e.getMessage());
+			log.error("#authentication#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
@@ -140,7 +140,7 @@ public class AuthController {
 			cusHis.setOsVersion(userLoginRequest.getOsVersion());
 			customerLoginHistoryService.save(cusHis);
 		} catch (Exception e) {
-			log.error("saveCustomerLoginHistory:" + e.getMessage());
+			log.error("#saveCustomerLoginHistory#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 		}
 

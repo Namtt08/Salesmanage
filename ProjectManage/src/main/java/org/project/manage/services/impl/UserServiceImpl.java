@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
 			userRepository.save(user);
 			return user;
 		} catch (Exception e) {
-			log.error("createUserCustomer" + e.getMessage());
+			log.error("#createUserCustomer#ERROR#" + e.getMessage());
 			throw e;
 		}
 
@@ -168,7 +168,7 @@ public class UserServiceImpl implements UserService {
 			}
 			userRepository.save(user);
 		} catch (Exception e) {
-			log.error("updateUserInfo:" + e.getMessage());
+			log.error("#updateUserInfo#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			throw e;
 		}
@@ -328,7 +328,7 @@ public class UserServiceImpl implements UserService {
 
 			}
 		} catch (Exception e) {
-			log.error("updateDocumentInfo:" + e.getMessage());
+			log.error("#updateDocumentInfo#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			throw e;
 		}
