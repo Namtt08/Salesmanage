@@ -70,7 +70,7 @@ public class TestController {
 		try {
 			return this.successHandler.handlerSuccess(new MessageSuccessResponse(), start);
 		} catch (Exception e) {
-			log.error("##saveOtpLogin:" + e.getMessage());
+			log.error("#test#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
@@ -83,7 +83,7 @@ public class TestController {
 			emailService.sendEmail(mailDto);
 			return this.successHandler.handlerSuccess(new MessageSuccessResponse(), start);
 		} catch (Exception e) {
-			log.error("testSendMail:" + e.getMessage());
+			log.error("#testSendMail#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
