@@ -68,7 +68,7 @@ public class ProductController {
 			ProductDetailResponse response = this.productService.getProductDetail(id); 
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
-			log.error("#getProduct#ERROR#:" + e.getMessage());
+			log.error("#getProductDetail#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
