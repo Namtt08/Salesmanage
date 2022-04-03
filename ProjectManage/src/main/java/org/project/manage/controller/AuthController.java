@@ -25,10 +25,7 @@ import org.project.manage.util.ErrorHandler;
 import org.project.manage.util.MessageResult;
 import org.project.manage.util.SuccessHandler;
 import org.project.manage.util.SystemSettingConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,9 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/auth")
 @Slf4j
 public class AuthController {
-
-	@Autowired
-	private AuthenticationManager authenticationManager;
 
 	@Autowired
 	private JwtUtils jwtUtils;
@@ -64,8 +58,6 @@ public class AuthController {
 
 	@Autowired
 	private ErrorHandler errorHandler;
-
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@PostMapping("/otp")
 	public ApiResponse saveOtpLogin(@RequestBody OtpLoginRequest otpLoginRequest) {

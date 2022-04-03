@@ -11,11 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
 @Transactional
-@Slf4j
 public class DeviceOtpServiceImpl implements DeviceOtpService {
 	
 	@Autowired
@@ -23,7 +20,6 @@ public class DeviceOtpServiceImpl implements DeviceOtpService {
 	
 	@Override
 	public List<DeviceOtp> findByDeviceIdAndCreatedDate(String deviceId, String fORMAT_DATE) {
-		// TODO Auto-generated method stub
 		return deviceOtpRepository.findByDeviceIdAndCreatedDate(deviceId, fORMAT_DATE);
 	}
 
