@@ -2,9 +2,13 @@ package org.project.manage.response;
 
 import java.util.List;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
 public class DocumentInfoResponse  extends MessageSuccessResponse{
 
 	private String drivingLicense;

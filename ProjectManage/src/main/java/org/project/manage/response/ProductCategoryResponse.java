@@ -3,12 +3,14 @@ package org.project.manage.response;
 import java.util.List;
 
 import org.project.manage.dto.ProductCategoryDto;
-import org.project.manage.util.AppResultCode;
-import org.project.manage.util.MessageResult;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
 public class ProductCategoryResponse extends MessageSuccessResponse {
 	private List<ProductCategoryDto> listCategory;
 	

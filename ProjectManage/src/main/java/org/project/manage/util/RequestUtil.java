@@ -52,7 +52,7 @@ public class RequestUtil {
         }
         return body;
     }
-
+    @SuppressWarnings("rawtypes")
     private static Object getBodyObject(JoinPoint joinPoint) {
         Object obj = Stream.of(joinPoint.getArgs())
                 .filter(Objects::nonNull)
@@ -60,7 +60,7 @@ public class RequestUtil {
                     Class<?> aClass = o.getClass();
                     String name = aClass.getName();
                     if (o instanceof List) {
-                        List<?> list = (List) o;
+						List<?> list = (List) o;
                         if (!CollectionUtils.isEmpty(list)) {
                             name = list.get(0).getClass().getName();
                         }

@@ -2,8 +2,6 @@ package org.project.manage.response;
 
 import java.util.List;
 
-import org.project.manage.request.FileContentRequest;
-
 import lombok.Data;
 
 @Data

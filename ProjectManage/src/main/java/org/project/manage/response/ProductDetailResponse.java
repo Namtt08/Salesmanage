@@ -6,9 +6,13 @@ import org.project.manage.dto.ProductDocmentDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
 public class ProductDetailResponse extends MessageSuccessResponse{
 
 	private Long id;

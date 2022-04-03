@@ -1,6 +1,5 @@
 package org.project.manage.request;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.validation.constraints.Email;

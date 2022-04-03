@@ -4,9 +4,13 @@ import java.util.List;
 
 import org.project.manage.dto.ProductDto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
 public class ListProductRespose extends MessageSuccessResponse {
 	private int total;
 	private List<ProductDto> listProduct;

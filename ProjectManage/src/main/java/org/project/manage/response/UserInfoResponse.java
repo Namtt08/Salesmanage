@@ -1,8 +1,12 @@
 package org.project.manage.response;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
 public class UserInfoResponse extends MessageSuccessResponse{
 	private String cuid;
 	private String nationalId;
