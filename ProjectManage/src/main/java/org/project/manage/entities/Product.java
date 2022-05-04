@@ -27,7 +27,7 @@ public class Product {
 	private String chassisNumber;
 	private String licensePlate;
 	private String saleStatus;
-	private String userId;
+	private Long userId;
 	private Date createdDate;
 	private String productName;
 	private Long productCategoryId;
@@ -37,5 +37,6 @@ public class Product {
 	private String status;
 	private String salesType;
 	private Long price;
+	private String productDesc;
 
 }

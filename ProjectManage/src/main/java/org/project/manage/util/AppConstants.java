@@ -45,6 +45,9 @@ public interface AppConstants {
 	String NUMBER_DAY_CANCEL_FILE = "NomDayCancelFile";
 
 	String LEVEL = "1";
+	
+	String addition = "addition";
+	String decrease = "decrease";
 
 	interface Header {
 

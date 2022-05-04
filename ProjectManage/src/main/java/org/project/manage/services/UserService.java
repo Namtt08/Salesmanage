@@ -28,5 +28,7 @@ public interface UserService {
 	public DocumentInfoResponse getDocumentInfo(User user);
 	
 	public Optional<User> findByUsername(String username);
+	
+	public Optional<User> findById(Long id);
 
 }

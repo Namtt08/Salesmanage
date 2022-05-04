@@ -38,4 +38,12 @@ public interface MessageResult {
 	
 	String GRD005_NOT_FOUND = "GRD005: Tệp tin không tồn tại";
 	
+	String GRD006_PRODUCT = "Sản phẩm đã bị xóa hoặc tạm ngưng bán hàng";
+	
+	String GRD007_PRODUCT = "Sản phẩm đã hết hàng";
+	
+	String GRD008_PRODUCT = "Sản phẩm đã đạt số lượng tối đa: ";
+	
+	String GRD009_PRODUCT = "Sản phẩm đã đạt số lượng tối đa";
+	
 }

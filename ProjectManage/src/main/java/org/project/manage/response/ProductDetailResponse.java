@@ -34,5 +34,8 @@ public class ProductDetailResponse extends MessageSuccessResponse{
 	private String createdDate;
 	@JsonInclude(JsonInclude.Include.ALWAYS)
 	private List<ProductDocmentDto> productDocuments;
+	private String productDesc;
+	private Long partnerId;
+	private String partnerName;
 
 }

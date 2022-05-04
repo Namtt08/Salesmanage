@@ -12,6 +12,7 @@ import org.project.manage.dto.ProductDto;
 import org.project.manage.entities.Product;
 import org.project.manage.entities.ProductCategory;
 import org.project.manage.entities.ProductDocument;
+import org.project.manage.entities.User;
 import org.project.manage.repository.ProductCategoryRepository;
 import org.project.manage.repository.ProductDocumentRepository;
 import org.project.manage.repository.ProductRepository;
@@ -19,6 +20,7 @@ import org.project.manage.request.ProductListRequest;
 import org.project.manage.response.ListProductRespose;
 import org.project.manage.response.ProductDetailResponse;
 import org.project.manage.services.ProductService;
+import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,9 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private ProductDocumentRepository productDocumentRepository;
+	
+	@Autowired
+	private UserService userService;
 
 	@Override
 	public List<ProductCategoryDto> getAllProductCategory() {
@@ -91,6 +96,7 @@ public class ProductServiceImpl implements ProductService {
 				response.setLicensePlate(product.getLicensePlate());
 				response.setSaleStatus(product.getSaleStatus());
 				response.setProductName(product.getProductName());
+				response.setProductDesc(product.getProductDesc());
 				if (product.getProductCategoryId() != null) {
 					ProductCategory productCategory = productCategoryRepository.findById(product.getProductCategoryId())
 							.orElse(null);
@@ -102,6 +108,14 @@ public class ProductServiceImpl implements ProductService {
 				response.setPrice(product.getPrice());
 				if (product.getCreatedDate() != null) {
 					response.setCreatedDate(formatter.format(product.getCreatedDate()));
+				}
+				
+				response.setPartnerId(product.getUserId());
+				if(product.getUserId()!= null) {
+					User user = userService.findById(id).orElse(null);
+					if(user != null) {
+						response.setPartnerName(user.getFullName());
+					}
 				}
 				List<ProductDocument> productDocumentList = productDocumentRepository.findByProductId(product.getId());
 				if (productDocumentList != null && !productDocumentList.isEmpty()) {
