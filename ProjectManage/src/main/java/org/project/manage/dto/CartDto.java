@@ -11,4 +11,5 @@ public class CartDto {
 	private Long partnerId;
 	private String partnerName;
 	private Long totalProduct;
+	private String bannerPath;
 }

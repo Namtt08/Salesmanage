@@ -9,6 +9,7 @@ import org.project.manage.entities.Product;
 import org.project.manage.entities.User;
 import org.project.manage.exception.AppException;
 import org.project.manage.repository.CartTempRepository;
+import org.project.manage.repository.ProductDocumentRepository;
 import org.project.manage.repository.ProductRepository;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.request.CartAddRequest;
@@ -34,6 +35,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	ProductDocumentRepository productDocumentRepository;
 
 	@Override
 	public CartResponse addCart(CartAddRequest request, User user) {
@@ -163,9 +167,10 @@ public class OrderProductServiceImpl implements OrderProductService {
 				if (product == null) {
 					continue;
 				}
+				String bannerProduct= productDocumentRepository.getdocPathProductByIdAndPosition(product.getId(), 1L);
 				productCart.setProductName(product.getProductName());
 				productCart.setPrice(product.getPrice());
-
+				productCart.setBannerPath(bannerProduct);
 				productCart.setPartnerId(cartTemp.getPartnerId());
 				if (cartTemp.getPartnerId() != null) {
 					User partner = userRepository.findById(cartTemp.getPartnerId()).orElse(null);
