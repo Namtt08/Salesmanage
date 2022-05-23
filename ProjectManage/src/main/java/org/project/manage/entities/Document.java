@@ -25,7 +25,7 @@ public class Document {
 	private Date createdDate;
 	private Date modifiedDate;
 	private Date deletedDate;
-
+	private Long priority;
 	public Document() {
 	}
 }
