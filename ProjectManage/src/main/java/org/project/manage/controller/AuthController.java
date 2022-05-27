@@ -24,6 +24,7 @@ import org.project.manage.util.AppResultCode;
 import org.project.manage.util.ErrorHandler;
 import org.project.manage.util.MessageResult;
 import org.project.manage.util.SuccessHandler;
+import org.project.manage.util.SystemConfigUtil;
 import org.project.manage.util.SystemSettingConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,7 +64,7 @@ public class AuthController {
 	public ApiResponse saveOtpLogin(@RequestBody OtpLoginRequest otpLoginRequest) {
 		long start = System.currentTimeMillis();
 		try {
-			SystemSetting systemSetting = systemSettingService.findByCode(SystemSettingConstants.OTP_BLOCK);
+			SystemSetting systemSetting = systemSettingService.findByCode(SystemConfigUtil.OTP_BLOCK);
 			if (systemSetting == null) {
 				return successHandler.handlerSuccess(
 						new MessageResponse(AppResultCode.AS_ERROR, MessageResult.DATA_NOT_FOUND_CORE), start);

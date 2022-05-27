@@ -1,11 +1,17 @@
 package org.project.manage.controller;
 
+import java.util.List;
+
+import org.project.manage.dto.PromotionDto;
 import org.project.manage.entities.User;
 import org.project.manage.exception.AppException;
 import org.project.manage.request.CartAddRequest;
 import org.project.manage.response.ApiResponse;
 import org.project.manage.response.CartResponse;
+import org.project.manage.response.ListProductRespose;
+import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
+import org.project.manage.response.ProductDetailResponse;
 import org.project.manage.services.OrderProductService;
 import org.project.manage.services.UserService;
 import org.project.manage.util.ErrorHandler;
@@ -100,5 +106,47 @@ public class OrderProductController {
 		return userService.findByUsername(name)
 				.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
 		
+	}
+	
+	@GetMapping("/get-payment-order")
+	public ApiResponse getPaymentOrder(@RequestBody CartResponse request) {
+		long start = System.currentTimeMillis();
+		try {
+			User user = getUserFromAuthentication();
+			CartResponse response = this.orderProductService.getPaymentOrder(request, user); 
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#getPaymentOrder#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	
+	@GetMapping("/promotion-order")
+	public ApiResponse promotionOrder(@RequestBody CartResponse request) {
+		long start = System.currentTimeMillis();
+		try {
+			User user = getUserFromAuthentication();
+			List<PromotionDto> response = this.orderProductService.promotionOrder(request, user); 
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#getPaymentOrder#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	
+	@PostMapping("/payment-order")
+	public ApiResponse paymentOrder(@RequestBody CartResponse request) {
+		long start = System.currentTimeMillis();
+		try {
+			User user = getUserFromAuthentication();
+			PaymentOrderResponse response = this.orderProductService.paymentOrder(request, user); 
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#getPaymentOrder#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
 	}
 }

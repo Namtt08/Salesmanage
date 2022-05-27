@@ -7,13 +7,6 @@ public interface AppConstants {
 	String USER_CUSTOMER = "USER_CUSTOMER";
 	String USER_INFO = "USER_INFO";
 	String DOCUMENT_INFO = "DOCUMENT_INFO";
-	
-	
-	String DEFAULT_PAGE_NUMBER = "1";
-	String DEFAULT_OFFSET_NUMBER = "0";
-	String DEFAULT_PAGE_SIZE = "25";
-
-	int MAX_PAGE_SIZE = 100;
 
 	String DATE_FORMAT = "dd/MM/yyyy";
 
@@ -38,12 +31,6 @@ public interface AppConstants {
 	String TOKEN = "TOKEN";
 
 	ZoneId VIETNAM_ZONE = ZoneId.of("Vietnam/Hanoi");
-
-	String USER_AGENT = "User-Agent";
-	String INTER_VIEW = "interview";
-	String BINDING = "binding";
-	String NUMBER_DAY_CANCEL_FILE = "NomDayCancelFile";
-
 	String LEVEL = "1";
 	
 	String addition = "addition";

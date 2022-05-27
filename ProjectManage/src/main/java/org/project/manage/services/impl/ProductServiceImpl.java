@@ -9,13 +9,16 @@ import org.project.manage.dao.ProductDao;
 import org.project.manage.dto.ProductCategoryDto;
 import org.project.manage.dto.ProductDocmentDto;
 import org.project.manage.dto.ProductDto;
+import org.project.manage.dto.PromotionDto;
 import org.project.manage.entities.Product;
 import org.project.manage.entities.ProductCategory;
 import org.project.manage.entities.ProductDocument;
+import org.project.manage.entities.Promotion;
 import org.project.manage.entities.User;
 import org.project.manage.repository.ProductCategoryRepository;
 import org.project.manage.repository.ProductDocumentRepository;
 import org.project.manage.repository.ProductRepository;
+import org.project.manage.repository.PromotionRepository;
 import org.project.manage.request.ProductListRequest;
 import org.project.manage.response.ListProductRespose;
 import org.project.manage.response.ProductDetailResponse;
@@ -42,9 +45,12 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private ProductDocumentRepository productDocumentRepository;
-	
+
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private PromotionRepository promotionRepository;
 
 	@Override
 	public List<ProductCategoryDto> getAllProductCategory() {
@@ -76,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public ProductDetailResponse getProductDetail(Long id) {
+	public ProductDetailResponse getProductDetail(Long id, User user) {
 		try {
 			ProductDetailResponse response = new ProductDetailResponse();
 			SimpleDateFormat formatter = new SimpleDateFormat(AppConstants.DATE_FORMAT);
@@ -109,12 +115,12 @@ public class ProductServiceImpl implements ProductService {
 				if (product.getCreatedDate() != null) {
 					response.setCreatedDate(formatter.format(product.getCreatedDate()));
 				}
-				
+
 				response.setPartnerId(product.getUserId());
-				if(product.getUserId()!= null) {
-					User user = userService.findById(id).orElse(null);
-					if(user != null) {
-						response.setPartnerName(user.getFullName());
+				if (product.getUserId() != null) {
+					User userPartNer = userService.findById(id).orElse(null);
+					if (userPartNer != null) {
+						response.setPartnerName(userPartNer.getFullName());
 					}
 				}
 				List<ProductDocument> productDocumentList = productDocumentRepository.findByProductId(product.getId());
@@ -124,6 +130,11 @@ public class ProductServiceImpl implements ProductService {
 							.collect(Collectors.toList());
 					response.setProductDocuments(listDocument);
 				}
+
+				List<PromotionDto> listPromotion = promotionRepository
+						.findByAndProductCategoryIdAndUserType(product.getProductCategoryId(), user.getUserType())
+						.stream().map(x -> new PromotionDto(x)).collect(Collectors.toList());
+				response.setListPromotion(listPromotion);
 
 			}
 			return response;

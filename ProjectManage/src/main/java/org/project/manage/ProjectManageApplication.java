@@ -25,7 +25,7 @@ public class ProjectManageApplication extends SpringBootServletInitializer {
 		SpringApplication.run(ProjectManageApplication.class, args);
 	}
 
-	@Bean
+	@Bean()
 	@Profile("!dev")
 	public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
 		Properties properties = new Properties();

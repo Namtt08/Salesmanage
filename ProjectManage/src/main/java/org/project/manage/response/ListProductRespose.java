@@ -14,10 +14,17 @@ import lombok.Setter;
 public class ListProductRespose extends MessageSuccessResponse {
 	private int total;
 	private List<ProductDto> listProduct;
+	private Long totalAmount;
 	
 	public ListProductRespose (int total, List<ProductDto> listProduct) {
 		this.total = total;
 		this.listProduct = listProduct;
+	}
+	
+	public ListProductRespose (int total, List<ProductDto> listProduct, Long totalAmount) {
+		this.total = total;
+		this.listProduct = listProduct;
+		this.totalAmount = totalAmount;
 	}
 
 }

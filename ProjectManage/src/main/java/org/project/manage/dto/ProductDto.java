@@ -22,6 +22,9 @@ public class ProductDto {
 	@JsonInclude(JsonInclude.Include.ALWAYS)
 	private String bannerPath;
 	private String createdDate;
+	private Long partnerId;
+	private String partnerName;
+	
 
 
 	// private String insuranceDate;
@@ -52,5 +55,9 @@ public class ProductDto {
 			String bannerPath2) {
 		// TODO Auto-generated constructor stub
 	}
+	public ProductDto() {
+		
+	}
+
 
 }

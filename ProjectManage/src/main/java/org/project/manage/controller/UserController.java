@@ -8,18 +8,24 @@ import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.project.manage.entities.SystemSetting;
 import org.project.manage.entities.User;
 import org.project.manage.exception.AppException;
 import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.response.ApiResponse;
 import org.project.manage.response.DocumentInfoResponse;
+import org.project.manage.response.MessageResponse;
 import org.project.manage.response.MessageSuccessResponse;
 import org.project.manage.response.UserInfoResponse;
+import org.project.manage.services.SystemSettingService;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
+import org.project.manage.util.AppResultCode;
 import org.project.manage.util.ErrorHandler;
 import org.project.manage.util.MessageResult;
 import org.project.manage.util.SuccessHandler;
+import org.project.manage.util.SystemConfigUtil;
+import org.project.manage.util.SystemSettingConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -50,6 +56,12 @@ public class UserController {
 
 	@Autowired
 	private ErrorHandler errorHandler;
+
+	@Autowired
+	private SystemConfigUtil systemConfigUtil;
+	
+	@Autowired
+	private SystemSettingService systemSettingService;
 
 	@PostMapping("/update-user-info")
 	public ApiResponse updateUserInfo(@RequestBody UpdateUserInfo otpLoginRequest) {
@@ -95,11 +107,18 @@ public class UserController {
 				SimpleDateFormat formatter = new SimpleDateFormat(AppConstants.DATE_FORMAT);
 				dob = formatter.format(user.getDob());
 			}
-			return this.successHandler
-					.handlerSuccess(
-							new UserInfoResponse(user.getCuid(), user.getNationalId(), dob, user.getFullName(),
-									user.getPhoneNumber(), user.getEmail(), user.getGender(), user.getPhoneNumber2(),user.getAvatar()),
-							start);
+			SystemSetting systemSetting = systemSettingService.findByCode(SystemConfigUtil.POINT_LV);
+			if (systemSetting == null) {
+				return successHandler.handlerSuccess(
+						new MessageResponse(AppResultCode.AS_ERROR, MessageResult.DATA_NOT_FOUND_CORE), start);
+			}
+			int lv = (int) ((user.getPoint_lv() == null ? 0 : user.getPoint_lv())
+					/ Long.valueOf(systemSetting.getValue()));
+
+			return this.successHandler.handlerSuccess(new UserInfoResponse(user.getCuid(), user.getNationalId(), dob,
+					user.getFullName(), user.getPhoneNumber(), user.getEmail(), user.getGender(),
+					user.getPhoneNumber2(), user.getAvatar(), lv, user.getPoint() == null ? 0 : user.getPoint()),
+					start);
 		} catch (Exception e) {
 			log.error("#getUserInfo#ERROR#:" + e.getMessage());
 			e.printStackTrace();
@@ -138,7 +157,7 @@ public class UserController {
 			log.error("getImage1:" + ex.getMessage());
 		}
 		if (contentType == null) {
-			contentType =MediaType.APPLICATION_OCTET_STREAM_VALUE;
+			contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
 		}
 
 		return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(resource);

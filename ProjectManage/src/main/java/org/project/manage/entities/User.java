@@ -39,6 +39,8 @@ public class User {
 	private Date modifiedDate;
 	private String userType;
 	private Date dob;
+	private Long point_lv;
+	private Long point;
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), 

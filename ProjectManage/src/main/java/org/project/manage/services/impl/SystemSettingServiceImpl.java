@@ -15,8 +15,8 @@ public class SystemSettingServiceImpl implements SystemSettingService {
 	private SystemSettingRepository systemSettingRepository;
 
 	@Override
-	public SystemSetting findByCode(String otpBlock) {
-		return systemSettingRepository.findByCode(otpBlock).orElse(null);
+	public SystemSetting findByCode(String code) {
+		return systemSettingRepository.findByCode(code).orElse(null);
 	}
 
 }

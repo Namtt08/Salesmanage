@@ -3,6 +3,7 @@ package org.project.manage.response;
 import java.util.List;
 
 import org.project.manage.dto.ProductDocmentDto;
+import org.project.manage.dto.PromotionDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -37,5 +38,6 @@ public class ProductDetailResponse extends MessageSuccessResponse{
 	private String productDesc;
 	private Long partnerId;
 	private String partnerName;
+	private List<PromotionDto> listPromotion;
 
 }

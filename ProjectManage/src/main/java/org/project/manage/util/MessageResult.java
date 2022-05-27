@@ -46,4 +46,6 @@ public interface MessageResult {
 	
 	String GRD009_PRODUCT = "Sản phẩm đã đạt số lượng tối đa";
 	
+	String GRD010_PRODUCT = "Sản phẩm đã cập nhật số lượng";
+	
 }
