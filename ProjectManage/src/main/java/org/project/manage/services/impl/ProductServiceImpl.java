@@ -15,10 +15,12 @@ import org.project.manage.entities.ProductCategory;
 import org.project.manage.entities.ProductDocument;
 import org.project.manage.entities.Promotion;
 import org.project.manage.entities.User;
+import org.project.manage.entities.UserPromotion;
 import org.project.manage.repository.ProductCategoryRepository;
 import org.project.manage.repository.ProductDocumentRepository;
 import org.project.manage.repository.ProductRepository;
 import org.project.manage.repository.PromotionRepository;
+import org.project.manage.repository.UserPromotionRepository;
 import org.project.manage.request.ProductListRequest;
 import org.project.manage.response.ListProductRespose;
 import org.project.manage.response.ProductDetailResponse;
@@ -51,6 +53,9 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private PromotionRepository promotionRepository;
+	
+	@Autowired
+	private UserPromotionRepository userPromotionRepository;
 
 	@Override
 	public List<ProductCategoryDto> getAllProductCategory() {
@@ -130,10 +135,12 @@ public class ProductServiceImpl implements ProductService {
 							.collect(Collectors.toList());
 					response.setProductDocuments(listDocument);
 				}
-
+				List<UserPromotion> userPromotion = userPromotionRepository.findByUserIdAndPromotionId(user.getId(),id);
 				List<PromotionDto> listPromotion = promotionRepository
 						.findByAndProductCategoryIdAndUserType(product.getProductCategoryId(), user.getUserType())
-						.stream().map(x -> new PromotionDto(x)).collect(Collectors.toList());
+						.stream().filter(promotion -> (promotion.getPromotionTotal() == null? 9999L:promotion.getPromotionTotal()) > userPromotion.size())
+						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
+				
 				response.setListPromotion(listPromotion);
 
 			}

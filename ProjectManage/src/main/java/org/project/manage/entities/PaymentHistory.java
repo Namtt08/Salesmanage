@@ -11,41 +11,27 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "order_product")
+@Table(name = "payment_history")
 @Data
-public class OrderProduct {
+public class PaymentHistory {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
+	
 	private Long userId;
-
-	private Long partnerId;
-
-	private String status;
-
-	private String uuidId;
-
-	private Long totalAmount;
-
+	
 	private String codeOrders;
 	
-	private String paymentMethod;
+	private int chargeType;
 	
-	private Integer paymentStatus;
+	private Long amount;
 	
-	private Long voucherId;
+	private String description;
 	
-	private Long promotionId;
-
-	private String modifiedBy;
-
-	private Date modifiedDate;
-
-	private String createdBy;
-
 	private Date createdDate;
+	
+	private String createdBy;
 	
 
 }

@@ -46,6 +46,10 @@ public class SystemConfigUtil {
 	
 	public static final String percentage = "2";
 	
+	public static final String CASH = "CASH";
+	
+	public static final String WALLET = "WALLET";
+	
 	@PostConstruct
 	@Transactional
 	public void init() {

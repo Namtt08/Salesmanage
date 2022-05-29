@@ -14,17 +14,22 @@ import org.project.manage.dto.CartDto;
 import org.project.manage.dto.PromotionDto;
 import org.project.manage.entities.CartTemp;
 import org.project.manage.entities.OrderProduct;
+import org.project.manage.entities.PaymentHistory;
 import org.project.manage.entities.Product;
+import org.project.manage.entities.Promotion;
 import org.project.manage.entities.TransactionProductOrder;
 import org.project.manage.entities.User;
+import org.project.manage.entities.UserPromotion;
 import org.project.manage.entities.Voucher;
 import org.project.manage.exception.AppException;
 import org.project.manage.repository.CartTempRepository;
 import org.project.manage.repository.OrderProductRepository;
+import org.project.manage.repository.PaymentHistoryRepository;
 import org.project.manage.repository.ProductDocumentRepository;
 import org.project.manage.repository.ProductRepository;
 import org.project.manage.repository.PromotionRepository;
 import org.project.manage.repository.TransactionProductOrderRepository;
+import org.project.manage.repository.UserPromotionRepository;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.repository.VoucherRepository;
 import org.project.manage.request.CartAddRequest;
@@ -71,6 +76,12 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
 	private VoucherRepository voucherRepository;
+
+	@Autowired
+	private UserPromotionRepository userPromotionRepository;
+
+	@Autowired
+	private PaymentHistoryRepository paymentHistoryRepository;
 
 	@Override
 	public CartResponse addCart(CartAddRequest request, User user) {
@@ -245,6 +256,18 @@ public class OrderProductServiceImpl implements OrderProductService {
 			response.setUserId(user.getId());
 			Long total = 0L;
 			Long totalDiscount = 0L;
+			Long maxAmountDiscount = null;
+			if (!Objects.isNull(request.getPromotionDto())) {
+				if (StringUtils.equals(request.getPromotionDto().getType(), SystemConfigUtil.VOURCHER)) {
+					Voucher voucher = voucherRepository.findById(request.getPromotionDto().getId())
+							.orElseThrow(() -> new AppException(MessageResult.GRD011_ORDER));
+					maxAmountDiscount = voucher.getPoint();
+				} else if (StringUtils.equals(request.getPromotionDto().getType(), SystemConfigUtil.PROMOTION)) {
+					Promotion promotion = promotionRepository.findById(request.getPromotionDto().getId())
+							.orElseThrow(() -> new AppException(MessageResult.GRD011_ORDER));
+					maxAmountDiscount = promotion.getMaxAmount();
+				}
+			}
 			for (CartDto cartTemp : listCart) {
 				CartDto productCart = new CartDto();
 				productCart.setCartId(cartTemp.getCartId());
@@ -279,26 +302,30 @@ public class OrderProductServiceImpl implements OrderProductService {
 				total = total + (product.getPrice() * cartTemp.getTotalProduct());
 				if (!Objects.isNull(request.getPromotionDto())) {
 					if (StringUtils.equals(request.getPromotionDto().getType(), SystemConfigUtil.VOURCHER)) {
-						totalDiscount = request.getPromotionDto().getPromotionValue();
+						Voucher voucher = voucherRepository.findById(request.getPromotionDto().getId())
+								.orElseThrow(() -> new AppException(MessageResult.GRD011_ORDER));
+						totalDiscount = voucher.getPoint();
 					} else if (StringUtils.equals(request.getPromotionDto().getType(), SystemConfigUtil.PROMOTION)) {
-						if (StringUtils.equals(request.getPromotionDto().getPromotionType(),
-								SystemConfigUtil.percentage)) {
-							float value = (float) (request.getPromotionDto().getPromotionValue()) / 100;
-							totalDiscount = (long) (totalDiscount
-									+ (product.getPrice() * value * cartTemp.getTotalProduct()));
-							
-						} else if (StringUtils.equals(request.getPromotionDto().getPromotionType(),
-								SystemConfigUtil.discount)) {
-							totalDiscount = (long) (totalDiscount + request.getPromotionDto().getPromotionValue());
-						}
-						if(!Objects.isNull(request.getPromotionDto().getMaxAmount()) && totalDiscount > request.getPromotionDto().getMaxAmount()) {
-							totalDiscount = request.getPromotionDto().getMaxAmount();
+						Promotion promotion = promotionRepository.findById(request.getPromotionDto().getId())
+								.orElseThrow(() -> new AppException(MessageResult.GRD011_ORDER));
+						if (promotion.getProductCategoryId() == product.getProductCategoryId()
+								&& StringUtils.equals(promotion.getUserType(), user.getUserType())) {
+
+							if (StringUtils.equals(promotion.getPromotionType(), SystemConfigUtil.percentage)) {
+								float value = (float) (promotion.getPromotionValue()) / 100;
+								totalDiscount = (long) (totalDiscount
+										+ (product.getPrice() * value * cartTemp.getTotalProduct()));
+
+							} else if (StringUtils.equals(promotion.getPromotionType(), SystemConfigUtil.discount)) {
+								totalDiscount = (long) (totalDiscount + promotion.getPromotionValue());
+							}
+							if (!Objects.isNull(maxAmountDiscount) && totalDiscount > maxAmountDiscount) {
+								totalDiscount = maxAmountDiscount;
+							}
 						}
 					}
 				}
-
 			}
-			
 			response.setTotalAmount(total - totalDiscount);
 			response.setListCart(listProduct);
 
@@ -316,17 +343,31 @@ public class OrderProductServiceImpl implements OrderProductService {
 		String uuid = UUID.randomUUID().toString();
 		String yyyymmddhhmmss = DateHelper.convertDateTimeToString(new Date());
 		List<CartDto> listCart = request.getListCart();
+		if (!Objects.isNull(request.getPromotionDto())) {
+			if (StringUtils.equals(request.getPromotionDto().getType(), SystemConfigUtil.VOURCHER)) {
+				Voucher voucher = voucherRepository.findById(request.getPromotionDto().getId())
+						.orElseThrow(() -> new AppException(MessageResult.GRD011_ORDER));
+				request.setMaxAmountDiscount(voucher.getPoint());
+			} else if (StringUtils.equals(request.getPromotionDto().getType(), SystemConfigUtil.PROMOTION)) {
+				Promotion promotion = promotionRepository.findById(request.getPromotionDto().getId())
+						.orElseThrow(() -> new AppException(MessageResult.GRD011_ORDER));
+				request.setMaxAmountDiscount(promotion.getMaxAmount());
+			}
+		}
 		Map<Long, List<CartDto>> mapCart = listCart.stream().collect(Collectors.groupingBy(CartDto::getPartnerId));
 		mapCart.forEach((k, v) -> {
 			OrderProduct orderEnity = new OrderProduct();
 			orderEnity.setUserId(user.getId());
 			orderEnity.setUuidId(uuid);
 			orderEnity.setPartnerId(k);
+			orderEnity.setCreatedBy(user.getUsername());
 			orderEnity.setCreatedDate(new Date());
 			String orderCode = StringHelper.randomString(3) + yyyymmddhhmmss;
 			orderEnity.setCodeOrders(orderCode);
 			orderEnity.setStatus(String.valueOf(0));
+			orderEnity.setPaymentStatus(0);
 			Long totalAmount = 0L;
+			Long totalDiscount = 0L;
 			for (CartDto cartTemp : v) {
 				TransactionProductOrder transaction = new TransactionProductOrder();
 				Product product = productRepository.findById(cartTemp.getProductId()).orElse(null);
@@ -339,13 +380,70 @@ public class OrderProductServiceImpl implements OrderProductService {
 				if (cartTemp.getTotalProduct() > product.getTotalProduct()) {
 					throw new AppException(MessageResult.GRD010_PRODUCT);
 				}
+				product.setTotalProduct(product.getTotalProduct()-cartTemp.getTotalProduct());
+				productRepository.save(product);
 				transaction.setProductId(product.getId());
 				transaction.setAmount(product.getPrice());
 				transaction.setTotalProduct(cartTemp.getTotalProduct());
 				transaction.setCreatedDate(new Date());
 				transaction.setCreatedBy(String.valueOf(user.getId()));
 				transaction.setOrderProductCode(orderCode);
-				totalAmount = totalAmount + (product.getPrice() * cartTemp.getTotalProduct());
+				if (!Objects.isNull(request.getPromotionDto())) {
+					if (StringUtils.equals(request.getPromotionDto().getType(), SystemConfigUtil.VOURCHER)) {
+						Voucher voucher = voucherRepository.findById(request.getPromotionDto().getId())
+								.orElseThrow(() -> new AppException(MessageResult.GRD011_ORDER));
+						totalDiscount = voucher.getPoint();
+						voucher.setStatus(false);
+						voucherRepository.save(voucher);
+						orderEnity.setVoucherId(voucher.getId());
+					} else if (StringUtils.equals(request.getPromotionDto().getType(), SystemConfigUtil.PROMOTION)) {
+						// userPromotion
+						Promotion promotion = promotionRepository.findById(request.getPromotionDto().getId())
+								.orElseThrow(() -> new AppException(MessageResult.GRD011_ORDER));
+						if (promotion.getProductCategoryId() == product.getProductCategoryId()
+								&& StringUtils.equals(promotion.getUserType(), user.getUserType())) {
+							Long promotionTotal = promotion.getPromotionTotal();
+							if (Objects.isNull(promotion.getPromotionTotal()))
+								promotionTotal = 9999L;
+							List<UserPromotion> userPromotionList = userPromotionRepository
+									.findByUserIdAndPromotionId(user.getId(), promotion.getId());
+							if (promotionTotal > userPromotionList.size()) {
+								orderEnity.setPromotionId(promotion.getId());
+								UserPromotion userPromotion = new UserPromotion();
+								userPromotion.setPromotionId(promotion.getId());
+								userPromotion.setUserId(user.getId());
+								userPromotionRepository.save(userPromotion);
+								if (StringUtils.equals(promotion.getPromotionType(), SystemConfigUtil.percentage)) {
+									float value = (float) (promotion.getPromotionValue()) / 100;
+									totalDiscount = (long) (totalDiscount
+											+ (product.getPrice() * value * cartTemp.getTotalProduct()));
+								} else if (StringUtils.equals(promotion.getPromotionType(),
+										SystemConfigUtil.discount)) {
+									totalDiscount = (long) (totalDiscount + promotion.getPromotionValue());
+								}
+								if (!Objects.isNull(request.getMaxAmountDiscount())){
+									if (totalDiscount > request.getMaxAmountDiscount()) {
+										totalDiscount = request.getMaxAmountDiscount();
+										request.setMaxAmountDiscount(0L);
+									} else {
+										request.setMaxAmountDiscount(request.getMaxAmountDiscount() - totalDiscount);
+									}
+								}
+								
+							}
+						}
+
+					}
+				}
+				totalAmount = totalAmount + (product.getPrice() * cartTemp.getTotalProduct()) - totalDiscount;
+				if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
+					if (totalAmount > user.getPoint()) {
+						throw new AppException(MessageResult.GRD011_PAYMENT);
+					}
+					user.setPoint(user.getPoint() - totalAmount);
+					userRepository.save(user);
+					orderEnity.setPaymentStatus(1);
+				}
 				if (!Objects.isNull(cartTemp.getCartId())) {
 					CartTemp cart = cartTempRepository.findById(cartTemp.getCartId()).orElse(null);
 					if (cart != null) {
@@ -354,13 +452,22 @@ public class OrderProductServiceImpl implements OrderProductService {
 				}
 				transactionProductOrderRepository.save(transaction);
 			}
+			orderEnity.setPaymentMethod(request.getPaymentMethod());
 			orderEnity.setTotalAmount(totalAmount);
-
 			orderProductRepository.save(orderEnity);
+			if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
+				PaymentHistory paymentHistory = new PaymentHistory();
+				paymentHistory.setAmount(totalAmount);
+				paymentHistory.setCreatedDate(new Date());
+				paymentHistory.setUserId(user.getId());
+				paymentHistory.setCodeOrders(orderCode);
+				paymentHistory.setChargeType(2);
+				paymentHistory.setCreatedBy(user.getUsername());
+				paymentHistory.setDescription("Thanh toán đơn hàng: " + orderCode);
+				paymentHistoryRepository.save(paymentHistory);
+			}
 		});
-
 		response.setOrderId(uuid);
-
 		return response;
 	}
 
@@ -368,14 +475,21 @@ public class OrderProductServiceImpl implements OrderProductService {
 	@SneakyThrows
 	public List<PromotionDto> promotionOrder(CartResponse request, User user) {
 		List<PromotionDto> response = new ArrayList<PromotionDto>();
-		List<CartDto> listCart = request.getListCart();
-		listCart.stream().forEach(x -> {
-			Product product = productRepository.findById(x.getProductId()).orElse(null);
-			List<PromotionDto> listPromotion = promotionRepository
-					.findByAndProductCategoryIdAndUserType(product.getProductCategoryId(), user.getUserType()).stream()
-					.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
-			response.addAll(listPromotion);
-		});
+		if (request != null) {
+			List<CartDto> listCart = request.getListCart();
+			listCart.stream().forEach(x -> {
+				Product product = productRepository.findById(x.getProductId()).orElse(null);
+				List<UserPromotion> userPromotion = userPromotionRepository.findByUserIdAndPromotionId(user.getId(),
+						x.getProductId());
+				List<PromotionDto> listPromotion = promotionRepository
+						.findByAndProductCategoryIdAndUserType(product.getProductCategoryId(), user.getUserType())
+						.stream()
+						.filter(promotion -> (promotion.getPromotionTotal() == null ? 9999L
+								: promotion.getPromotionTotal()) > userPromotion.size())
+						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
+				response.addAll(listPromotion);
+			});
+		}
 		List<PromotionDto> listvoucher = voucherRepository.findByUserId(user.getId()).stream()
 				.map(voucher -> new PromotionDto(voucher)).collect(Collectors.toList());
 		response.addAll(listvoucher);

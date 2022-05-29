@@ -123,7 +123,7 @@ public class OrderProductController {
 	}
 	
 	@GetMapping("/promotion-order")
-	public ApiResponse promotionOrder(@RequestBody CartResponse request) {
+	public ApiResponse promotionOrder(@RequestBody(required = false) CartResponse request) {
 		long start = System.currentTimeMillis();
 		try {
 			User user = getUserFromAuthentication();
@@ -145,7 +145,6 @@ public class OrderProductController {
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getPaymentOrder#ERROR#:" + e.getMessage());
-			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
 	}
