@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,6 +17,7 @@ import org.project.manage.response.ApiResponse;
 import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.MessageResponse;
 import org.project.manage.response.MessageSuccessResponse;
+import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.UserInfoResponse;
 import org.project.manage.services.SystemSettingService;
 import org.project.manage.services.UserService;
@@ -175,6 +177,22 @@ public class UserController {
 		} catch (Exception ex) {
 			log.error("#loadFileAsResource#ERROR#:" + ex.getMessage());
 			throw new AppException(MessageResult.GRD005_NOT_FOUND);
+		}
+	}
+	
+	@GetMapping("/get-history-payment")
+	public ApiResponse getHistoryPayment() {
+		long start = System.currentTimeMillis();
+		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+			List<PaymentHistoryResponse> response = userService.getHistoryPayment(user);
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#getHistoryPayment#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
 		}
 	}
 }

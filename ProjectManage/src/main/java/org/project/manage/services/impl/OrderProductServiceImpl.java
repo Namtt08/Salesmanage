@@ -5,15 +5,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.project.manage.dto.CartDto;
+import org.project.manage.dto.OrderPaymentDto;
+import org.project.manage.dto.OrderProductDto;
+import org.project.manage.dto.OrderProductHistoryDto;
 import org.project.manage.dto.PromotionDto;
 import org.project.manage.entities.CartTemp;
 import org.project.manage.entities.OrderProduct;
+import org.project.manage.entities.OrderProductHistory;
 import org.project.manage.entities.PaymentHistory;
 import org.project.manage.entities.Product;
 import org.project.manage.entities.Promotion;
@@ -21,8 +26,11 @@ import org.project.manage.entities.TransactionProductOrder;
 import org.project.manage.entities.User;
 import org.project.manage.entities.UserPromotion;
 import org.project.manage.entities.Voucher;
+import org.project.manage.enums.OrderStatusEnum;
+import org.project.manage.enums.PaymentStatusEnum;
 import org.project.manage.exception.AppException;
 import org.project.manage.repository.CartTempRepository;
+import org.project.manage.repository.OrderProductHistoryRepository;
 import org.project.manage.repository.OrderProductRepository;
 import org.project.manage.repository.PaymentHistoryRepository;
 import org.project.manage.repository.ProductDocumentRepository;
@@ -34,6 +42,8 @@ import org.project.manage.repository.UserRepository;
 import org.project.manage.repository.VoucherRepository;
 import org.project.manage.request.CartAddRequest;
 import org.project.manage.response.CartResponse;
+import org.project.manage.response.OrderProductListRespone;
+import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
 import org.project.manage.services.OrderProductService;
@@ -82,6 +92,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
 	private PaymentHistoryRepository paymentHistoryRepository;
+
+	@Autowired
+	private OrderProductHistoryRepository orderProductHistoryRepository;
 
 	@Override
 	public CartResponse addCart(CartAddRequest request, User user) {
@@ -359,13 +372,15 @@ public class OrderProductServiceImpl implements OrderProductService {
 			OrderProduct orderEnity = new OrderProduct();
 			orderEnity.setUserId(user.getId());
 			orderEnity.setUuidId(uuid);
+			orderEnity.setDeliveryAddress(request.getDeliveryAddress());
 			orderEnity.setPartnerId(k);
 			orderEnity.setCreatedBy(user.getUsername());
 			orderEnity.setCreatedDate(new Date());
+			orderEnity.setModifiedDate(new Date());
 			String orderCode = StringHelper.randomString(3) + yyyymmddhhmmss;
 			orderEnity.setCodeOrders(orderCode);
-			orderEnity.setStatus(String.valueOf(0));
-			orderEnity.setPaymentStatus(0);
+			orderEnity.setStatus(OrderStatusEnum.NEW.getValue());
+			orderEnity.setPaymentStatus(PaymentStatusEnum.UNPAID.getValue());
 			Long totalAmount = 0L;
 			Long totalDiscount = 0L;
 			for (CartDto cartTemp : v) {
@@ -380,7 +395,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 				if (cartTemp.getTotalProduct() > product.getTotalProduct()) {
 					throw new AppException(MessageResult.GRD010_PRODUCT);
 				}
-				product.setTotalProduct(product.getTotalProduct()-cartTemp.getTotalProduct());
+				product.setTotalProduct(product.getTotalProduct() - cartTemp.getTotalProduct());
 				productRepository.save(product);
 				transaction.setProductId(product.getId());
 				transaction.setAmount(product.getPrice());
@@ -421,7 +436,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 										SystemConfigUtil.discount)) {
 									totalDiscount = (long) (totalDiscount + promotion.getPromotionValue());
 								}
-								if (!Objects.isNull(request.getMaxAmountDiscount())){
+								if (!Objects.isNull(request.getMaxAmountDiscount())) {
 									if (totalDiscount > request.getMaxAmountDiscount()) {
 										totalDiscount = request.getMaxAmountDiscount();
 										request.setMaxAmountDiscount(0L);
@@ -429,20 +444,21 @@ public class OrderProductServiceImpl implements OrderProductService {
 										request.setMaxAmountDiscount(request.getMaxAmountDiscount() - totalDiscount);
 									}
 								}
-								
+
 							}
 						}
 
 					}
 				}
 				totalAmount = totalAmount + (product.getPrice() * cartTemp.getTotalProduct()) - totalDiscount;
+				orderEnity.setTotalDiscount(totalDiscount);
 				if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
 					if (totalAmount > user.getPoint()) {
 						throw new AppException(MessageResult.GRD011_PAYMENT);
 					}
 					user.setPoint(user.getPoint() - totalAmount);
 					userRepository.save(user);
-					orderEnity.setPaymentStatus(1);
+					orderEnity.setPaymentStatus(PaymentStatusEnum.PAID.getValue());
 				}
 				if (!Objects.isNull(cartTemp.getCartId())) {
 					CartTemp cart = cartTempRepository.findById(cartTemp.getCartId()).orElse(null);
@@ -479,13 +495,12 @@ public class OrderProductServiceImpl implements OrderProductService {
 			List<CartDto> listCart = request.getListCart();
 			listCart.stream().forEach(x -> {
 				Product product = productRepository.findById(x.getProductId()).orElse(null);
-				List<UserPromotion> userPromotion = userPromotionRepository.findByUserIdAndPromotionId(user.getId(),
-						x.getProductId());
 				List<PromotionDto> listPromotion = promotionRepository
 						.findByAndProductCategoryIdAndUserType(product.getProductCategoryId(), user.getUserType())
 						.stream()
 						.filter(promotion -> (promotion.getPromotionTotal() == null ? 9999L
-								: promotion.getPromotionTotal()) > userPromotion.size())
+								: promotion.getPromotionTotal()) > (userPromotionRepository
+										.findByUserIdAndPromotionId(user.getId(), promotion.getId())).size())
 						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
 				response.addAll(listPromotion);
 			});
@@ -494,5 +509,191 @@ public class OrderProductServiceImpl implements OrderProductService {
 				.map(voucher -> new PromotionDto(voucher)).collect(Collectors.toList());
 		response.addAll(listvoucher);
 		return response;
+	}
+
+	@Override
+	@SneakyThrows
+	public PaymentOrderDetailResponse getOrderDetail(String orderId, String orderCode, User user) {
+		PaymentOrderDetailResponse response = new PaymentOrderDetailResponse();
+		List<OrderPaymentDto> orderDetails = new ArrayList<OrderPaymentDto>();
+		if (StringUtils.isNotBlank(orderCode)) {
+			OrderProduct orderProduct = orderProductRepository.findByCodeOrders(orderCode)
+					.orElseThrow(() -> new AppException(MessageResult.GRD012_ORDER));
+			response.setOrderId(orderProduct.getUuidId());
+			OrderPaymentDto dto = new OrderPaymentDto();
+			this.convertEntityToDtoOrder(orderProduct, dto);
+			orderDetails.add(dto);
+			response.setOrderDetail(orderDetails);
+		} else {
+			List<OrderProduct> orderProductList = orderProductRepository.findByUuidId(orderId);
+			if (Objects.isNull(orderProductList) || orderProductList.isEmpty()) {
+				throw new AppException(MessageResult.GRD012_ORDER);
+			}
+			response.setOrderId(orderId);
+			orderDetails = orderProductList.stream().map(x -> {
+				OrderPaymentDto dto = new OrderPaymentDto();
+				convertEntityToDtoOrder(x, dto);
+				return dto;
+			}).collect(Collectors.toList());
+			response.setOrderDetail(orderDetails);
+
+		}
+		return response;
+	}
+
+	private void convertEntityToDtoOrder(OrderProduct orderProduct, OrderPaymentDto dto) {
+		dto.setDeliveryAddress(orderProduct.getDeliveryAddress());
+		dto.setCodeOrders(orderProduct.getCodeOrders());
+		dto.setStatus(OrderStatusEnum.getByValue(orderProduct.getStatus()).getName());
+		dto.setPartnerId(orderProduct.getPartnerId());
+		User partner = userRepository.findById(orderProduct.getPartnerId()).orElse(null);
+		if (!Objects.isNull(partner)) {
+			dto.setPartnerName(partner.getFullName());
+		}
+		dto.setTotalAmount(orderProduct.getTotalAmount());
+		dto.setTotalDiscount(orderProduct.getTotalDiscount());
+		dto.setPaymentMethod(orderProduct.getPaymentMethod());
+		dto.setPaymentStatus(PaymentStatusEnum.getByValue(orderProduct.getPaymentStatus()).getName());
+		dto.setCreatedDate(DateHelper.convertDateTime(orderProduct.getCreatedDate()));
+		if (!Objects.isNull(orderProduct.getVoucherId())) {
+			Voucher voucher = voucherRepository.findById(orderProduct.getVoucherId()).orElse(null);
+			if (!Objects.isNull(voucher)) {
+				dto.setPromotionName(voucher.getVoucherName());
+			}
+		}
+		if (!Objects.isNull(orderProduct.getPromotionId())) {
+			Promotion promotion = promotionRepository.findById(orderProduct.getPromotionId()).orElse(null);
+			if (!Objects.isNull(promotion)) {
+				dto.setPromotionName(promotion.getPromotionName());
+			}
+		}
+		List<OrderProductDto> listProductDto = transactionProductOrderRepository
+				.findByOrderProductCode(orderProduct.getCodeOrders()).stream()
+				.filter(d -> productRepository.findById(d.getProductId()).isPresent()).map(x -> {
+					OrderProductDto productDto = new OrderProductDto();
+					Optional<Product> product = productRepository.findById(x.getProductId());
+					String bannerProduct = productDocumentRepository
+							.getdocPathProductByIdAndPosition(product.get().getId(), 1L);
+					productDto.setProductId(x.getProductId());
+					productDto.setProductName(product.get().getProductName());
+					productDto.setBannerPath(bannerProduct);
+					productDto.setPrice(x.getAmount());
+					productDto.setTotalProduct(x.getTotalProduct());
+					return productDto;
+				}).collect(Collectors.toList());
+		dto.setProduct(listProductDto);
+//		List<OrderProductDto> listProductDto = orderProductHistoryRepository
+//				.findByOrderProductCode(orderProduct.getCodeOrders()).stream()
+//				.filter(d -> productRepository.findById(d.getProductId()).isPresent()).map(x -> {
+//					OrderProductDto productDto = new OrderProductDto();
+//					Optional<Product> product = productRepository.findById(x.getProductId());
+//					String bannerProduct = productDocumentRepository
+//							.getdocPathProductByIdAndPosition(product.get().getId(), 1L);
+//					productDto.setProductId(x.getProductId());
+//					productDto.setProductName(product.get().getProductName());
+//					productDto.setBannerPath(bannerProduct);
+//					productDto.setPrice(x.getAmount());
+//					productDto.setTotalProduct(x.getTotalProduct());
+//					return productDto;
+//				}).collect(Collectors.toList());
+
+		List<OrderProductHistoryDto> history = orderProductHistoryRepository
+				.findByCodeOrdersOrderByCreatedDateAsc(orderProduct.getCodeOrders()).stream()
+				.map(x -> new OrderProductHistoryDto(x)).collect(Collectors.toList());
+		OrderProductHistoryDto historyDto = new OrderProductHistoryDto();
+		historyDto.setCodeOrders(orderProduct.getCodeOrders());
+		historyDto.setPaymentMethod(orderProduct.getPaymentMethod());
+		historyDto.setPaymentStatus(orderProduct.getPaymentStatus());
+		historyDto.setStatus(OrderStatusEnum.getByValue(orderProduct.getStatus()).getName());
+		historyDto.setCreatedDate(DateHelper.convertDateTime(orderProduct.getModifiedDate()));
+		historyDto.setCreatedBy(orderProduct.getCreatedBy());
+		history.add(historyDto);
+		dto.setHistory(history);
+
+	}
+
+	@Override
+	public List<OrderPaymentDto> getListOrder(User user, String orderStatus) {
+		// OrderProductListRespone respone = new OrderProductListRespone();
+		List<OrderProduct> orderProducts = orderProductRepository
+				.findByUserIdAndStatusOrderByCreatedDateDesc(user.getId(), orderStatus);
+		List<OrderPaymentDto> listResponse = orderProducts.stream().sorted().map(x -> {
+			OrderPaymentDto dto = new OrderPaymentDto();
+			convertEntityToDtoOrderList(x, dto);
+			dto.setOrderId(x.getUuidId());
+			return dto;
+		}).collect(Collectors.toList());
+		return listResponse;
+	}
+
+	private void convertEntityToDtoOrderList(OrderProduct orderProduct, OrderPaymentDto dto) {
+		dto.setDeliveryAddress(orderProduct.getDeliveryAddress());
+		dto.setCodeOrders(orderProduct.getCodeOrders());
+		dto.setStatus(OrderStatusEnum.getByValue(orderProduct.getStatus()).getName());
+		dto.setPartnerId(orderProduct.getPartnerId());
+		User partner = userRepository.findById(orderProduct.getPartnerId()).orElse(null);
+		if (!Objects.isNull(partner)) {
+			dto.setPartnerName(partner.getFullName());
+		}
+		dto.setTotalAmount(orderProduct.getTotalAmount());
+		dto.setTotalDiscount(orderProduct.getTotalDiscount());
+		dto.setPaymentMethod(orderProduct.getPaymentMethod());
+		dto.setPaymentStatus(PaymentStatusEnum.getByValue(orderProduct.getPaymentStatus()).getName());
+		dto.setCreatedDate(DateHelper.convertDateTime(orderProduct.getCreatedDate()));
+		if (!Objects.isNull(orderProduct.getVoucherId())) {
+			Voucher voucher = voucherRepository.findById(orderProduct.getVoucherId()).orElse(null);
+			if (!Objects.isNull(voucher)) {
+				dto.setPromotionName(voucher.getVoucherName());
+			}
+		}
+		if (!Objects.isNull(orderProduct.getPromotionId())) {
+			Promotion promotion = promotionRepository.findById(orderProduct.getPromotionId()).orElse(null);
+			if (!Objects.isNull(promotion)) {
+				dto.setPromotionName(promotion.getPromotionName());
+			}
+		}
+	}
+
+	@Override
+	@Transactional
+	public String cancelOrder(User user, String orderCode) {
+		OrderProduct orderProduct = orderProductRepository.findByCodeOrders(orderCode)
+				.orElseThrow(() -> new AppException(MessageResult.GRD012_ORDER));
+		if (!StringUtils.equals(orderProduct.getStatus(), OrderStatusEnum.NEW.getValue())) {
+			throw new AppException(MessageResult.GRD014_ORDER);
+		}
+		if (StringUtils.equals(SystemConfigUtil.WALLET, orderProduct.getPaymentMethod())) {
+			user.setPoint(user.getPoint() + orderProduct.getTotalAmount());
+			userRepository.save(user);
+			PaymentHistory paymentHistory = new PaymentHistory();
+			paymentHistory.setAmount(orderProduct.getTotalAmount());
+			paymentHistory.setCreatedDate(new Date());
+			paymentHistory.setUserId(user.getId());
+			paymentHistory.setCodeOrders(orderCode);
+			paymentHistory.setChargeType(3);
+			paymentHistory.setCreatedBy(user.getUsername());
+			paymentHistory.setDescription("Hoàn tiền đơn hàng: " + orderCode);
+			paymentHistoryRepository.save(paymentHistory);
+		}
+		transactionProductOrderRepository.findByOrderProductCode(orderProduct.getCodeOrders()).stream().forEach(x -> {
+			Product product = productRepository.findById(x.getProductId()).orElse(null);
+			product.setTotalProduct(product.getTotalProduct() + x.getTotalProduct());
+			productRepository.save(product);
+
+		});
+
+		OrderProductHistory history = new OrderProductHistory();
+		history.setCodeOrders(orderProduct.getCodeOrders());
+		history.setStatus(orderProduct.getStatus());
+		history.setPaymentStatus(orderProduct.getPaymentStatus());
+		history.setPaymentMethod(orderProduct.getPaymentMethod());
+		history.setCreatedDate(orderProduct.getModifiedDate());
+		history.setCreatedBy(user.getUsername());
+		orderProductHistoryRepository.save(history);
+
+		orderProduct.setModifiedDate(new Date());
+		orderProduct.setStatus(OrderStatusEnum.FAIL.getValue());
+		orderProductRepository.save(orderProduct);
+		return orderCode;
 	}
 }

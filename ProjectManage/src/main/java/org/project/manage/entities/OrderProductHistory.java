@@ -11,23 +11,15 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "order_product")
+@Table(name = "order_product_history")
 @Data
-public class OrderProduct {
+public class OrderProductHistory {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private Long userId;
-
-	private Long partnerId;
-
 	private String status;
-
-	private String uuidId;
-
-	private Long totalAmount;
 
 	private String codeOrders;
 	
@@ -35,21 +27,8 @@ public class OrderProduct {
 	
 	private Integer paymentStatus;
 	
-	private Long voucherId;
-	
-	private Long promotionId;
-
-	private String modifiedBy;
-
-	private Date modifiedDate;
-
 	private String createdBy;
 
 	private Date createdDate;
-	
-	private Long totalDiscount;
-	
-	private String deliveryAddress;
-	
 
 }

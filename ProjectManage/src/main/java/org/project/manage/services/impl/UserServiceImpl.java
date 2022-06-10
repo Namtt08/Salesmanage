@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -22,12 +23,15 @@ import org.modelmapper.ModelMapper;
 import org.project.manage.entities.Document;
 import org.project.manage.entities.DocumentInfo;
 import org.project.manage.entities.DocumentType;
+import org.project.manage.entities.PaymentHistory;
 import org.project.manage.entities.Role;
 import org.project.manage.entities.User;
+import org.project.manage.enums.ChargeTypeEnum;
 import org.project.manage.exception.AppException;
 import org.project.manage.repository.DocumentInfoRepository;
 import org.project.manage.repository.DocumentRepository;
 import org.project.manage.repository.DocumentTypeRepository;
+import org.project.manage.repository.PaymentHistoryRepository;
 import org.project.manage.repository.RoleRepository;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.request.DocumentRequest;
@@ -37,10 +41,12 @@ import org.project.manage.request.UserLoginRequest;
 import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.DocumentResponse;
 import org.project.manage.response.FilePathRespone;
+import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.security.ERole;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
 import org.project.manage.util.ContentType;
+import org.project.manage.util.DateHelper;
 import org.project.manage.util.FileStorageProperties;
 import org.project.manage.util.MessageResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +82,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private DocumentTypeRepository documentTypeRepository;
+
+	@Autowired
+	private PaymentHistoryRepository paymentHistoryRepository;
 
 	@Bean
 	public ModelMapper modelMapper() {
@@ -477,6 +486,21 @@ public class UserServiceImpl implements UserService {
 	public Optional<User> findById(Long id) {
 		// TODO Auto-generated method stub
 		return userRepository.findById(id);
+	}
+
+	@Override
+	public List<PaymentHistoryResponse> getHistoryPayment(User user) {
+		List<PaymentHistoryResponse> listResponse = paymentHistoryRepository
+				.findByUserIdOrderByCreatedDateDesc(user.getId()).stream().map(x -> {
+					PaymentHistoryResponse dto = new PaymentHistoryResponse();
+					dto.setAmount(x.getAmount());
+					dto.setCodeOrders(x.getCodeOrders());
+					dto.setDescription(x.getDescription());
+					dto.setCreatedDate(DateHelper.convertDateTime(x.getCreatedDate()));
+					dto.setChargeType(ChargeTypeEnum.getByValue(x.getChargeType()).getName());
+					return dto;
+				}).collect(Collectors.toList());
+		return listResponse;
 	}
 
 }

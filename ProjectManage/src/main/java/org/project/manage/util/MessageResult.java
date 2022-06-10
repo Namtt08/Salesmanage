@@ -52,4 +52,10 @@ public interface MessageResult {
 	
 	String GRD011_PAYMENT = "Số dư tài khoản không đủ vui lòng nạp thêm hoặc chọn kênh giao dịch khác";
 	
+	String GRD012_ORDER = "Mã đơn hàng không tồn tại";
+	
+	String GRD013_ORDER = "Mã đơn hàng không được trống";
+	
+	String GRD014_ORDER = "Mã đơn hàng không được hủy vui lòng liên hệ tổng đài";
+	
 }

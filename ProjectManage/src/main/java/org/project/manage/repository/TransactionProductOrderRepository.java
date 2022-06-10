@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TransactionProductOrderRepository extends JpaRepository<TransactionProductOrder, Long> {
 
+	List<TransactionProductOrder> findByOrderProductCode(String codeOrders);
+
 }
