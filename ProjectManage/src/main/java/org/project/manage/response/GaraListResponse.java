@@ -1,14 +1,14 @@
 package org.project.manage.response;
 
+import java.util.List;
+
+import org.project.manage.dto.GaraInfoDto;
+
 import lombok.Data;
 
 @Data
-public class GaraListResponse {
-	private int codeStatus;
-	private String messageStatus;
+public class GaraListResponse extends MessageSuccessResponse {
+	
+	private List <GaraInfoDto> listGara;
 
-	public GaraListResponse(int code, String message) {
-		this.codeStatus = code;
-	    this.messageStatus = message;
-	  }
 }

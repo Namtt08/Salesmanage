@@ -31,9 +31,9 @@ public class GaraInfoEntity {
     
     private boolean status;
     
-    private Long latitude;
+    private Double latitude;
     
-    private Long longitude;
+    private Double longitude;
     
     private String createdBy;
     

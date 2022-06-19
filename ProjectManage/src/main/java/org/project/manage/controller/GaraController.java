@@ -1,9 +1,7 @@
 package org.project.manage.controller;
 
-import java.util.List;
-
-import org.project.manage.entities.GaraInfoEntity;
 import org.project.manage.response.ApiResponse;
+import org.project.manage.response.GaraListResponse;
 import org.project.manage.services.GaraService;
 import org.project.manage.util.ErrorHandler;
 import org.project.manage.util.SuccessHandler;
@@ -32,7 +30,7 @@ public class GaraController {
 	public ApiResponse getListGara() {
 		long start = System.currentTimeMillis();
 		try {
-			List<GaraInfoEntity> response = this.garaService.getAllGaraInfo(); 
+			GaraListResponse response = this.garaService.getAllGaraInfo(); 
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getListGara#ERROR#:" + e.getMessage());
