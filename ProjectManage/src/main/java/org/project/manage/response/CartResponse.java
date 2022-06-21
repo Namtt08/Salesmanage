@@ -23,6 +23,7 @@ public class CartResponse extends MessageSuccessResponse {
 	private String paymentMethod;
 	private Long maxAmountDiscount;
 	private String deliveryAddress;
+	private String note;
 	public CartResponse (Long userId,  Long total, List<CartDto> listCart) {
 		this.userId = userId;
 		this.total = total;

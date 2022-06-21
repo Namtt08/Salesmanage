@@ -11,4 +11,6 @@ public class CartAddRequest {
 	private Long partnerId;
 	private Long totalProduct;
 	private String type;
+	private String addressDelivery;
+	private String note;
 }

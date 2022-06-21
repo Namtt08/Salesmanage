@@ -51,5 +51,7 @@ public class OrderProduct {
 	
 	private String deliveryAddress;
 	
+	private String note;
+	
 
 }

@@ -381,6 +381,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 			orderEnity.setCodeOrders(orderCode);
 			orderEnity.setStatus(OrderStatusEnum.NEW.getValue());
 			orderEnity.setPaymentStatus(PaymentStatusEnum.UNPAID.getValue());
+			orderEnity.setNote(request.getNote());
 			Long totalAmount = 0L;
 			Long totalDiscount = 0L;
 			for (CartDto cartTemp : v) {
@@ -627,6 +628,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 	}
 
 	private void convertEntityToDtoOrderList(OrderProduct orderProduct, OrderPaymentDto dto) {
+		dto.setNote(orderProduct.getNote());
 		dto.setDeliveryAddress(orderProduct.getDeliveryAddress());
 		dto.setCodeOrders(orderProduct.getCodeOrders());
 		dto.setStatus(OrderStatusEnum.getByValue(orderProduct.getStatus()).getName());

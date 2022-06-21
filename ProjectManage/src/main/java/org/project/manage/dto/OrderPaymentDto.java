@@ -24,5 +24,6 @@ public class OrderPaymentDto {
 	private String deliveryAddress;
 	private List<OrderProductDto> product;
 	private List<OrderProductHistoryDto> history;
+	private String note;
 	
 }
