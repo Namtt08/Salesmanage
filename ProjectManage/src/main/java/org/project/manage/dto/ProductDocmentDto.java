@@ -8,12 +8,12 @@ import lombok.Data;
 public class ProductDocmentDto {
 
 	
-	private String docPath;
+	private String bannerPath;
 	private Long position;
 	private String type;
 	
 	public ProductDocmentDto(ProductDocument productDocument) {
-		this.docPath = productDocument.getDocPath();
+		this.bannerPath = productDocument.getDocPath();
 		this.position = productDocument.getPosition();
 		this.type = productDocument.getType();
 	}

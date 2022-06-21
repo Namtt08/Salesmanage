@@ -51,11 +51,13 @@ public class ProductDaoImpl implements ProductDao {
                             (String) result[1], (String) result[2], 
                             (String) result[3], (String) result[4],
                             ((BigInteger) result[5]).longValue(), (String) result[6],
-                            ((BigInteger) result[7]).longValue(), (String) result[8], (String) result[9]                           		
+                            ((BigInteger) result[7]).longValue(), (String) result[8], (String) result[9] , 
+                            ((BigInteger) result[16]).longValue(), ((BigInteger) result[17]).longValue()                         		
                     		))
                     .collect(Collectors.toList());
         } catch (Exception e) {
         	log.error("#convertProduct#ERROR#: ", e.toString());
+        	e.printStackTrace();
             return Collections.emptyList();
         }
 	}
@@ -83,7 +85,7 @@ public class ProductDaoImpl implements ProductDao {
 		builder.append(
 				" select pd.id, pd.product_type, pd.product_brands,pd.product_name, pc.name product_category_name, pd.total_product,pd.sale_status, pd.price, pdc.doc_path, CONVERT(VARCHAR(10), ISNULL(pd.created_date,SYSDATETIME()), 103) dateCreate, ");
 		builder.append(
-				" pd.sales_type, pd.status, ISNULL(pd.start_date,CONVERT(datetime,'1990-01-01',102)) start_date, ISNULL(pd.end_date,CONVERT(datetime,'9999-01-30',102)) end_date, pc.id product_category_id,pd.created_date ");
+				" pd.sales_type, pd.status, ISNULL(pd.start_date,CONVERT(datetime,'1990-01-01',102)) start_date, ISNULL(pd.end_date,CONVERT(datetime,'9999-01-30',102)) end_date, pc.id product_category_id,pd.created_date,pd.product_category_id as product_cate_id, pd.user_id as partner_id ");
 		builder.append(" from product pd ");
 		builder.append(" left join product_category pc on pd.product_category_id = pc.id ");
 		builder.append(" left join product_document pdc on pd.id = pdc.product_id and pdc.position =1");

@@ -74,10 +74,32 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public ListProductRespose getListProduct(ProductListRequest request) {
+	public ListProductRespose getListProduct(ProductListRequest request, User user) {
+
 		try {
 			List<ProductDto> listProduct = productDao.getListProduct(request);
 			int total = productDao.countListProduct(request);
+			for (ProductDto productDto : listProduct) {
+				
+				List<ProductDocmentDto> listDocument = new ArrayList<ProductDocmentDto>();
+				List<ProductDocument> productDocumentList = productDocumentRepository.findByProductId(productDto.getId());
+				if (productDocumentList != null && !productDocumentList.isEmpty()) {
+					listDocument = productDocumentList.stream()
+							.map(productDocument -> new ProductDocmentDto(productDocument))
+							.collect(Collectors.toList());
+					productDto.setProductDocuments(listDocument);
+				}
+				List<UserPromotion> userPromotion = userPromotionRepository.findByUserIdAndPromotionId(user.getId(),1L);
+				List<PromotionDto> listPromotion = promotionRepository
+						.findByAndProductCategoryIdAndUserType(productDto.getProductCateId(), user.getUserType())
+						.stream().filter(promotion -> (promotion.getPromotionTotal() == null? 9999L:promotion.getPromotionTotal()) > userPromotion.size())
+						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
+				
+				productDto.setListPromotion(listPromotion);
+			}
+
+			
+			
 			return new ListProductRespose(total, listProduct);
 		} catch (Exception e) {
 			log.error("#getListProduct#ERROR#:" + e.getMessage());

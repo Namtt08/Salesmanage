@@ -12,7 +12,7 @@ public interface ProductService {
 
 	List<ProductCategoryDto> getAllProductCategory();
 
-	ListProductRespose getListProduct(ProductListRequest request);
+	ListProductRespose getListProduct(ProductListRequest request, User user);
 
 	ProductDetailResponse getProductDetail(Long id, User user);
 

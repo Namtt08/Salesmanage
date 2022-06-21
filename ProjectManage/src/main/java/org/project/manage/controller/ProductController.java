@@ -47,7 +47,10 @@ public class ProductController {
 	public ApiResponse getProduct(@RequestBody ProductListRequest request) {
 		long start = System.currentTimeMillis();
 		try {
-			ListProductRespose response = this.productService.getListProduct(request); 
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+			ListProductRespose response = this.productService.getListProduct(request, user); 
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getProduct#ERROR#:" + e.getMessage());

@@ -1,6 +1,7 @@
 package org.project.manage.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -24,9 +25,10 @@ public class ProductDto {
 	private String createdDate;
 	private Long partnerId;
 	private String partnerName;
-	
-
-
+	@JsonInclude(JsonInclude.Include.ALWAYS)
+	private List<ProductDocmentDto> productDocuments;
+	private List<PromotionDto> listPromotion;
+	private Long productCateId;
 	// private String insuranceDate;
 	// private String code;
 	// private String serial;
@@ -34,7 +36,7 @@ public class ProductDto {
 	// private String chassisNumber;
 	// private String lisencePlate;
 	public ProductDto(Long id, String productType, String productBrands, String productName, String productCategoryName,
-			Long totalProduct, String saleStatus,Long price, String bannerPath, String createdDate) {
+			Long totalProduct, String saleStatus,Long price, String bannerPath, String createdDate, Long productCateId, Long partnerId) {
 		this.id = id;
 		this.productType = productType;
 		this.productBrands = productBrands;
@@ -45,6 +47,8 @@ public class ProductDto {
 		this.price = price;
 		this.bannerPath = bannerPath;
 		this.createdDate = createdDate;
+		this.productCateId =productCateId;
+		this.partnerId =partnerId;
 	}
 	
 
@@ -52,7 +56,7 @@ public class ProductDto {
 
 	public ProductDto(BigDecimal bigDecimal, String productType2, String productBrands2, String productName2,
 			String productCategoryName2, BigDecimal bigDecimal2, String saleType2, BigDecimal bigDecimal3,
-			String bannerPath2) {
+			String bannerPath2, BigDecimal bigDecimal4, BigDecimal bigDecimal5) {
 		// TODO Auto-generated constructor stub
 	}
 	public ProductDto() {
