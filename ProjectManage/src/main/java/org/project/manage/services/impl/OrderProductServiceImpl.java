@@ -233,12 +233,13 @@ public class OrderProductServiceImpl implements OrderProductService {
 					cartTemp.setTotalProduct(product.getTotalProduct());
 					response.setMessageProduct(MessageResult.GRD008_PRODUCT + cartTemp.getTotalProduct());
 					cartTempRepository.save(cartTemp);
+					
 				}
 				String bannerProduct = productDocumentRepository.getdocPathProductByIdAndPosition(product.getId(), 1L);
 				productCart.setProductName(product.getProductName());
 				productCart.setPrice(product.getPrice());
 				productCart.setBannerPath(bannerProduct);
-				productCart.setPartnerId(cartTemp.getPartnerId());
+				productCart.setPartnerId(product.getUserId());
 				if (cartTemp.getPartnerId() != null) {
 					User partner = userRepository.findById(cartTemp.getPartnerId()).orElse(null);
 					if (partner != null) {
