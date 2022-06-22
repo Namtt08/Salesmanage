@@ -16,6 +16,7 @@ import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
 import org.project.manage.response.ProductDetailResponse;
+import org.project.manage.response.PromotionProductOrderResponse;
 import org.project.manage.services.OrderProductService;
 import org.project.manage.services.UserService;
 import org.project.manage.util.ErrorHandler;
@@ -130,7 +131,8 @@ public class OrderProductController {
 		long start = System.currentTimeMillis();
 		try {
 			User user = getUserFromAuthentication();
-			List<PromotionDto> response = this.orderProductService.promotionOrder(request, user);
+			PromotionProductOrderResponse response = new PromotionProductOrderResponse();
+			response = this.orderProductService.promotionOrder(request, user);
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getPaymentOrder#ERROR#:" + e.getMessage());

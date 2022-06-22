@@ -145,7 +145,7 @@ public class ProductServiceImpl implements ProductService {
 
 				response.setPartnerId(product.getUserId());
 				if (product.getUserId() != null) {
-					User userPartNer = userService.findById(id).orElse(null);
+					User userPartNer = userService.findById(product.getUserId()).orElse(null);
 					if (userPartNer != null) {
 						response.setPartnerName(userPartNer.getFullName());
 					}
@@ -157,10 +157,11 @@ public class ProductServiceImpl implements ProductService {
 							.collect(Collectors.toList());
 					response.setProductDocuments(listDocument);
 				}
-				List<UserPromotion> userPromotion = userPromotionRepository.findByUserIdAndPromotionId(user.getId(),id);
+				//List<UserPromotion> userPromotion = userPromotionRepository.findByUserIdAndPromotionId(user.getId(),id);
 				List<PromotionDto> listPromotion = promotionRepository
 						.findByAndProductCategoryIdAndUserType(product.getProductCategoryId(), user.getUserType())
-						.stream().filter(promotion -> (promotion.getPromotionTotal() == null? 9999L:promotion.getPromotionTotal()) > userPromotion.size())
+						.stream()
+						//.filter(promotion -> (promotion.getPromotionTotal() == null? 9999L:promotion.getPromotionTotal()))
 						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
 				
 				response.setListPromotion(listPromotion);

@@ -46,6 +46,7 @@ import org.project.manage.response.OrderProductListRespone;
 import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
+import org.project.manage.response.PromotionProductOrderResponse;
 import org.project.manage.services.OrderProductService;
 import org.project.manage.util.AppConstants;
 import org.project.manage.util.DateHelper;
@@ -491,8 +492,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Override
 	@SneakyThrows
-	public List<PromotionDto> promotionOrder(CartResponse request, User user) {
-		List<PromotionDto> response = new ArrayList<PromotionDto>();
+	public  PromotionProductOrderResponse promotionOrder(CartResponse request, User user) {
+		PromotionProductOrderResponse  response= new PromotionProductOrderResponse();
+		List<PromotionDto> listData = new ArrayList<PromotionDto>();
 		if (request != null) {
 			List<CartDto> listCart = request.getListCart();
 			listCart.stream().forEach(x -> {
@@ -504,12 +506,13 @@ public class OrderProductServiceImpl implements OrderProductService {
 								: promotion.getPromotionTotal()) > (userPromotionRepository
 										.findByUserIdAndPromotionId(user.getId(), promotion.getId())).size())
 						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
-				response.addAll(listPromotion);
+				listData.addAll(listPromotion);
 			});
 		}
 		List<PromotionDto> listvoucher = voucherRepository.findByUserId(user.getId()).stream()
 				.map(voucher -> new PromotionDto(voucher)).collect(Collectors.toList());
-		response.addAll(listvoucher);
+		listData.addAll(listvoucher);
+		response.setListPromotion(listData);
 		return response;
 	}
 

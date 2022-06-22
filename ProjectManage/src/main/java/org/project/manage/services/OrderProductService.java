@@ -10,6 +10,7 @@ import org.project.manage.response.CartResponse;
 import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
+import org.project.manage.response.PromotionProductOrderResponse;
 
 public interface OrderProductService {
 
@@ -25,7 +26,7 @@ public interface OrderProductService {
 
 	PaymentOrderResponse paymentOrder(CartResponse request, User user);
 
-	List<PromotionDto> promotionOrder(CartResponse request, User user);
+	PromotionProductOrderResponse promotionOrder(CartResponse request, User user);
 
 	PaymentOrderDetailResponse getOrderDetail(String orderId, String orderCode, User user);
 
