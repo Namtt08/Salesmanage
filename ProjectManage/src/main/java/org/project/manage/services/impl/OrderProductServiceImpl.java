@@ -623,15 +623,28 @@ public class OrderProductServiceImpl implements OrderProductService {
 	@Override
 	public ListOrderResponse getListOrder(User user, String orderStatus) {
 		 ListOrderResponse response = new ListOrderResponse();
+		 try {
 		List<OrderProduct> orderProducts = orderProductRepository
 				.findByUserIdAndStatusOrderByCreatedDateDesc(user.getId(), orderStatus);
-		List<OrderPaymentDto> listResponse = orderProducts.stream().sorted().map(x -> {
+//		List<OrderPaymentDto> listResponse = orderProducts.stream().sorted().map(x -> {
+//			OrderPaymentDto dto = new OrderPaymentDto();
+//			convertEntityToDtoOrderList(x, dto);
+//			dto.setOrderId(x.getUuidId());
+//			return dto;
+//		}).collect(Collectors.toList());
+		
+		List<OrderPaymentDto> listResponse = new ArrayList<OrderPaymentDto>();
+		for (OrderProduct orderProduct : orderProducts) {
 			OrderPaymentDto dto = new OrderPaymentDto();
-			convertEntityToDtoOrderList(x, dto);
-			dto.setOrderId(x.getUuidId());
-			return dto;
-		}).collect(Collectors.toList());
+			this.convertEntityToDtoOrderList(orderProduct, dto);		
+			dto.setOrderId(orderProduct.getUuidId());
+			listResponse.add(dto);
+		}
 		response.setListOrder(listResponse);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 		return response;
 	}
 
