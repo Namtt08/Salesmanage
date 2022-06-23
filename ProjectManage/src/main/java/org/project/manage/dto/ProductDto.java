@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class ProductDto {
 
-	private Long id;
+	private Long productId;
 	private String productType;
 	private String productBrands;
 	private String productName;
@@ -35,9 +35,9 @@ public class ProductDto {
 	// private String lotNumber;
 	// private String chassisNumber;
 	// private String lisencePlate;
-	public ProductDto(Long id, String productType, String productBrands, String productName, String productCategoryName,
+	public ProductDto(Long productId, String productType, String productBrands, String productName, String productCategoryName,
 			Long totalProduct, String saleStatus,Long price, String bannerPath, String createdDate, Long productCateId, Long partnerId) {
-		this.id = id;
+		this.productId = productId;
 		this.productType = productType;
 		this.productBrands = productBrands;
 		this.productName = productName;

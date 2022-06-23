@@ -82,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
 			for (ProductDto productDto : listProduct) {
 				
 				List<ProductDocmentDto> listDocument = new ArrayList<ProductDocmentDto>();
-				List<ProductDocument> productDocumentList = productDocumentRepository.findByProductId(productDto.getId());
+				List<ProductDocument> productDocumentList = productDocumentRepository.findByProductId(productDto.getProductId());
 				if (productDocumentList != null && !productDocumentList.isEmpty()) {
 					listDocument = productDocumentList.stream()
 							.map(productDocument -> new ProductDocmentDto(productDocument))
