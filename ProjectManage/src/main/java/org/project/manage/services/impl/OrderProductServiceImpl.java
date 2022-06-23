@@ -392,8 +392,8 @@ public class OrderProductServiceImpl implements OrderProductService {
 				if (product == null) {
 					continue;
 				}
-				if (product.getStatus() != SystemConfigUtil.STATUS_ACTIVE) {
-					throw new AppException(MessageResult.GRD007_PRODUCT);
+				if (product.getStatus() != SystemConfigUtil.STATUS_ACTIVE || product.getTotalProduct()==0 ) {
+					throw new AppException(product.getProductName()+ MessageResult.GRD007_PRODUCT);
 				}
 				if (cartTemp.getTotalProduct() > product.getTotalProduct()) {
 					throw new AppException(MessageResult.GRD010_PRODUCT);
