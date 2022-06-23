@@ -42,6 +42,7 @@ import org.project.manage.repository.UserRepository;
 import org.project.manage.repository.VoucherRepository;
 import org.project.manage.request.CartAddRequest;
 import org.project.manage.response.CartResponse;
+import org.project.manage.response.ListOrderResponse;
 import org.project.manage.response.OrderProductListRespone;
 import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
@@ -618,8 +619,8 @@ public class OrderProductServiceImpl implements OrderProductService {
 	}
 
 	@Override
-	public List<OrderPaymentDto> getListOrder(User user, String orderStatus) {
-		// OrderProductListRespone respone = new OrderProductListRespone();
+	public ListOrderResponse getListOrder(User user, String orderStatus) {
+		 ListOrderResponse response = new ListOrderResponse();
 		List<OrderProduct> orderProducts = orderProductRepository
 				.findByUserIdAndStatusOrderByCreatedDateDesc(user.getId(), orderStatus);
 		List<OrderPaymentDto> listResponse = orderProducts.stream().sorted().map(x -> {
@@ -628,7 +629,8 @@ public class OrderProductServiceImpl implements OrderProductService {
 			dto.setOrderId(x.getUuidId());
 			return dto;
 		}).collect(Collectors.toList());
-		return listResponse;
+		response.setListOrder(listResponse);
+		return response;
 	}
 
 	private void convertEntityToDtoOrderList(OrderProduct orderProduct, OrderPaymentDto dto) {

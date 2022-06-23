@@ -11,6 +11,7 @@ import org.project.manage.exception.AppException;
 import org.project.manage.request.CartAddRequest;
 import org.project.manage.response.ApiResponse;
 import org.project.manage.response.CartResponse;
+import org.project.manage.response.ListOrderResponse;
 import org.project.manage.response.ListProductRespose;
 import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
@@ -176,7 +177,8 @@ public class OrderProductController {
 		long start = System.currentTimeMillis();
 		try {
 			User user = getUserFromAuthentication();
-			List<OrderPaymentDto> response = this.orderProductService.getListOrder(user, orderStatus);
+			ListOrderResponse  response = new ListOrderResponse();
+			 response = this.orderProductService.getListOrder(user, orderStatus);
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getListOrder#ERROR#:" + e.getMessage());
