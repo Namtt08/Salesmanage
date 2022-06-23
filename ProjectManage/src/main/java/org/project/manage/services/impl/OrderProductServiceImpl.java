@@ -63,6 +63,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@Transactional
 public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
@@ -200,8 +201,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 	public ProductCartResponse deleteProductCart(CartAddRequest request, User user) {
 		ProductCartResponse response = new ProductCartResponse();
 		try {
-			cartTempRepository.deleteById(request.getId());
+			cartTempRepository.deleteProductCardTemp(request.getId(), user.getId());
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error("#deleteProductCart#ERROR#");
 			throw new AppException(MessageResult.ERROR_COMMON);
 		}
