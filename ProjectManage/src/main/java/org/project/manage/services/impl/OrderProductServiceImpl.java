@@ -21,6 +21,7 @@ import org.project.manage.entities.OrderProduct;
 import org.project.manage.entities.OrderProductHistory;
 import org.project.manage.entities.PaymentHistory;
 import org.project.manage.entities.Product;
+import org.project.manage.entities.ProductCategory;
 import org.project.manage.entities.Promotion;
 import org.project.manage.entities.TransactionProductOrder;
 import org.project.manage.entities.User;
@@ -33,6 +34,7 @@ import org.project.manage.repository.CartTempRepository;
 import org.project.manage.repository.OrderProductHistoryRepository;
 import org.project.manage.repository.OrderProductRepository;
 import org.project.manage.repository.PaymentHistoryRepository;
+import org.project.manage.repository.ProductCategoryRepository;
 import org.project.manage.repository.ProductDocumentRepository;
 import org.project.manage.repository.ProductRepository;
 import org.project.manage.repository.PromotionRepository;
@@ -98,6 +100,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
 	private OrderProductHistoryRepository orderProductHistoryRepository;
+	
+	@Autowired
+	private ProductCategoryRepository productCategoryRepository;
 
 	@Override
 	public CartResponse addCart(CartAddRequest request, User user) {
@@ -511,11 +516,19 @@ public class OrderProductServiceImpl implements OrderProductService {
 								: promotion.getPromotionTotal()) > (userPromotionRepository
 										.findByUserIdAndPromotionId(user.getId(), promotion.getId())).size())
 						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
+				for (PromotionDto promotionDto : listPromotion) {
+					promotionDto.setBannerPath("\\opt\\application-data\\upload\\image-promotion-temp\\1111.jpg");
+					ProductCategory  ProductCategory= productCategoryRepository.getDataProductCategoryById(product.getProductCategoryId(), 1L);
+					promotionDto.setProductCateName(ProductCategory.getName());
+				}
 				listData.addAll(listPromotion);
 			});
 		}
 		List<PromotionDto> listvoucher = voucherRepository.findByUserId(user.getId()).stream()
 				.map(voucher -> new PromotionDto(voucher)).collect(Collectors.toList());
+		for (PromotionDto promotionDto : listvoucher) {
+			promotionDto.setBannerPath("\\opt\\application-data\\upload\\image-promotion-temp\\1111.jpg");
+		}
 		listData.addAll(listvoucher);
 		response.setListPromotion(listData);
 		return response;

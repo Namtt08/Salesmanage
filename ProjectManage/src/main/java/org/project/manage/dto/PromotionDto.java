@@ -29,9 +29,10 @@ public class PromotionDto {
 	
 	private Long promotionTotal;
 	
+	private String bannerPath;
 	
-	
-	
+	private String productCateName;
+
 	public PromotionDto(Promotion model) {
 		this.id = model.getId();
 		this.code = model.getPromotionCode();

@@ -113,7 +113,7 @@ public class OrderProductController {
 
 	}
 
-	@GetMapping("/get-payment-order")
+	@PostMapping("/get-payment-order")
 	public ApiResponse getPaymentOrder(@RequestBody CartResponse request) {
 		long start = System.currentTimeMillis();
 		try {
@@ -127,7 +127,7 @@ public class OrderProductController {
 		}
 	}
 
-	@GetMapping("/promotion-order")
+	@PostMapping("/promotion-order")
 	public ApiResponse promotionOrder(@RequestBody(required = false) CartResponse request) {
 		long start = System.currentTimeMillis();
 		try {

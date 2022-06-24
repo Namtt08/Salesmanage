@@ -4,9 +4,13 @@ import java.util.List;
 
 import org.project.manage.dto.PromotionDto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
 public class PromotionProductOrderResponse extends MessageSuccessResponse {
 
 	List<PromotionDto> listPromotion;
