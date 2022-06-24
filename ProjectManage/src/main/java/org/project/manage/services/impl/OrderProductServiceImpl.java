@@ -274,7 +274,6 @@ public class OrderProductServiceImpl implements OrderProductService {
 			response.setUserId(user.getId());
 			Long total = 0L;
 			Long totalDiscount = 0L;
-			Long priceTotal = 0L;
 			Long maxAmountDiscount = null;
 			if (!Objects.isNull(request.getPromotionDto())) {
 				if (StringUtils.equals(request.getPromotionDto().getType(), SystemConfigUtil.VOURCHER)) {
@@ -305,7 +304,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 				if (cartTemp.getTotalProduct() > product.getTotalProduct()) {
 					throw new AppException(MessageResult.GRD010_PRODUCT);
 				}
-				priceTotal = priceTotal + product.getPrice();
+				
 				String bannerProduct = productDocumentRepository.getdocPathProductByIdAndPosition(product.getId(), 1L);
 				productCart.setProductName(product.getProductName());
 				productCart.setPrice(product.getPrice());
@@ -347,7 +346,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 				}
 			}
 			response.setTotalAmount(total - totalDiscount);
-			response.setPriceTotal(priceTotal);
+			response.setPriceTotal(total);
 			response.setListCart(listProduct);
 
 			return response;
