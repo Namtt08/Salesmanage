@@ -42,6 +42,7 @@ import org.project.manage.repository.UserRepository;
 import org.project.manage.repository.VoucherRepository;
 import org.project.manage.request.CartAddRequest;
 import org.project.manage.response.CartResponse;
+import org.project.manage.response.ListOrderResponse;
 import org.project.manage.response.OrderProductListRespone;
 import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
@@ -62,6 +63,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@Transactional
 public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
@@ -199,8 +201,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 	public ProductCartResponse deleteProductCart(CartAddRequest request, User user) {
 		ProductCartResponse response = new ProductCartResponse();
 		try {
-			cartTempRepository.deleteById(request.getId());
+			cartTempRepository.deleteProductCardTemp(request.getId(), user.getId());
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error("#deleteProductCart#ERROR#");
 			throw new AppException(MessageResult.ERROR_COMMON);
 		}
@@ -621,17 +624,31 @@ public class OrderProductServiceImpl implements OrderProductService {
 	}
 
 	@Override
-	public List<OrderPaymentDto> getListOrder(User user, String orderStatus) {
-		// OrderProductListRespone respone = new OrderProductListRespone();
+	public ListOrderResponse getListOrder(User user, String orderStatus) {
+		 ListOrderResponse response = new ListOrderResponse();
+		 try {
 		List<OrderProduct> orderProducts = orderProductRepository
 				.findByUserIdAndStatusOrderByCreatedDateDesc(user.getId(), orderStatus);
-		List<OrderPaymentDto> listResponse = orderProducts.stream().sorted().map(x -> {
+//		List<OrderPaymentDto> listResponse = orderProducts.stream().sorted().map(x -> {
+//			OrderPaymentDto dto = new OrderPaymentDto();
+//			convertEntityToDtoOrderList(x, dto);
+//			dto.setOrderId(x.getUuidId());
+//			return dto;
+//		}).collect(Collectors.toList());
+		
+		List<OrderPaymentDto> listResponse = new ArrayList<OrderPaymentDto>();
+		for (OrderProduct orderProduct : orderProducts) {
 			OrderPaymentDto dto = new OrderPaymentDto();
-			convertEntityToDtoOrderList(x, dto);
-			dto.setOrderId(x.getUuidId());
-			return dto;
-		}).collect(Collectors.toList());
-		return listResponse;
+			this.convertEntityToDtoOrderList(orderProduct, dto);		
+			dto.setOrderId(orderProduct.getUuidId());
+			listResponse.add(dto);
+		}
+		response.setListOrder(listResponse);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return response;
 	}
 
 	private void convertEntityToDtoOrderList(OrderProduct orderProduct, OrderPaymentDto dto) {

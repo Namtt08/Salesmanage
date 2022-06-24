@@ -1,12 +1,9 @@
 package org.project.manage.services;
 
-import java.util.List;
-
-import org.project.manage.dto.OrderPaymentDto;
-import org.project.manage.dto.PromotionDto;
 import org.project.manage.entities.User;
 import org.project.manage.request.CartAddRequest;
 import org.project.manage.response.CartResponse;
+import org.project.manage.response.ListOrderResponse;
 import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
@@ -30,7 +27,7 @@ public interface OrderProductService {
 
 	PaymentOrderDetailResponse getOrderDetail(String orderId, String orderCode, User user);
 
-	List<OrderPaymentDto> getListOrder(User user, String orderStatus);
+	ListOrderResponse getListOrder(User user, String orderStatus);
 
 	String cancelOrder(User user, String orderCode);
 
