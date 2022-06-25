@@ -9,12 +9,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.project.manage.dao.OrderProductDao;
 import org.project.manage.dto.CartDto;
 import org.project.manage.dto.OrderPaymentDto;
 import org.project.manage.dto.OrderProductDto;
 import org.project.manage.dto.OrderProductHistoryDto;
+import org.project.manage.dto.OrderStatusProducDto;
 import org.project.manage.dto.PromotionDto;
 import org.project.manage.entities.CartTemp;
 import org.project.manage.entities.OrderProduct;
@@ -45,7 +46,6 @@ import org.project.manage.repository.VoucherRepository;
 import org.project.manage.request.CartAddRequest;
 import org.project.manage.response.CartResponse;
 import org.project.manage.response.ListOrderResponse;
-import org.project.manage.response.OrderProductListRespone;
 import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
@@ -100,9 +100,12 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
 	private OrderProductHistoryRepository orderProductHistoryRepository;
-	
+
 	@Autowired
 	private ProductCategoryRepository productCategoryRepository;
+	
+	@Autowired
+	private OrderProductDao orderProductDao;
 
 	@Override
 	public CartResponse addCart(CartAddRequest request, User user) {
@@ -242,7 +245,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 					cartTemp.setTotalProduct(product.getTotalProduct());
 					response.setMessageProduct(MessageResult.GRD008_PRODUCT + cartTemp.getTotalProduct());
 					cartTempRepository.save(cartTemp);
-					
+
 				}
 				String bannerProduct = productDocumentRepository.getdocPathProductByIdAndPosition(product.getId(), 1L);
 				productCart.setProductName(product.getProductName());
@@ -309,7 +312,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 				if (cartTemp.getTotalProduct() > product.getTotalProduct()) {
 					throw new AppException(MessageResult.GRD010_PRODUCT);
 				}
-				
+
 				String bannerProduct = productDocumentRepository.getdocPathProductByIdAndPosition(product.getId(), 1L);
 				productCart.setProductName(product.getProductName());
 				productCart.setPrice(product.getPrice());
@@ -397,16 +400,21 @@ public class OrderProductServiceImpl implements OrderProductService {
 			Long totalAmount = 0L;
 			Long totalDiscount = 0L;
 			for (CartDto cartTemp : v) {
+				Long priceAfterPromotion = 0L;
+				boolean flagPromotion = false;
 				TransactionProductOrder transaction = new TransactionProductOrder();
 				Product product = productRepository.findById(cartTemp.getProductId()).orElse(null);
 				if (product == null) {
 					continue;
 				}
-				if (product.getStatus() != SystemConfigUtil.STATUS_ACTIVE || product.getTotalProduct()==0 ) {
-					throw new AppException(product.getProductName()+ MessageResult.GRD007_PRODUCT);
+				if (product.getStatus() != SystemConfigUtil.STATUS_ACTIVE || product.getTotalProduct() == 0) {
+					throw new AppException(product.getProductName() + ": " + MessageResult.GRD006_PRODUCT);
+				}
+				if (product.getTotalProduct() == 0) {
+					throw new AppException(product.getProductName() + ": " + MessageResult.GRD007_PRODUCT);
 				}
 				if (cartTemp.getTotalProduct() > product.getTotalProduct()) {
-					throw new AppException(MessageResult.GRD010_PRODUCT);
+					throw new AppException(MessageResult.GRD015_PRODUCT);
 				}
 				product.setTotalProduct(product.getTotalProduct() - cartTemp.getTotalProduct());
 				productRepository.save(product);
@@ -436,6 +444,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 							List<UserPromotion> userPromotionList = userPromotionRepository
 									.findByUserIdAndPromotionId(user.getId(), promotion.getId());
 							if (promotionTotal > userPromotionList.size()) {
+								flagPromotion = true; // Nếu = false thì totalAmount = totalAmount + productPrice;
 								orderEnity.setPromotionId(promotion.getId());
 								UserPromotion userPromotion = new UserPromotion();
 								userPromotion.setPromotionId(promotion.getId());
@@ -463,7 +472,13 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 					}
 				}
-				totalAmount = totalAmount + (product.getPrice() * cartTemp.getTotalProduct()) - totalDiscount;
+				if (flagPromotion) {
+					totalAmount = totalAmount + (product.getPrice() * cartTemp.getTotalProduct()) - totalDiscount;
+					priceAfterPromotion = (product.getPrice() * cartTemp.getTotalProduct()) - totalDiscount;
+				} else {
+					totalAmount = totalAmount + (product.getPrice() * cartTemp.getTotalProduct());
+					priceAfterPromotion = (product.getPrice() * cartTemp.getTotalProduct());
+				}
 				orderEnity.setTotalDiscount(totalDiscount);
 				if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
 					if (totalAmount > user.getPoint()) {
@@ -479,6 +494,8 @@ public class OrderProductServiceImpl implements OrderProductService {
 						cartTempRepository.delete(cart);
 					}
 				}
+				transaction.setPriceAfterPromotion(priceAfterPromotion);
+				transaction.setOrderStatus(OrderStatusEnum.NEW.getValue());
 				transactionProductOrderRepository.save(transaction);
 			}
 			orderEnity.setPaymentMethod(request.getPaymentMethod());
@@ -502,8 +519,8 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Override
 	@SneakyThrows
-	public  PromotionProductOrderResponse promotionOrder(CartResponse request, User user) {
-		PromotionProductOrderResponse  response= new PromotionProductOrderResponse();
+	public PromotionProductOrderResponse promotionOrder(CartResponse request, User user) {
+		PromotionProductOrderResponse response = new PromotionProductOrderResponse();
 		List<PromotionDto> listData = new ArrayList<PromotionDto>();
 		if (request != null) {
 			List<CartDto> listCart = request.getListCart();
@@ -518,7 +535,8 @@ public class OrderProductServiceImpl implements OrderProductService {
 						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
 				for (PromotionDto promotionDto : listPromotion) {
 					promotionDto.setBannerPath("\\opt\\application-data\\upload\\image-promotion-temp\\1111.jpg");
-					ProductCategory  ProductCategory= productCategoryRepository.getDataProductCategoryById(product.getProductCategoryId(), 1L);
+					ProductCategory ProductCategory = productCategoryRepository
+							.getDataProductCategoryById(product.getProductCategoryId(), 1L);
 					promotionDto.setProductCateName(ProductCategory.getName());
 				}
 				listData.addAll(listPromotion);
@@ -637,25 +655,29 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Override
 	public ListOrderResponse getListOrder(User user, String orderStatus) {
-		 ListOrderResponse response = new ListOrderResponse();
-		 try {
-		List<OrderProduct> orderProducts = orderProductRepository
-				.findByUserIdAndStatusOrderByCreatedDateDesc(user.getId(), orderStatus);
-//		List<OrderPaymentDto> listResponse = orderProducts.stream().sorted().map(x -> {
+		ListOrderResponse response = new ListOrderResponse();
+		try {
+		//	List<OrderProduct> orderProducts = orderProductRepository.findByUserIdByCreatedDateDesc(user.getId());
+			
+			List<OrderStatusProducDto> listdata = orderProductDao.getListOrderProductStatus(user.getId());
+			// List<OrderPaymentDto> listResponse = orderProducts.stream().sorted().map(x ->
+			// {
 //			OrderPaymentDto dto = new OrderPaymentDto();
 //			convertEntityToDtoOrderList(x, dto);
 //			dto.setOrderId(x.getUuidId());
 //			return dto;
 //		}).collect(Collectors.toList());
+
+//			List<OrderPaymentDto> listResponse = new ArrayList<OrderPaymentDto>();
+//			for (OrderProduct orderProduct : orderProducts) {
+//				OrderPaymentDto dto = new OrderPaymentDto();
+//				this.convertEntityToDtoOrderList(orderProduct, dto);
+//				dto.setOrderId(orderProduct.getUuidId());
+//				listResponse.add(dto);
+//			}
+//			
 		
-		List<OrderPaymentDto> listResponse = new ArrayList<OrderPaymentDto>();
-		for (OrderProduct orderProduct : orderProducts) {
-			OrderPaymentDto dto = new OrderPaymentDto();
-			this.convertEntityToDtoOrderList(orderProduct, dto);		
-			dto.setOrderId(orderProduct.getUuidId());
-			listResponse.add(dto);
-		}
-		response.setListOrder(listResponse);
+		//	response.setListOrder(listResponse);
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -667,7 +689,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 		dto.setNote(orderProduct.getNote());
 		dto.setDeliveryAddress(orderProduct.getDeliveryAddress());
 		dto.setCodeOrders(orderProduct.getCodeOrders());
-		dto.setStatus(OrderStatusEnum.getByValue(orderProduct.getStatus()).getName());
+		//dto.setStatus(OrderStatusEnum.getByValue(orderProduct.getStatus()).getName());
 		dto.setPartnerId(orderProduct.getPartnerId());
 		User partner = userRepository.findById(orderProduct.getPartnerId()).orElse(null);
 		if (!Objects.isNull(partner)) {

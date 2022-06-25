@@ -14,6 +14,6 @@ public interface OrderProductRepository extends JpaRepository<OrderProduct, Long
 
 	List<OrderProduct> findByUuidId(String orderId);
 
-	List<OrderProduct> findByUserIdAndStatusOrderByCreatedDateDesc(Long id, String orderStatus);
+	//List<OrderProduct> findByUserIdByCreatedDateDesc(Long id);
 
 }

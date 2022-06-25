@@ -58,4 +58,6 @@ public interface MessageResult {
 	
 	String GRD014_ORDER = "Mã đơn hàng không được hủy vui lòng liên hệ tổng đài";
 	
+	String GRD015_PRODUCT = "Sản phẩm trong kho không đủ cho đơn hàng này.";
+	
 }

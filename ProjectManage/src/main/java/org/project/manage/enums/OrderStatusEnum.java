@@ -3,7 +3,7 @@ package org.project.manage.enums;
 import java.util.stream.Stream;
 
 public enum OrderStatusEnum {
-	FAIL("-1", "Đơn hàng đã hủy"), NEW("0", "Đang xử lý"), WAITING("1", "Đang giao"),
+	FAIL("3", "Đơn hàng đã hủy"), NEW("0", "Đang xử lý"), WAITING("1", "Đang giao"),
 	SUCCESS("2", "Đã hoàn thành");
 
 	private String value;

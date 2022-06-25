@@ -34,5 +34,8 @@ public class TransactionProductOrder {
 
 	private Date createdDate;
 
+	private Long priceAfterPromotion;
+	
+	private String orderStatus;
 
 }
