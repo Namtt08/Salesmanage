@@ -20,12 +20,14 @@ public class OrderStatusProducDto {
 	private Long price;
 
 	@JsonInclude(JsonInclude.Include.ALWAYS)
-	private Long totalProduct;
+	private Long  totalProduct;
 
 	@JsonInclude(JsonInclude.Include.ALWAYS)
 	private Long priceAfterPromotion;
 
-	private String orderStatus;
+	@JsonInclude(JsonInclude.Include.ALWAYS)
+	private Long orderStatus;
+	
 	private String codeOrders;
 
 	@JsonInclude(JsonInclude.Include.ALWAYS)
@@ -40,7 +42,7 @@ public class OrderStatusProducDto {
 
 	private String createdDate;
 
-	private String paymentStatus;
+	private int paymentStatus;
 
 	private String paymentMethod;
 
@@ -56,15 +58,23 @@ public class OrderStatusProducDto {
 	private String deliveryAddress;
 
 	private String note;
+	
+	private String voucherName;
+	
+	private String promotionName;
+	
+	private String paymentName;
+	
+	private String bannerPath;
 
 	public OrderStatusProducDto() {
 		
 	}
 
 	public OrderStatusProducDto(Long productId, String productName, Long price, Long totalProduct,
-			Long priceAfterPromotion, String orderStatus, String codeOrders, Long partnerId, String uuidId,
-			Long totalAmount, String createdBy, String createdDate, String paymentStatus, String paymentMethod,
-			Long voucherId, Long promotionId, Long totalDiscount, String deliveryAddress, String note) {
+			Long priceAfterPromotion, Long orderStatus, String codeOrders, Long partnerId, String uuidId,
+			Long totalAmount, String createdBy, String createdDate, int paymentStatus, String paymentMethod,
+			Long voucherId, Long promotionId, Long totalDiscount, String deliveryAddress, String note ) {
 		super();
 		this.productId = productId;
 		this.productName = productName;
@@ -85,6 +95,8 @@ public class OrderStatusProducDto {
 		this.totalDiscount = totalDiscount;
 		this.deliveryAddress = deliveryAddress;
 		this.note = note;
+		this.voucherName = voucherName;
+		this.promotionName = promotionName;
 	}
 
 }

@@ -28,12 +28,12 @@ public class OrderProductImpl implements OrderProductDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<OrderStatusProducDto> getListOrderProductStatus(Long userId) {
+	public List<OrderStatusProducDto> getListOrderProductStatus(Long userId, String orderStatus) {
 		StringBuilder builder = new StringBuilder();
 		this.generateQuery(builder, userId);
 
 		Query query = entityManager.createNativeQuery(builder.toString());
-		setSearchFilter(userId, query);
+		setSearchFilter(userId, orderStatus, query);
 
 		List<Object[]> results = query.getResultList();
 
@@ -43,14 +43,26 @@ public class OrderProductImpl implements OrderProductDao {
 	private List<OrderStatusProducDto> convertOrderStatusProduc(List<Object[]> results) {
 		try {
 			return results.stream()
-					.map(result -> new OrderStatusProducDto(((BigInteger) result[0]).longValue(), (String) result[1],
-							((BigInteger) result[2]).longValue(), ((BigInteger) result[3]).longValue(),
-							((BigInteger) result[4]).longValue(), (String) result[5], (String) result[6],
-							((BigInteger) result[7]).longValue(), (String) result[8],
-							((BigInteger) result[9]).longValue(), (String) result[10], (String) result[11],
-							(String) result[12], (String) result[13], ((BigInteger) result[14]).longValue(),
-							((BigInteger) result[15]).longValue(), ((BigInteger) result[16]).longValue(),
-							(String) result[17], (String) result[18]))
+					.map(result -> new OrderStatusProducDto(
+							((BigInteger) result[0]).longValue(), 
+							(String) result[1],
+							((BigInteger) result[2]).longValue(), 
+							((BigInteger) result[3]).longValue(),
+							((BigInteger) result[4]).longValue(), 
+							((BigInteger) result[5]).longValue(), 
+							(String) result[6],
+							((BigInteger) result[7]).longValue(), 
+							(String) result[8],
+							((BigInteger) result[9]).longValue(), 
+							(String) result[10], 
+							(String) result[11],
+							((Integer) result[12]).intValue(), 
+							(String) result[13], 
+							((BigInteger) result[14]).longValue(),
+							((BigInteger) result[15]).longValue(), 
+							((BigInteger) result[16]).longValue(),
+							(String) result[17], 
+							(String) result[18]))
 					.collect(Collectors.toList());
 		} catch (Exception e) {
 			log.error("#convertOrderStatusProduc#ERROR#: ", e.toString());
@@ -59,12 +71,15 @@ public class OrderProductImpl implements OrderProductDao {
 		}
 	}
 
-	private void setSearchFilter(Long userId, Query query) {
+	private void setSearchFilter(Long userId,String orderStatus, Query query) {
 
 		if (userId != null) {
 			query.setParameter("userId", userId);
 		}
 
+		if (orderStatus != null) {
+			query.setParameter("orderStatus", orderStatus);
+		}
 	}
 
 	private void generateQuery(StringBuilder builder, Long userId) {
@@ -72,7 +87,7 @@ public class OrderProductImpl implements OrderProductDao {
 				+ "tpo.total_product,\r\n" + "tpo.price_after_promotion,\r\n" + "tpo.order_status,\r\n"
 				+ "tpo.order_product_code,\r\n" + "op.partner_id,\r\n" + "op.uuid_id,\r\n" + "op.total_amount,\r\n"
 				+ "op.created_by,\r\n"
-				+ "CONVERT(VARCHAR(10), ISNULL(op.created_date,SYSDATETIME()), 103) created_date,\r\n"
+				+ "CONVERT(VARCHAR(100), ISNULL(op.created_date,SYSDATETIME()), 22) created_date,\r\n"
 
 				+ "op.payment_status,\r\n" + "op.payment_method,\r\n" + "op.voucher_id,\r\n" + "op.promotion_id,\r\n"
 				+ "op.total_discount,\r\n" + "op.delivery_address,\r\n" + "op.note");
@@ -84,6 +99,9 @@ public class OrderProductImpl implements OrderProductDao {
 
 		if (userId != null) {
 			builder.append(" AND op.user_id  =:userId");
+		}
+		if (userId != null) {
+			builder.append(" AND tpo.order_status  =:orderStatus");
 		}
 		builder.append(" ORDER BY");
 		builder.append(" op.created_date desc");

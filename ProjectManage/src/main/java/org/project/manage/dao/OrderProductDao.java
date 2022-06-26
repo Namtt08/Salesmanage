@@ -6,7 +6,7 @@ import org.project.manage.dto.OrderStatusProducDto;
 
 public interface OrderProductDao {
 
-	List<OrderStatusProducDto> getListOrderProductStatus(Long userId);
+	List<OrderStatusProducDto> getListOrderProductStatus(Long userId, String orderStatus);
 
 	
 }

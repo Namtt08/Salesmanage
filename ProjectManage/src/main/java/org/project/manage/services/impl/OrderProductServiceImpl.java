@@ -17,6 +17,7 @@ import org.project.manage.dto.OrderProductDto;
 import org.project.manage.dto.OrderProductHistoryDto;
 import org.project.manage.dto.OrderStatusProducDto;
 import org.project.manage.dto.PromotionDto;
+import org.project.manage.dto.PromotionSearchDto;
 import org.project.manage.entities.CartTemp;
 import org.project.manage.entities.OrderProduct;
 import org.project.manage.entities.OrderProductHistory;
@@ -46,6 +47,7 @@ import org.project.manage.repository.VoucherRepository;
 import org.project.manage.request.CartAddRequest;
 import org.project.manage.response.CartResponse;
 import org.project.manage.response.ListOrderResponse;
+import org.project.manage.response.ListSearchPromotionResponse;
 import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
@@ -659,7 +661,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 		try {
 		//	List<OrderProduct> orderProducts = orderProductRepository.findByUserIdByCreatedDateDesc(user.getId());
 			
-			List<OrderStatusProducDto> listdata = orderProductDao.getListOrderProductStatus(user.getId());
+			List<OrderStatusProducDto> listResponse= orderProductDao.getListOrderProductStatus(user.getId(), orderStatus);
 			// List<OrderPaymentDto> listResponse = orderProducts.stream().sorted().map(x ->
 			// {
 //			OrderPaymentDto dto = new OrderPaymentDto();
@@ -676,8 +678,35 @@ public class OrderProductServiceImpl implements OrderProductService {
 //				listResponse.add(dto);
 //			}
 //			
+
+			for (OrderStatusProducDto dto : listResponse) {
+//				OrderStatusProducDto orderStatusProducDto = new OrderStatusProducDto();
+//				//this.convertEntityToDtoOrderList(orderProduct, dto);
+//				String paymentStatusStr = dto.getPaymentStatus().
+				dto.setPaymentName(PaymentStatusEnum.getByValue(dto.getPaymentStatus()).getName());
+//				dto.setOrderId(orderProduct.getUuidId());
+//				listResponse.add(dto);
+				
+				String bannerProduct =  productDocumentRepository.getdocPathProductByIdAndPosition(dto.getProductId(), 1L);
+				dto.setBannerPath(bannerProduct);
+				if (!Objects.isNull(dto.getVoucherId())) {
+					Voucher voucher = voucherRepository.findById(dto.getVoucherId()).orElse(null);
+					if (!Objects.isNull(voucher)) {
+						dto.setPromotionName(voucher.getVoucherName());
+					}
+				}
+				if (!Objects.isNull(dto.getPromotionId())) {
+					Promotion promotion = promotionRepository.findById(dto.getPromotionId()).orElse(null);
+					if (!Objects.isNull(promotion)) {
+						dto.setPromotionName(promotion.getPromotionName());
+					}
+				}
+			}
+			
+			
+
 		
-		//	response.setListOrder(listResponse);
+			response.setListOrder(listResponse);
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -755,5 +784,36 @@ public class OrderProductServiceImpl implements OrderProductService {
 		orderProduct.setStatus(OrderStatusEnum.FAIL.getValue());
 		orderProductRepository.save(orderProduct);
 		return orderCode;
+	}
+
+	@Override
+	public ListSearchPromotionResponse getSearchPromotion(User user, String promotionCode) {
+		
+		ListSearchPromotionResponse response = new ListSearchPromotionResponse();
+		List<PromotionSearchDto> listPromotion = new ArrayList<>();
+	
+		Voucher voucher = voucherRepository.findByUserIdAndVoucherCode(user.getId(),promotionCode);
+		if (Objects.nonNull(voucher)) {
+			PromotionSearchDto dto = new PromotionSearchDto();
+			dto.setId(voucher.getId());
+			dto.setPromotionCode(voucher.getVoucherCode());
+			dto.setPromotionName(voucher.getVoucherName());
+			dto.setPromotionType("VOUCHER");
+			dto.setDescription(voucher.getDescription());
+			listPromotion.add(dto);
+		}
+		Promotion promotion = promotionRepository.findByPromotionCode(promotionCode);
+		if (Objects.nonNull(promotion)) {
+			PromotionSearchDto dto = new PromotionSearchDto();
+			dto.setId(promotion.getId());
+			dto.setPromotionCode(promotion.getPromotionCode());
+			dto.setPromotionName(promotion.getPromotionName());
+			dto.setPromotionType("PROMOTION");
+			dto.setDescription(promotion.getDescription());
+			listPromotion.add(dto);
+		}
+		
+		response.setListPromotion(listPromotion);
+		return response;
 	}
 }

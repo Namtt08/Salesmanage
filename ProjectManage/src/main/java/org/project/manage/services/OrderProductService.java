@@ -4,6 +4,7 @@ import org.project.manage.entities.User;
 import org.project.manage.request.CartAddRequest;
 import org.project.manage.response.CartResponse;
 import org.project.manage.response.ListOrderResponse;
+import org.project.manage.response.ListSearchPromotionResponse;
 import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
@@ -30,5 +31,7 @@ public interface OrderProductService {
 	ListOrderResponse getListOrder(User user, String orderStatus);
 
 	String cancelOrder(User user, String orderCode);
+	
+	ListSearchPromotionResponse getSearchPromotion(User user, String promotionCode);
 
 }

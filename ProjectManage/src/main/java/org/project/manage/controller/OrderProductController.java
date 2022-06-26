@@ -13,6 +13,7 @@ import org.project.manage.response.ApiResponse;
 import org.project.manage.response.CartResponse;
 import org.project.manage.response.ListOrderResponse;
 import org.project.manage.response.ListProductRespose;
+import org.project.manage.response.ListSearchPromotionResponse;
 import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
@@ -192,6 +193,20 @@ public class OrderProductController {
 		try {
 			User user = getUserFromAuthentication();
 			String response = this.orderProductService.cancelOrder(user, orderCode);
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#getListOrder#ERROR#:" + e.getMessage());
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	
+	@GetMapping("/get-list-search-promotion")
+	public ApiResponse getListSearchPromotion(@RequestParam(value = "promotionCode", required = true) String promotionCode) {
+		long start = System.currentTimeMillis();
+		try {
+			User user = getUserFromAuthentication();
+			ListSearchPromotionResponse  response = new ListSearchPromotionResponse();
+			 response = this.orderProductService.getSearchPromotion(user, promotionCode);
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getListOrder#ERROR#:" + e.getMessage());

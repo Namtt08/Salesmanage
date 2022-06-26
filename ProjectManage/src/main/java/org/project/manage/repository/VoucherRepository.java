@@ -13,6 +13,8 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
 
 	@Query(nativeQuery = true, value = "SELECT v.* FROM voucher v  where v.user_id =:userId and v.status =1 and SYSDATETIME() BETWEEN v.start_date  AND v.end_date")
 	List<Voucher> findByUserId(@Param("userId") Long userId);
+	
+	Voucher findByUserIdAndVoucherCode(Long userId, String voucherCode);
 
 	
 }
