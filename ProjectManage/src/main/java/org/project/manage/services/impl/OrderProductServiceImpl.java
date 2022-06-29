@@ -369,6 +369,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 	@Override
 	@Transactional
 	public PaymentOrderResponse paymentOrder(CartResponse request, User user) {
+		
 		PaymentOrderResponse response = new PaymentOrderResponse();
 		String uuid = UUID.randomUUID().toString();
 		String yyyymmddhhmmss = DateHelper.convertDateTimeToString(new Date());
@@ -384,9 +385,13 @@ public class OrderProductServiceImpl implements OrderProductService {
 				request.setMaxAmountDiscount(promotion.getMaxAmount());
 			}
 		}
+		
+		try {
 		Map<Long, List<CartDto>> mapCart = listCart.stream().collect(Collectors.groupingBy(CartDto::getPartnerId));
 		mapCart.forEach((k, v) -> {
 			OrderProduct orderEnity = new OrderProduct();
+			orderEnity.setPromotionId(0L);// mặc đinh = 0
+			orderEnity.setVoucherId(0L);// mặc đinh = 0
 			orderEnity.setUserId(user.getId());
 			orderEnity.setUuidId(uuid);
 			orderEnity.setDeliveryAddress(request.getDeliveryAddress());
@@ -516,6 +521,10 @@ public class OrderProductServiceImpl implements OrderProductService {
 			}
 		});
 		response.setOrderId(uuid);
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 		return response;
 	}
 
