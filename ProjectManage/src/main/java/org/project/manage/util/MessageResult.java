@@ -60,4 +60,6 @@ public interface MessageResult {
 	
 	String GRD015_PRODUCT = "Sản phẩm trong kho không đủ cho đơn hàng này.";
 	
+	String USER_INTRODUCED = "Tài khoản này đã được quét mã giới thiệu.";
+	
 }

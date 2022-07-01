@@ -5,11 +5,13 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.project.manage.dto.PresenterRequestDto;
 import org.project.manage.entities.User;
 import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.request.UserLoginRequest;
 import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.PaymentHistoryResponse;
+import org.project.manage.response.PresenterResponse;
 
 public interface UserService {
 
@@ -34,5 +36,7 @@ public interface UserService {
 	public Optional<User> findById(Long id);
 
 	public List<PaymentHistoryResponse> getHistoryPayment(User user);
+	
+	PresenterResponse addPresenter(User user, PresenterRequestDto presenterRequestDto);
 
 }

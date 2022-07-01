@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,12 +21,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.modelmapper.ModelMapper;
+import org.project.manage.dto.PresenterRequestDto;
 import org.project.manage.entities.Document;
 import org.project.manage.entities.DocumentInfo;
 import org.project.manage.entities.DocumentType;
 import org.project.manage.entities.PaymentHistory;
 import org.project.manage.entities.Role;
 import org.project.manage.entities.User;
+import org.project.manage.entities.UserIntroducedEntity;
 import org.project.manage.enums.ChargeTypeEnum;
 import org.project.manage.exception.AppException;
 import org.project.manage.repository.DocumentInfoRepository;
@@ -33,6 +36,7 @@ import org.project.manage.repository.DocumentRepository;
 import org.project.manage.repository.DocumentTypeRepository;
 import org.project.manage.repository.PaymentHistoryRepository;
 import org.project.manage.repository.RoleRepository;
+import org.project.manage.repository.UserIntroducedRepository;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.request.DocumentRequest;
 import org.project.manage.request.FileContentRequest;
@@ -42,6 +46,7 @@ import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.DocumentResponse;
 import org.project.manage.response.FilePathRespone;
 import org.project.manage.response.PaymentHistoryResponse;
+import org.project.manage.response.PresenterResponse;
 import org.project.manage.security.ERole;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
@@ -85,6 +90,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private PaymentHistoryRepository paymentHistoryRepository;
+	
+	@Autowired
+	private UserIntroducedRepository  userIntroducedRepository;
 
 	@Bean
 	public ModelMapper modelMapper() {
@@ -501,6 +509,20 @@ public class UserServiceImpl implements UserService {
 					return dto;
 				}).collect(Collectors.toList());
 		return listResponse;
+	}
+
+	@Override
+	public PresenterResponse addPresenter(User user,PresenterRequestDto presenterRequestDto) {
+		
+		PresenterResponse response = new PresenterResponse();
+		UserIntroducedEntity userIntroducedEntity = new UserIntroducedEntity();
+		userIntroducedEntity.setCreatedBy(user.getUsername());
+		userIntroducedEntity.setCreatedDate(new Date());
+		userIntroducedEntity.setType(presenterRequestDto.getType());
+		userIntroducedEntity.setUserIntroducedId(presenterRequestDto.getUserIntroduceId());
+		userIntroducedEntity.setUserId(user.getId());
+		userIntroducedRepository.save(userIntroducedEntity);
+		return response;
 	}
 
 }

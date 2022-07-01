@@ -6,18 +6,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.project.manage.dto.PresenterRequestDto;
 import org.project.manage.entities.SystemSetting;
 import org.project.manage.entities.User;
+import org.project.manage.entities.UserIntroducedEntity;
 import org.project.manage.exception.AppException;
+import org.project.manage.repository.UserIntroducedRepository;
 import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.response.ApiResponse;
 import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.MessageResponse;
 import org.project.manage.response.MessageSuccessResponse;
 import org.project.manage.response.PaymentHistoryResponse;
+import org.project.manage.response.PresenterResponse;
 import org.project.manage.response.UserInfoResponse;
 import org.project.manage.services.SystemSettingService;
 import org.project.manage.services.UserService;
@@ -64,6 +70,9 @@ public class UserController {
 	
 	@Autowired
 	private SystemSettingService systemSettingService;
+	
+	@Autowired
+	private UserIntroducedRepository  userIntroducedRepository;
 
 	@PostMapping("/update-user-info")
 	public ApiResponse updateUserInfo(@RequestBody UpdateUserInfo otpLoginRequest) {
@@ -191,6 +200,30 @@ public class UserController {
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getHistoryPayment#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	
+	@PostMapping("/presenter")
+	public ApiResponse addPresenter(@RequestBody PresenterRequestDto presenterRequestDto) {
+		long start = System.currentTimeMillis();
+		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+
+			Optional<UserIntroducedEntity> userIntroduced = userIntroducedRepository.findByUserId(user.getId());
+
+			if (userIntroduced.isPresent()) {
+				return successHandler
+						.handlerSuccess(new MessageResponse(AppResultCode.ERROR, MessageResult.USER_INTRODUCED), start);
+			} else {
+				PresenterResponse response = userService.addPresenter(user, presenterRequestDto);
+				return this.successHandler.handlerSuccess(response, start);
+			}
+		} catch (Exception e) {
+			log.error("#addPresenter#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
