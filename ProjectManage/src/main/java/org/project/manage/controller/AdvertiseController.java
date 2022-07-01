@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.project.manage.entities.Document;
 import org.project.manage.response.ApiResponse;
+import org.project.manage.response.MakettingResponse;
 import org.project.manage.services.AdvertisementService;
 import org.project.manage.util.ErrorHandler;
 import org.project.manage.util.SuccessHandler;
@@ -41,8 +42,10 @@ public class AdvertiseController {
 	public ApiResponse getCart() {
 		long start = System.currentTimeMillis();
 		try {
+			
+			MakettingResponse response = new MakettingResponse(); 
 			//User user = getUserFromAuthentication();
-			List <Document> response = advertisementService.getAdvertisementList();
+			 response = advertisementService.getAdvertisementList();
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#deleteProductCart#ERROR#:" + e.getMessage());
