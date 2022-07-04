@@ -13,6 +13,8 @@ public class DocMarketingDto {
 	private String docType;
 	private String url;
 	private Long priority;
-
+    private Long height;    
+    private Long width;
+    
 	
 }

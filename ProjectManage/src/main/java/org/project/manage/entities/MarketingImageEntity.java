@@ -24,5 +24,10 @@ public class MarketingImageEntity {
     private Long idDocImage;
     
     private String url;
+    
+    private Long height;
+    
+    private Long width;
+    
 
 }

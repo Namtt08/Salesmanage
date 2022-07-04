@@ -37,6 +37,8 @@ public class AdvertisementServiceImpl implements AdvertisementService{
 			docMarketingDto.setUrl(marketingImageEntity.get().getUrl());
 			docMarketingDto.setPriority(document.getPriority());
 			docMarketingDto.setDocType(ADVERTISEMENT);
+			docMarketingDto.setHeight(marketingImageEntity.get().getHeight());
+			docMarketingDto.setWidth(marketingImageEntity.get().getWidth());
 			listDocMarketing.add(docMarketingDto);
 		}
 		 response.setListDocMarketing(listDocMarketing);
