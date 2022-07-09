@@ -9,7 +9,9 @@ import org.project.manage.dto.PresenterRequestDto;
 import org.project.manage.entities.User;
 import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.request.UserLoginRequest;
+import org.project.manage.response.DocumentContractResponse;
 import org.project.manage.response.DocumentInfoResponse;
+import org.project.manage.response.NotificationDetailResponse;
 import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
 
@@ -38,5 +40,9 @@ public interface UserService {
 	public List<PaymentHistoryResponse> getHistoryPayment(User user);
 	
 	PresenterResponse addPresenter(User user, PresenterRequestDto presenterRequestDto);
+	
+	NotificationDetailResponse getNotificationDetail(User user);
+	
+	public DocumentContractResponse getDocumentContract(User user);
 
 }

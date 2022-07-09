@@ -19,9 +19,11 @@ import org.project.manage.exception.AppException;
 import org.project.manage.repository.UserIntroducedRepository;
 import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.response.ApiResponse;
+import org.project.manage.response.DocumentContractResponse;
 import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.MessageResponse;
 import org.project.manage.response.MessageSuccessResponse;
+import org.project.manage.response.NotificationDetailResponse;
 import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
 import org.project.manage.response.UserInfoResponse;
@@ -224,6 +226,41 @@ public class UserController {
 			}
 		} catch (Exception e) {
 			log.error("#addPresenter#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	
+	@GetMapping("/notification")
+	public ApiResponse allNotification() {
+		long start = System.currentTimeMillis();
+		try {
+			NotificationDetailResponse response = new NotificationDetailResponse();
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+
+				 response = userService.getNotificationDetail(user);
+				return this.successHandler.handlerSuccess(response, start);
+
+		} catch (Exception e) {
+			log.error("#allNotification#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	
+	@GetMapping("/get-document-contract")
+	public ApiResponse getDocumentContract() {
+		long start = System.currentTimeMillis();
+		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+			DocumentContractResponse response = userService.getDocumentContract(user);
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#getDocumentInfo#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}

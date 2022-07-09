@@ -29,6 +29,7 @@ import org.project.manage.entities.PaymentHistory;
 import org.project.manage.entities.Role;
 import org.project.manage.entities.User;
 import org.project.manage.entities.UserIntroducedEntity;
+import org.project.manage.entities.UserNotificationEntity;
 import org.project.manage.enums.ChargeTypeEnum;
 import org.project.manage.exception.AppException;
 import org.project.manage.repository.DocumentInfoRepository;
@@ -37,14 +38,17 @@ import org.project.manage.repository.DocumentTypeRepository;
 import org.project.manage.repository.PaymentHistoryRepository;
 import org.project.manage.repository.RoleRepository;
 import org.project.manage.repository.UserIntroducedRepository;
+import org.project.manage.repository.UserNotificationRepository;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.request.DocumentRequest;
 import org.project.manage.request.FileContentRequest;
 import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.request.UserLoginRequest;
+import org.project.manage.response.DocumentContractResponse;
 import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.DocumentResponse;
 import org.project.manage.response.FilePathRespone;
+import org.project.manage.response.NotificationDetailResponse;
 import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
 import org.project.manage.security.ERole;
@@ -93,6 +97,11 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UserIntroducedRepository  userIntroducedRepository;
+	
+	@Autowired
+	private UserNotificationRepository userNotificationRepository;
+	
+	private static final String  LEASE_CONTRACT = "LEASE_CONTRACT";
 
 	@Bean
 	public ModelMapper modelMapper() {
@@ -522,6 +531,49 @@ public class UserServiceImpl implements UserService {
 		userIntroducedEntity.setUserIntroducedId(presenterRequestDto.getUserIntroduceId());
 		userIntroducedEntity.setUserId(user.getId());
 		userIntroducedRepository.save(userIntroducedEntity);
+		return response;
+	}
+
+	@Override
+	public NotificationDetailResponse getNotificationDetail(User user) {
+		NotificationDetailResponse response = new NotificationDetailResponse ();
+		
+		List<UserNotificationEntity> listData= userNotificationRepository.getAllNotificationByUserId(user.getId());
+		if(!Objects.isNull(listData)) {
+			response.setListNoti(listData);	
+		}		
+		return response;
+	}
+	
+	@Override
+	public DocumentContractResponse getDocumentContract(User user) {
+		DocumentContractResponse response = new DocumentContractResponse();		
+		List<DocumentResponse> docResponse = new ArrayList<>();
+		Optional<DocumentType> docTypeInfo= documentTypeRepository.findByDocType(LEASE_CONTRACT);
+		if(docTypeInfo.isPresent()) {
+		DocumentType docTypeDto = docTypeInfo.get();
+		
+			DocumentResponse documentResponse = new DocumentResponse();
+			documentResponse.setDocType(docTypeDto.getDocType());
+			documentResponse.setDocName(docTypeDto.getDocName());
+			documentResponse.setTotalDoc(docTypeDto.getTotalDoc());
+			documentResponse.setUploadType(docTypeDto.getUploadType());
+			List<Document> documentList = this.documentRepository.findByDocTypeAndUserId(LEASE_CONTRACT,
+					user.getId());
+			if (documentList != null && !documentList.isEmpty()) {
+				List<FilePathRespone> listFiles = new ArrayList<>();
+				for (Document document : documentList) {
+					FilePathRespone filePath = new FilePathRespone();
+					filePath.setFilePath(document.getDocPath());
+					listFiles.add(filePath);
+				}
+				documentResponse.setPaths(listFiles);
+
+			}
+			docResponse.add(documentResponse);
+		}
+
+		response.setDocuments(docResponse);
 		return response;
 	}
 
