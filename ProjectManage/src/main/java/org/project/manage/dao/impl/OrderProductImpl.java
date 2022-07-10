@@ -101,7 +101,7 @@ public class OrderProductImpl implements OrderProductDao {
 			builder.append(" AND op.user_id  =:userId");
 		}
 		if (userId != null) {
-			builder.append(" AND tpo.order_status  =:orderStatus");
+			builder.append(" AND op.status  =:orderStatus");
 		}
 		builder.append(" ORDER BY");
 		builder.append(" op.created_date desc");

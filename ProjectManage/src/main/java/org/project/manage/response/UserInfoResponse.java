@@ -22,6 +22,7 @@ public class UserInfoResponse extends MessageSuccessResponse{
 	private int level;
 	@JsonInclude(JsonInclude.Include.ALWAYS)
 	private Long totalAmount;
+	private Long point;
 	
 
 	public UserInfoResponse(String cuid, String nationalId, String dob, String fullName,
