@@ -21,7 +21,7 @@ public class MarketingImageEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long idDocImage;
+    private Long idSettingsAdvertising;
     
     private String url;
     

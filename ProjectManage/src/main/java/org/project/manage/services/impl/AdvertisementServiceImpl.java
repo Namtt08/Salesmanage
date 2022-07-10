@@ -32,7 +32,7 @@ public class AdvertisementServiceImpl implements AdvertisementService{
 		 List<Document> docInfo = documentRepository.findByDocType(ADVERTISEMENT);
 		 for (Document document : docInfo) {
 			 DocMarketingDto docMarketingDto = new DocMarketingDto();
-			Optional<MarketingImageEntity> marketingImageEntity= marketingImageRepository.findByIdDocImage(document.getId());
+			Optional<MarketingImageEntity> marketingImageEntity= marketingImageRepository.findByIdSettingsAdvertising(document.getId());
 			docMarketingDto.setDocPath(document.getDocPath());
 			docMarketingDto.setUrl(marketingImageEntity.get().getUrl());
 			docMarketingDto.setPriority(document.getPriority());

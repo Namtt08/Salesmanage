@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MarketingImageRepository extends JpaRepository<MarketingImageEntity, Long> {
 
-	Optional<MarketingImageEntity> findByIdDocImage(Long docId);
+	Optional<MarketingImageEntity> findByIdSettingsAdvertising(Long docId);
 
 }
