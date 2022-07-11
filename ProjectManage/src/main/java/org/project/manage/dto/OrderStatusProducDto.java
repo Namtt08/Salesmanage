@@ -3,6 +3,8 @@ package org.project.manage.dto;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Getter;
@@ -72,7 +74,7 @@ public class OrderStatusProducDto {
 	}
 
 	public OrderStatusProducDto(Long productId, String productName, Long price, Long totalProduct,
-			Long priceAfterPromotion, Long orderStatus, String codeOrders, Long partnerId, String uuidId,
+			Long priceAfterPromotion, String orderStatusStr, String codeOrders, Long partnerId, String uuidId,
 			Long totalAmount, String createdBy, String createdDate, int paymentStatus, String paymentMethod,
 			Long voucherId, Long promotionId, Long totalDiscount, String deliveryAddress, String note ) {
 		super();
@@ -81,7 +83,9 @@ public class OrderStatusProducDto {
 		this.price = price;
 		this.totalProduct = totalProduct;
 		this.priceAfterPromotion = priceAfterPromotion;
-		this.orderStatus = orderStatus;
+		if(StringUtils.isNotBlank(orderStatusStr)) {
+		this.orderStatus = Long.parseLong(orderStatusStr);
+		}
 		this.codeOrders = codeOrders;
 		this.partnerId = partnerId;
 		this.uuidId = uuidId;

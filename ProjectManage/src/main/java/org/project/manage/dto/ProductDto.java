@@ -30,13 +30,13 @@ public class ProductDto {
 	private List<PromotionDto> listPromotion;
 	private Long productCateId;
 	private String insurance;
-	// private String code;
-	// private String serial;
-	// private String lotNumber;
+	private String productDesc;
+	private String code;
+	
 	// private String chassisNumber;
 	// private String lisencePlate;
 	public ProductDto(Long productId, String productType, String productBrands, String productName, String productCategoryName,
-			Long totalProduct, String saleStatus,Long price, String bannerPath, String createdDate, Long productCateId, Long partnerId, String insurance) {
+			Long totalProduct, String saleStatus,Long price, String bannerPath, String createdDate, Long productCateId, Long partnerId, String insurance, String productDesc,String code, String partnerName) {
 		this.productId = productId;
 		this.productType = productType;
 		this.productBrands = productBrands;
@@ -50,6 +50,9 @@ public class ProductDto {
 		this.productCateId =productCateId;
 		this.partnerId =partnerId;
 		this.insurance = insurance;
+		this.productDesc = productDesc;
+		this.code = code;
+		this.partnerName = partnerName;
 	}
 	
 

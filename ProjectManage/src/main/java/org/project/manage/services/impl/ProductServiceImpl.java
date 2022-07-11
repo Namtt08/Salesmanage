@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.project.manage.dao.ProductDao;
+import org.project.manage.dto.ProductAllNameDto;
 import org.project.manage.dto.ProductCategoryDto;
 import org.project.manage.dto.ProductDocmentDto;
 import org.project.manage.dto.ProductDto;
@@ -22,6 +23,7 @@ import org.project.manage.repository.ProductRepository;
 import org.project.manage.repository.PromotionRepository;
 import org.project.manage.repository.UserPromotionRepository;
 import org.project.manage.request.ProductListRequest;
+import org.project.manage.response.GetAllProductNameListRespone;
 import org.project.manage.response.ListProductRespose;
 import org.project.manage.response.ProductDetailResponse;
 import org.project.manage.services.ProductService;
@@ -117,6 +119,7 @@ public class ProductServiceImpl implements ProductService {
 			if (product != null) {
 				List<ProductDocmentDto> listDocument = new ArrayList<ProductDocmentDto>();
 				response.setId(product.getId());
+				response.setProductId(product.getId());
 				response.setProductType(product.getProductType());
 				response.setProductBrands(product.getProductBrands());
 				if (product.getInsuranceDate() != null) {
@@ -157,6 +160,12 @@ public class ProductServiceImpl implements ProductService {
 							.map(productDocument -> new ProductDocmentDto(productDocument))
 							.collect(Collectors.toList());
 					response.setProductDocuments(listDocument);
+					for (ProductDocument productDocument2 : productDocumentList) {
+						if(productDocument2.getPosition()==1) {
+							response.setBannerPath(productDocument2.getDocPath());
+						}
+					}
+
 				}
 				//List<UserPromotion> userPromotion = userPromotionRepository.findByUserIdAndPromotionId(user.getId(),id);
 				List<PromotionDto> listPromotion = promotionRepository
@@ -175,6 +184,21 @@ public class ProductServiceImpl implements ProductService {
 			throw e;
 		}
 
+	}
+
+	@Override
+	public GetAllProductNameListRespone getAllProductName() {
+		GetAllProductNameListRespone response= new GetAllProductNameListRespone();
+		List <ProductAllNameDto> productNameList = new ArrayList<>();
+		List<Product> listProduct = productRepository.findAll();		
+		for (Product dto : listProduct) {
+			ProductAllNameDto productDto = new ProductAllNameDto();
+			productDto.setProductName(dto.getProductName());
+			productDto.setProductId(dto.getId());
+			productNameList.add(productDto);
+		}
+		response.setProductName(productNameList);
+		return response;
 	}
 
 }

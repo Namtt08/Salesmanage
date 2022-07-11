@@ -39,6 +39,8 @@ public class ProductDetailResponse extends MessageSuccessResponse{
 	private Long partnerId;
 	private String partnerName;
 	private List<PromotionDto> listPromotion;
-	private String insurance; 
+	private String insurance;
+	private String bannerPath;
+	private Long productId;
 
 }

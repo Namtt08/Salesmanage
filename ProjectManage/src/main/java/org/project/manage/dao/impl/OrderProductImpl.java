@@ -49,7 +49,7 @@ public class OrderProductImpl implements OrderProductDao {
 							((BigInteger) result[2]).longValue(), 
 							((BigInteger) result[3]).longValue(),
 							((BigInteger) result[4]).longValue(), 
-							((BigInteger) result[5]).longValue(), 
+							(String) result[5], 
 							(String) result[6],
 							((BigInteger) result[7]).longValue(), 
 							(String) result[8],
@@ -84,7 +84,7 @@ public class OrderProductImpl implements OrderProductDao {
 
 	private void generateQuery(StringBuilder builder, Long userId) {
 		builder.append("SELECT \r\n" + "tpo.product_id,\r\n" + "p.product_name,\r\n" + "p.price,\r\n"
-				+ "tpo.total_product,\r\n" + "tpo.price_after_promotion,\r\n" + "tpo.order_status,\r\n"
+				+ "tpo.total_product,\r\n" + "tpo.price_after_promotion,\r\n" + "op.status,\r\n"
 				+ "tpo.order_product_code,\r\n" + "op.partner_id,\r\n" + "op.uuid_id,\r\n" + "op.total_amount,\r\n"
 				+ "op.created_by,\r\n"
 				+ "CONVERT(VARCHAR(100), ISNULL(op.created_date,SYSDATETIME()), 22) created_date,\r\n"

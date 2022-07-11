@@ -7,6 +7,7 @@ import org.project.manage.entities.User;
 import org.project.manage.exception.AppException;
 import org.project.manage.request.ProductListRequest;
 import org.project.manage.response.ApiResponse;
+import org.project.manage.response.GetAllProductNameListRespone;
 import org.project.manage.response.ListProductRespose;
 import org.project.manage.response.ProductCategoryResponse;
 import org.project.manage.response.ProductDetailResponse;
@@ -83,6 +84,20 @@ public class ProductController {
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getProductDetail#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	
+	@GetMapping("/get-all-product-name")
+	public ApiResponse getProductname() {
+		long start = System.currentTimeMillis();
+		try {
+			GetAllProductNameListRespone response = new GetAllProductNameListRespone();
+		 response = productService.getAllProductName();
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#getProductCategory#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}

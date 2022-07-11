@@ -31,7 +31,6 @@ public class ProductDaoImpl implements ProductDao {
 
 		builder.append(" SELECT * FROM ( ");
 		this.generateQuery(builder, request, false);
-
 		Query query = entityManager.createNativeQuery(builder.toString());
 		setSearchFilter(request, query);
 		query.setFirstResult((request.getPage() - 1) * request.getSize());
@@ -52,7 +51,8 @@ public class ProductDaoImpl implements ProductDao {
                             (String) result[3], (String) result[4],
                             ((BigInteger) result[5]).longValue(), (String) result[6],
                             ((BigInteger) result[7]).longValue(), (String) result[8], (String) result[9] , 
-                            ((BigInteger) result[16]).longValue(), ((BigInteger) result[17]).longValue(), (String) result[18]                      		
+                            ((BigInteger) result[16]).longValue(), ((BigInteger) result[17]).longValue(), 
+                            (String) result[18] , (String) result[19]  , (String) result[20], (String) result[21]             		
                     		))
                     .collect(Collectors.toList());
         } catch (Exception e) {
@@ -85,9 +85,11 @@ public class ProductDaoImpl implements ProductDao {
 		builder.append(
 				" select pd.id, pd.product_type, pd.product_brands,pd.product_name, pc.name product_category_name, pd.total_product,pd.sale_status, pd.price, pdc.doc_path, CONVERT(VARCHAR(10), ISNULL(pd.created_date,SYSDATETIME()), 103) dateCreate, ");
 		builder.append(
-				" pd.sales_type, pd.status, ISNULL(pd.start_date,CONVERT(datetime,'1990-01-01',102)) start_date, ISNULL(pd.end_date,CONVERT(datetime,'9999-01-30',102)) end_date, pc.id product_category_id,pd.created_date,pd.product_category_id as product_cate_id, pd.user_id as partner_id , pd.insurance ");
+				" pd.sales_type, pd.status, ISNULL(pd.start_date,CONVERT(datetime,'1990-01-01',102)) start_date, ISNULL(pd.end_date,CONVERT(datetime,'9999-01-30',102)) end_date, pc.id product_category_id,pd.created_date,"
+				+ "pd.product_category_id as product_cate_id, pd.user_id as partner_id , pd.insurance, pd.product_desc,  pd.code, u.full_name ");
 		builder.append(" from product pd ");
 		builder.append(" left join product_category pc on pd.product_category_id = pc.id ");
+		builder.append(" left join users u on u.id = pd.user_id ");
 		builder.append(" left join product_document pdc on pd.id = pdc.product_id and pdc.position =1");
 		builder.append("  ) a");
 		builder.append(" where 1=1");
@@ -109,6 +111,7 @@ public class ProductDaoImpl implements ProductDao {
 			builder.append(" AND (LOWER(a.product_name) LIKE :key OR LOWER(a.product_brands) LIKE :key ) ");
 
 		}
+
 		if (!isCount) {
 			builder.append(" ORDER BY");
 			builder.append(" a.created_date desc");
