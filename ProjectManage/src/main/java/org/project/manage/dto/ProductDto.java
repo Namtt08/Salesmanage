@@ -29,14 +29,14 @@ public class ProductDto {
 	private List<ProductDocmentDto> productDocuments;
 	private List<PromotionDto> listPromotion;
 	private Long productCateId;
-	// private String insuranceDate;
+	private String insurance;
 	// private String code;
 	// private String serial;
 	// private String lotNumber;
 	// private String chassisNumber;
 	// private String lisencePlate;
 	public ProductDto(Long productId, String productType, String productBrands, String productName, String productCategoryName,
-			Long totalProduct, String saleStatus,Long price, String bannerPath, String createdDate, Long productCateId, Long partnerId) {
+			Long totalProduct, String saleStatus,Long price, String bannerPath, String createdDate, Long productCateId, Long partnerId, String insurance) {
 		this.productId = productId;
 		this.productType = productType;
 		this.productBrands = productBrands;
@@ -49,6 +49,7 @@ public class ProductDto {
 		this.createdDate = createdDate;
 		this.productCateId =productCateId;
 		this.partnerId =partnerId;
+		this.insurance = insurance;
 	}
 	
 

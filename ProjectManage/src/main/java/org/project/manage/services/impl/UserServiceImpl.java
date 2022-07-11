@@ -51,6 +51,7 @@ import org.project.manage.response.FilePathRespone;
 import org.project.manage.response.NotificationDetailResponse;
 import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
+import org.project.manage.response.UserUpdateNotificationResponse;
 import org.project.manage.security.ERole;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
@@ -574,6 +575,27 @@ public class UserServiceImpl implements UserService {
 		}
 
 		response.setDocuments(docResponse);
+		return response;
+	}
+
+	@Override
+	public UserUpdateNotificationResponse updateNotification(User user, String actionStatus, Long userNotificationId) {
+		UserUpdateNotificationResponse response =new UserUpdateNotificationResponse();
+		
+		
+		Optional<UserNotificationEntity> UserNotificationEntityOptional = userNotificationRepository.findById(userNotificationId);
+		if(UserNotificationEntityOptional.isPresent()) {
+			UserNotificationEntity  userNotificationEntity= UserNotificationEntityOptional.get();
+			if(StringUtils.equalsIgnoreCase("0", actionStatus)) {// 0 da xem: 1: xoa no 
+				userNotificationEntity.setSeen(true);
+			}else {
+				userNotificationEntity.setDeleteDate(new Date());
+			}
+			
+			userNotificationRepository.save(userNotificationEntity);
+			
+		}
+
 		return response;
 	}
 

@@ -28,6 +28,7 @@ import org.project.manage.response.NotificationDetailResponse;
 import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
 import org.project.manage.response.UserInfoResponse;
+import org.project.manage.response.UserUpdateNotificationResponse;
 import org.project.manage.services.SystemSettingService;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
@@ -285,5 +286,22 @@ public class UserController {
 		}
 	}
 	
+	
+	@GetMapping("/update/notification")
+	public ApiResponse updateNotification(String actionStatus, Long userNotificationId) {
+		long start = System.currentTimeMillis();
+		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+
+			UserUpdateNotificationResponse response = userService.updateNotification(user, actionStatus, userNotificationId);
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#updateNotification#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
 	
 }

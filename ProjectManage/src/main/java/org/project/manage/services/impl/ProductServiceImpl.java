@@ -130,6 +130,7 @@ public class ProductServiceImpl implements ProductService {
 				response.setSaleStatus(product.getSaleStatus());
 				response.setProductName(product.getProductName());
 				response.setProductDesc(product.getProductDesc());
+				response.setInsurance(product.getInsurance());
 				if (product.getProductCategoryId() != null) {
 					ProductCategory productCategory = productCategoryRepository.findById(product.getProductCategoryId())
 							.orElse(null);

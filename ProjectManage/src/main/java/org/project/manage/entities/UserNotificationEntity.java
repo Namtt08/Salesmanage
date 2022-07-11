@@ -33,5 +33,9 @@ public class UserNotificationEntity {
     
     private Date createdDate;
     
+    private boolean seen;
+    
+    private Date deleteDate;
+    
 
 }

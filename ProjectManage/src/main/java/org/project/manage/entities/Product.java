@@ -38,5 +38,6 @@ public class Product {
 	private String salesType;
 	private Long price;
 	private String productDesc;
+	private String insurance;
 
 }
