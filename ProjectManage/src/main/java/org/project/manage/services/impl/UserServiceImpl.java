@@ -23,21 +23,25 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.modelmapper.ModelMapper;
 import org.project.manage.dto.PresenterRequestDto;
 import org.project.manage.entities.Document;
+import org.project.manage.entities.DocumentContractEntity;
 import org.project.manage.entities.DocumentInfo;
 import org.project.manage.entities.DocumentType;
 import org.project.manage.entities.PaymentHistory;
 import org.project.manage.entities.Role;
 import org.project.manage.entities.User;
 import org.project.manage.entities.UserIntroducedEntity;
+import org.project.manage.entities.UserLeasedEntity;
 import org.project.manage.entities.UserNotificationEntity;
 import org.project.manage.enums.ChargeTypeEnum;
 import org.project.manage.exception.AppException;
+import org.project.manage.repository.DocumentContractRepository;
 import org.project.manage.repository.DocumentInfoRepository;
 import org.project.manage.repository.DocumentRepository;
 import org.project.manage.repository.DocumentTypeRepository;
 import org.project.manage.repository.PaymentHistoryRepository;
 import org.project.manage.repository.RoleRepository;
 import org.project.manage.repository.UserIntroducedRepository;
+import org.project.manage.repository.UserLeasedRepository;
 import org.project.manage.repository.UserNotificationRepository;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.request.DocumentRequest;
@@ -101,6 +105,12 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UserNotificationRepository userNotificationRepository;
+	
+	@Autowired
+	private UserLeasedRepository userLeasedRepository;
+	
+	@Autowired
+	private DocumentContractRepository  documentContractRepository;
 	
 	private static final String  LEASE_CONTRACT = "LEASE_CONTRACT";
 
@@ -548,31 +558,38 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public DocumentContractResponse getDocumentContract(User user) {
-		DocumentContractResponse response = new DocumentContractResponse();		
+		DocumentContractResponse response = new DocumentContractResponse();
+		List<UserLeasedEntity> UserLeasedEntity = userLeasedRepository.findByUserId(user.getId());
+		Optional<DocumentType> docTypeInfo = documentTypeRepository.findByDocType(LEASE_CONTRACT);
 		List<DocumentResponse> docResponse = new ArrayList<>();
-		Optional<DocumentType> docTypeInfo= documentTypeRepository.findByDocType(LEASE_CONTRACT);
-		if(docTypeInfo.isPresent()) {
-		DocumentType docTypeDto = docTypeInfo.get();
-		
-			DocumentResponse documentResponse = new DocumentResponse();
-			documentResponse.setDocType(docTypeDto.getDocType());
-			documentResponse.setDocName(docTypeDto.getDocName());
-			documentResponse.setTotalDoc(docTypeDto.getTotalDoc());
-			documentResponse.setUploadType(docTypeDto.getUploadType());
-			List<Document> documentList = this.documentRepository.findByDocTypeAndUserId(LEASE_CONTRACT,
-					user.getId());
-			if (documentList != null && !documentList.isEmpty()) {
-				List<FilePathRespone> listFiles = new ArrayList<>();
-				for (Document document : documentList) {
-					FilePathRespone filePath = new FilePathRespone();
-					filePath.setFilePath(document.getDocPath());
-					listFiles.add(filePath);
-				}
-				documentResponse.setPaths(listFiles);
+		for (UserLeasedEntity userLeasedEntityTemp : UserLeasedEntity) {
+			if (docTypeInfo.isPresent()) {
+				DocumentType docTypeDto = docTypeInfo.get();
+				DocumentResponse documentResponse = new DocumentResponse();
+				documentResponse.setDocType(docTypeDto.getDocType());
+				documentResponse.setDocName(docTypeDto.getDocName());
+				documentResponse.setTotalDoc(docTypeDto.getTotalDoc());
+				documentResponse.setUploadType(docTypeDto.getUploadType());
+				documentResponse.setContractCode(userLeasedEntityTemp.getContractCode());
 
+				List<DocumentContractEntity> documentContractList = documentContractRepository
+						.getListPathDocConttract(userLeasedEntityTemp.getId(), LEASE_CONTRACT,
+								userLeasedEntityTemp.getContractCode());
+				if (documentContractList != null && !documentContractList.isEmpty()) {
+					List<FilePathRespone> listFiles = new ArrayList<>();
+					for (DocumentContractEntity temp : documentContractList) {
+						FilePathRespone filePath = new FilePathRespone();
+						filePath.setFilePath(temp.getDocPath());
+						listFiles.add(filePath);
+					}
+					documentResponse.setPaths(listFiles);
 			}
-			docResponse.add(documentResponse);
+				docResponse.add(documentResponse);
 		}
+
+
+	
+	}
 
 		response.setDocuments(docResponse);
 		return response;

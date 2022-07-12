@@ -12,5 +12,6 @@ public class DocumentResponse {
 	private Integer totalDoc;
 	private String uploadType;
 	private List<FilePathRespone> paths;
+	private String contractCode;
 
 }
