@@ -386,7 +386,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 			}
 		}
 		
-		try {
+		
 		Map<Long, List<CartDto>> mapCart = listCart.stream().collect(Collectors.groupingBy(CartDto::getPartnerId));
 		mapCart.forEach((k, v) -> {
 			OrderProduct orderEnity = new OrderProduct();
@@ -414,11 +414,11 @@ public class OrderProductServiceImpl implements OrderProductService {
 				if (product == null) {
 					continue;
 				}
-				if (product.getStatus() != SystemConfigUtil.STATUS_ACTIVE || product.getTotalProduct() == 0) {
-					throw new AppException(product.getProductName() + ": " + MessageResult.GRD006_PRODUCT);
+				if (product.getStatus() != SystemConfigUtil.STATUS_ACTIVE) {
+					throw new AppException(product.getCode()+"- "+product.getProductName() + ": " + MessageResult.GRD006_PRODUCT);
 				}
 				if (product.getTotalProduct() == 0) {
-					throw new AppException(product.getProductName() + ": " + MessageResult.GRD007_PRODUCT);
+					throw new AppException(product.getCode()+"- "+product.getProductName() + ": " + MessageResult.GRD007_PRODUCT);
 				}
 				if (cartTemp.getTotalProduct() > product.getTotalProduct()) {
 					throw new AppException(MessageResult.GRD015_PRODUCT);
@@ -488,7 +488,8 @@ public class OrderProductServiceImpl implements OrderProductService {
 				}
 				orderEnity.setTotalDiscount(totalDiscount);
 				if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
-					if (totalAmount > user.getPoint()) {
+
+					if (user.getPoint()==null||totalAmount > user.getPoint()) {
 						throw new AppException(MessageResult.GRD011_PAYMENT);
 					}
 					user.setPoint(user.getPoint() - totalAmount);
@@ -521,10 +522,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 			}
 		});
 		response.setOrderId(uuid);
-		}catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-		}
+
 		return response;
 	}
 
