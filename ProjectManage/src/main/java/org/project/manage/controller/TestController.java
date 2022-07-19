@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -17,12 +18,20 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.project.manage.dto.MailDto;
+import org.project.manage.entities.MailTemplate;
+import org.project.manage.entities.Product;
+import org.project.manage.entities.User;
+import org.project.manage.repository.MailTemplateRepository;
+import org.project.manage.repository.ProductRepository;
+import org.project.manage.repository.UserRepository;
 import org.project.manage.response.ApiResponse;
 import org.project.manage.response.MessageSuccessResponse;
 import org.project.manage.services.EmailService;
+import org.project.manage.services.OrderProductService;
 import org.project.manage.services.TestService;
 import org.project.manage.util.ErrorHandler;
 import org.project.manage.util.SuccessHandler;
+import org.project.manage.util.SystemConfigUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -56,6 +65,15 @@ public class TestController {
 	private EmailService emailService;
 
 	protected Path fileStorageLocation;
+	
+	@Autowired
+	UserRepository userRepository;
+	
+	@Autowired
+	ProductRepository productRepository;
+	
+	@Autowired
+	private OrderProductService orderProductService;
 
 	@Autowired
 	TestService testService;
@@ -80,7 +98,8 @@ public class TestController {
 	public ApiResponse testSendMail(@RequestBody MailDto mailDto) {
 		long start = System.currentTimeMillis();
 		try {
-			emailService.sendEmail(mailDto);
+			Product product = productRepository.findById(23L).orElse(null);
+			orderProductService.sendEmailProduct(SystemConfigUtil.MAIL_PRODUCT, product);
 			return this.successHandler.handlerSuccess(new MessageSuccessResponse(), start);
 		} catch (Exception e) {
 			log.error("#testSendMail#ERROR#:" + e.getMessage());
@@ -88,6 +107,7 @@ public class TestController {
 			return this.errorHandler.handlerException(e, start);
 		}
 	}
+	
 
 	@GetMapping(value = "/image", produces = MediaType.IMAGE_PNG_VALUE)
 	public @ResponseBody byte[] getImage(@RequestParam("image") String image) throws IOException {

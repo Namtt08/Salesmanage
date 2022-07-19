@@ -50,6 +50,10 @@ public class SystemConfigUtil {
 	
 	public static final String WALLET = "WALLET";
 	
+	public static final String SEND_EMAIL = "SEND_EMAIL";
+	
+	public static final String MAIL_PRODUCT = "MAIL_PRODUCT";
+	
 	@PostConstruct
 	@Transactional
 	public void init() {

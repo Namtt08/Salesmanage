@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.project.manage.dao.OrderProductDao;
 import org.project.manage.dto.CartDto;
+import org.project.manage.dto.MailDto;
 import org.project.manage.dto.OrderPaymentDto;
 import org.project.manage.dto.OrderProductDto;
 import org.project.manage.dto.OrderProductHistoryDto;
@@ -19,12 +20,14 @@ import org.project.manage.dto.OrderStatusProducDto;
 import org.project.manage.dto.PromotionDto;
 import org.project.manage.dto.PromotionSearchDto;
 import org.project.manage.entities.CartTemp;
+import org.project.manage.entities.MailTemplate;
 import org.project.manage.entities.OrderProduct;
 import org.project.manage.entities.OrderProductHistory;
 import org.project.manage.entities.PaymentHistory;
 import org.project.manage.entities.Product;
 import org.project.manage.entities.ProductCategory;
 import org.project.manage.entities.Promotion;
+import org.project.manage.entities.SystemSetting;
 import org.project.manage.entities.TransactionProductOrder;
 import org.project.manage.entities.User;
 import org.project.manage.entities.UserPromotion;
@@ -33,6 +36,7 @@ import org.project.manage.enums.OrderStatusEnum;
 import org.project.manage.enums.PaymentStatusEnum;
 import org.project.manage.exception.AppException;
 import org.project.manage.repository.CartTempRepository;
+import org.project.manage.repository.MailTemplateRepository;
 import org.project.manage.repository.OrderProductHistoryRepository;
 import org.project.manage.repository.OrderProductRepository;
 import org.project.manage.repository.PaymentHistoryRepository;
@@ -52,7 +56,9 @@ import org.project.manage.response.PaymentOrderDetailResponse;
 import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
 import org.project.manage.response.PromotionProductOrderResponse;
+import org.project.manage.services.EmailService;
 import org.project.manage.services.OrderProductService;
+import org.project.manage.services.SystemSettingService;
 import org.project.manage.util.AppConstants;
 import org.project.manage.util.DateHelper;
 import org.project.manage.util.MessageResult;
@@ -75,6 +81,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
 	ProductRepository productRepository;
+
+	@Autowired
+	private EmailService emailService;
 
 	@Autowired
 	UserRepository userRepository;
@@ -105,9 +114,15 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
 	private ProductCategoryRepository productCategoryRepository;
-	
+
 	@Autowired
 	private OrderProductDao orderProductDao;
+
+	@Autowired
+	private SystemSettingService systemSettingService;
+
+	@Autowired
+	private MailTemplateRepository mailTemplateRepository;
 
 	@Override
 	public CartResponse addCart(CartAddRequest request, User user) {
@@ -369,8 +384,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 	@Override
 	@Transactional
 	public PaymentOrderResponse paymentOrder(CartResponse request, User user) {
-		
+
 		PaymentOrderResponse response = new PaymentOrderResponse();
+		SystemSetting systemSetting = systemSettingService.findByCode(SystemConfigUtil.SEND_EMAIL);
 		String uuid = UUID.randomUUID().toString();
 		String yyyymmddhhmmss = DateHelper.convertDateTimeToString(new Date());
 		List<CartDto> listCart = request.getListCart();
@@ -385,8 +401,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 				request.setMaxAmountDiscount(promotion.getMaxAmount());
 			}
 		}
-		
-		
+
 		Map<Long, List<CartDto>> mapCart = listCart.stream().collect(Collectors.groupingBy(CartDto::getPartnerId));
 		mapCart.forEach((k, v) -> {
 			OrderProduct orderEnity = new OrderProduct();
@@ -415,15 +430,21 @@ public class OrderProductServiceImpl implements OrderProductService {
 					continue;
 				}
 				if (product.getStatus() != SystemConfigUtil.STATUS_ACTIVE) {
-					throw new AppException(product.getCode()+"- "+product.getProductName() + ": " + MessageResult.GRD006_PRODUCT);
+					throw new AppException(
+							product.getCode() + "- " + product.getProductName() + ": " + MessageResult.GRD006_PRODUCT);
 				}
 				if (product.getTotalProduct() == 0) {
-					throw new AppException(product.getCode()+"- "+product.getProductName() + ": " + MessageResult.GRD007_PRODUCT);
+					throw new AppException(
+							product.getCode() + "- " + product.getProductName() + ": " + MessageResult.GRD007_PRODUCT);
 				}
 				if (cartTemp.getTotalProduct() > product.getTotalProduct()) {
 					throw new AppException(MessageResult.GRD015_PRODUCT);
 				}
 				product.setTotalProduct(product.getTotalProduct() - cartTemp.getTotalProduct());
+				if (product.getTotalProduct() <= Long.valueOf(systemSetting.getValue())) {
+					this.sendEmailProduct(SystemConfigUtil.MAIL_PRODUCT, product);
+
+				}
 				productRepository.save(product);
 				transaction.setProductId(product.getId());
 				transaction.setAmount(product.getPrice());
@@ -489,7 +510,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 				orderEnity.setTotalDiscount(totalDiscount);
 				if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
 
-					if (user.getPoint()==null||totalAmount > user.getPoint()) {
+					if (user.getPoint() == null || totalAmount > user.getPoint()) {
 						throw new AppException(MessageResult.GRD011_PAYMENT);
 					}
 					user.setPoint(user.getPoint() - totalAmount);
@@ -524,6 +545,24 @@ public class OrderProductServiceImpl implements OrderProductService {
 		response.setOrderId(uuid);
 
 		return response;
+	}
+
+	@Override
+	public void sendEmailProduct(String code, Product product) {
+		// TODO Auto-generated method stub
+		User userSendMail = userRepository.findById(product.getUserId()).orElse(null);
+		MailTemplate mailTemplate = mailTemplateRepository.findByCode(code).orElse(null);
+		if (!Objects.isNull(userSendMail) && !Objects.isNull(mailTemplate) && StringUtils.isNotBlank(userSendMail.getEmail())) {
+			MailDto emailDto = new MailDto();
+			emailDto.setMailCc(mailTemplate.getCc());
+			emailDto.setMailBcc(mailTemplate.getBcc());
+			emailDto.setMailSubject(mailTemplate.getSubject());
+			String content = mailTemplate.getContent();
+			content = content.replace("[productName]", product.getProductName());
+			emailDto.setMailContent(content);
+			emailDto.setMailTo(userSendMail.getEmail());
+			emailService.sendEmail(emailDto);
+		}
 	}
 
 	@Override
@@ -666,9 +705,11 @@ public class OrderProductServiceImpl implements OrderProductService {
 	public ListOrderResponse getListOrder(User user, String orderStatus) {
 		ListOrderResponse response = new ListOrderResponse();
 		try {
-		//	List<OrderProduct> orderProducts = orderProductRepository.findByUserIdByCreatedDateDesc(user.getId());
-			
-			List<OrderStatusProducDto> listResponse= orderProductDao.getListOrderProductStatus(user.getId(), orderStatus);
+			// List<OrderProduct> orderProducts =
+			// orderProductRepository.findByUserIdByCreatedDateDesc(user.getId());
+
+			List<OrderStatusProducDto> listResponse = orderProductDao.getListOrderProductStatus(user.getId(),
+					orderStatus);
 			// List<OrderPaymentDto> listResponse = orderProducts.stream().sorted().map(x ->
 			// {
 //			OrderPaymentDto dto = new OrderPaymentDto();
@@ -693,8 +734,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 				dto.setPaymentName(PaymentStatusEnum.getByValue(dto.getPaymentStatus()).getName());
 //				dto.setOrderId(orderProduct.getUuidId());
 //				listResponse.add(dto);
-				
-				String bannerProduct =  productDocumentRepository.getdocPathProductByIdAndPosition(dto.getProductId(), 1L);
+
+				String bannerProduct = productDocumentRepository.getdocPathProductByIdAndPosition(dto.getProductId(),
+						1L);
 				dto.setBannerPath(bannerProduct);
 				if (!Objects.isNull(dto.getVoucherId())) {
 					Voucher voucher = voucherRepository.findById(dto.getVoucherId()).orElse(null);
@@ -709,10 +751,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 					}
 				}
 			}
-			
-			
 
-		
 			response.setListOrder(listResponse);
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -725,7 +764,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 		dto.setNote(orderProduct.getNote());
 		dto.setDeliveryAddress(orderProduct.getDeliveryAddress());
 		dto.setCodeOrders(orderProduct.getCodeOrders());
-		//dto.setStatus(OrderStatusEnum.getByValue(orderProduct.getStatus()).getName());
+		// dto.setStatus(OrderStatusEnum.getByValue(orderProduct.getStatus()).getName());
 		dto.setPartnerId(orderProduct.getPartnerId());
 		User partner = userRepository.findById(orderProduct.getPartnerId()).orElse(null);
 		if (!Objects.isNull(partner)) {
@@ -795,11 +834,11 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Override
 	public ListSearchPromotionResponse getSearchPromotion(User user, String promotionCode) {
-		
+
 		ListSearchPromotionResponse response = new ListSearchPromotionResponse();
 		List<PromotionSearchDto> listPromotion = new ArrayList<>();
-	
-		Voucher voucher = voucherRepository.findByUserIdAndVoucherCode(user.getId(),promotionCode);
+
+		Voucher voucher = voucherRepository.findByUserIdAndVoucherCode(user.getId(), promotionCode);
 		if (Objects.nonNull(voucher)) {
 			PromotionSearchDto dto = new PromotionSearchDto();
 			dto.setId(voucher.getId());
@@ -819,7 +858,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 			dto.setDescription(promotion.getDescription());
 			listPromotion.add(dto);
 		}
-		
+
 		response.setListPromotion(listPromotion);
 		return response;
 	}

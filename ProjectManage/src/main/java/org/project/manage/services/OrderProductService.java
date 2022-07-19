@@ -1,5 +1,6 @@
 package org.project.manage.services;
 
+import org.project.manage.entities.Product;
 import org.project.manage.entities.User;
 import org.project.manage.request.CartAddRequest;
 import org.project.manage.response.CartResponse;
@@ -33,5 +34,7 @@ public interface OrderProductService {
 	String cancelOrder(User user, String orderCode);
 	
 	ListSearchPromotionResponse getSearchPromotion(User user, String promotionCode);
+	
+	void sendEmailProduct(String code, Product product);
 
 }
