@@ -35,5 +35,7 @@ public class Voucher {
 	
 	private String description;
 	
+	private String bannerPath;
+	
 	
 }

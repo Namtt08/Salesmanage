@@ -46,4 +46,6 @@ public class Promotion {
 	private String createdBy;
 
 	private Date createdDate;
+	
+	private String bannerPath;
 }
