@@ -43,7 +43,7 @@ public class PromotionDto {
 		this.promotionValue=model.getPromotionValue();
 		this.promotionTotal= model.getPromotionTotal();
 		this.maxAmount= model.getMaxAmount();
-		this.bannerPath = this.getBannerPath();
+		this.bannerPath = model.getBannerPath();
 		
 	}
 	
