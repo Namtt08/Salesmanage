@@ -14,20 +14,42 @@ import lombok.Data;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer"})
 @Entity
-@Table(name = "marketing_image")
+@Table(name = "setting_marketing_info")
 @Data
 public class MarketingImageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private Long idSettingsAdvertising;
     
     private String url;
     
     private Long height;
     
     private Long width;
+    
+    private String note;
+        
+    private String docPath;
+    
+    private String docType;
+    
+    private String createdBy;
+    
+    private Date createdDate;
+    
+    private Date dateStart;
+    
+    private Date dateEnd;
+    
+    private boolean status;
+    
+    private Long userId;
+    
+    private String deleteBy;
+    
+    private Date deleteDate;
+    
+    private Long priority;
     
 
 }
