@@ -55,6 +55,7 @@ import org.project.manage.response.FilePathRespone;
 import org.project.manage.response.NotificationDetailResponse;
 import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
+import org.project.manage.response.UpdateTokenResponse;
 import org.project.manage.response.UserUpdateNotificationResponse;
 import org.project.manage.security.ERole;
 import org.project.manage.services.UserService;
@@ -613,6 +614,16 @@ public class UserServiceImpl implements UserService {
 			
 		}
 
+		return response;
+	}
+
+	@Override
+	public UpdateTokenResponse updateToken(User user, String token) {
+		UpdateTokenResponse  response =  new UpdateTokenResponse();
+		Optional<User> userOptional = userRepository.findById(user.getId());
+		User users = userOptional.get();
+		users.setTokenFirebase(token);
+		userRepository.save(users);
 		return response;
 	}
 
