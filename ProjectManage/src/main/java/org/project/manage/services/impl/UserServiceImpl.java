@@ -627,4 +627,10 @@ public class UserServiceImpl implements UserService {
 		return response;
 	}
 
+	@Override
+	public void testNoti(User user) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

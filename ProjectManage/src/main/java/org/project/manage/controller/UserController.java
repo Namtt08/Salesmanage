@@ -322,4 +322,23 @@ public class UserController {
 		}
 	}
 	
+	@GetMapping("/test/noti")
+	public ApiResponse testNoti() {
+		long start = System.currentTimeMillis();
+		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+
+			UpdateTokenResponse response =null;
+					
+					userService.testNoti(user);
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#updateToken#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	
 }

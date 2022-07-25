@@ -50,4 +50,6 @@ public interface UserService {
 	UserUpdateNotificationResponse updateNotification(User user, String actionStatus, Long userNotificationId);
 	
 	UpdateTokenResponse updateToken(User user, String token);
+	
+	void testNoti(User user);
 }
