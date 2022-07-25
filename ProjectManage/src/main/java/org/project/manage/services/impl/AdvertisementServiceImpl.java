@@ -29,7 +29,7 @@ public class AdvertisementServiceImpl implements AdvertisementService{
 	public MakettingResponse getAdvertisementList() {
 		MakettingResponse response = new MakettingResponse();
 		List <DocMarketingDto> listDocMarketing = new ArrayList<>();
-		List<MarketingImageEntity> listMarketingImage = marketingImageRepository.findAll();
+		List<MarketingImageEntity> listMarketingImage = marketingImageRepository.getSettingMarketting();
 		for (MarketingImageEntity marketingImageDto : listMarketingImage) {
 			 DocMarketingDto docMarketingDto = new DocMarketingDto();
 			docMarketingDto.setDocPath(marketingImageDto.getDocPath());
