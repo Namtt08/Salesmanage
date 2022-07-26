@@ -23,7 +23,7 @@ public class UserNotificationEntity {
 
     private Long userId;
     
-    private Long notificationTemlateId;
+    private Long notificationTemplateId;
     
     private String notiType;
     

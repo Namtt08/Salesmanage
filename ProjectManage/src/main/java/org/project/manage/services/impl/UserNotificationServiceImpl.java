@@ -21,7 +21,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 	public void save(UserNotificationDto userNotificationDto) {
 		UserNotificationEntity entity=   new UserNotificationEntity();
 		entity.setUserId(userNotificationDto.getUserId());
-		entity.setNotificationTemlateId(userNotificationDto.getNotificationTemplateId());
+		entity.setNotificationTemplateId(userNotificationDto.getNotificationTemplateId());
 		entity.setContent(userNotificationDto.getContent());
 		entity.setCreatedDate(new Date());
 		entity.setNotiType(userNotificationDto.getNotiType());

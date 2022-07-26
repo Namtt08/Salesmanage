@@ -1,5 +1,6 @@
 package org.project.manage.services.impl;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -540,18 +541,23 @@ public class OrderProductServiceImpl implements OrderProductService {
 			orderEnity.setPaymentMethod(request.getPaymentMethod());
 			orderEnity.setTotalAmount(totalAmount);
 			orderProductRepository.save(orderEnity);
-			// push
-			NotificationTemplateEntity  notificationTemplateEntity = notificationTemplateRepository.findByNotiType("ORDER_PRODUCT");
+			// push noti
+			Optional<NotificationTemplateEntity>  notificationTemplateEntityOptional = notificationTemplateRepository.findByNotiType("ORDER_PRODUCT");
+			if(notificationTemplateEntityOptional.isPresent()) {
+			NotificationTemplateEntity notificationTemplateEntity= notificationTemplateEntityOptional.get();
 			PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
 			String title = notificationTemplateEntity.getTitle();
+			DecimalFormat formatter = new DecimalFormat("###,###,###");
 			String body = notificationTemplateEntity.getBody().replace("[order_code]", orderEnity.getCodeOrders());
-			body = body.replace("[amount]", orderEnity.getTotalAmount().toString());
+			body = body.replace("[amount]", formatter.format(orderEnity.getTotalAmount()));
 			pushNotificationRequest.setTitle(title);
 			pushNotificationRequest.setBody(body);
 			pushNotificationRequest.setUserId(user.getId());
 			pushNotificationRequest.setNotificationTemplateId(notificationTemplateEntity.getId());
 			pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
+			pushNotificationRequest.setToken(user.getTokenFirebase());
 			fcmService.pushNotification(pushNotificationRequest);
+			}
 			if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
 				PaymentHistory paymentHistory = new PaymentHistory();
 				paymentHistory.setAmount(totalAmount);

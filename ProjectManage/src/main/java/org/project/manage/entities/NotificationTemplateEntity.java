@@ -23,7 +23,7 @@ public class NotificationTemplateEntity {
 	private String body;
 	private int status;
 	private Date createdDate;
-	private boolean seen;
+	private Integer seen;
 	
 	public NotificationTemplateEntity() {
 	}
