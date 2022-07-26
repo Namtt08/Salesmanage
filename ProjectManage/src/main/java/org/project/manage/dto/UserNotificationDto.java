@@ -1,4 +1,4 @@
-package org.project.manage.entities;
+package org.project.manage.dto;
 
 import java.util.Date;
 
@@ -12,18 +12,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Data;
 
-@JsonIgnoreProperties({"hibernateLazyInitializer"})
-@Entity
-@Table(name = "user_notification")
 @Data
-public class UserNotificationEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class UserNotificationDto {
+
     private Long id;
 
     private Long userId;
     
-    private Long notificationTemlateId;
+    private Long notificationTemplateId;
     
     private String notiType;
     
@@ -36,6 +32,6 @@ public class UserNotificationEntity {
     private boolean seen;
     
     private Date deleteDate;
-    
+ 
 
 }

@@ -19,8 +19,10 @@ import org.project.manage.dto.OrderProductHistoryDto;
 import org.project.manage.dto.OrderStatusProducDto;
 import org.project.manage.dto.PromotionDto;
 import org.project.manage.dto.PromotionSearchDto;
+import org.project.manage.dto.PushNotificationRequest;
 import org.project.manage.entities.CartTemp;
 import org.project.manage.entities.MailTemplate;
+import org.project.manage.entities.NotificationTemplateEntity;
 import org.project.manage.entities.OrderProduct;
 import org.project.manage.entities.OrderProductHistory;
 import org.project.manage.entities.PaymentHistory;
@@ -37,6 +39,7 @@ import org.project.manage.enums.PaymentStatusEnum;
 import org.project.manage.exception.AppException;
 import org.project.manage.repository.CartTempRepository;
 import org.project.manage.repository.MailTemplateRepository;
+import org.project.manage.repository.NotificationTemplateRepository;
 import org.project.manage.repository.OrderProductHistoryRepository;
 import org.project.manage.repository.OrderProductRepository;
 import org.project.manage.repository.PaymentHistoryRepository;
@@ -57,6 +60,7 @@ import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
 import org.project.manage.response.PromotionProductOrderResponse;
 import org.project.manage.services.EmailService;
+import org.project.manage.services.FCMService;
 import org.project.manage.services.OrderProductService;
 import org.project.manage.services.SystemSettingService;
 import org.project.manage.util.AppConstants;
@@ -123,6 +127,12 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
 	private MailTemplateRepository mailTemplateRepository;
+	
+	@Autowired
+	private NotificationTemplateRepository notificationTemplateRepository;
+	
+    @Autowired
+    private FCMService fcmService;
 
 	@Override
 	public CartResponse addCart(CartAddRequest request, User user) {
@@ -530,6 +540,18 @@ public class OrderProductServiceImpl implements OrderProductService {
 			orderEnity.setPaymentMethod(request.getPaymentMethod());
 			orderEnity.setTotalAmount(totalAmount);
 			orderProductRepository.save(orderEnity);
+			// push
+			NotificationTemplateEntity  notificationTemplateEntity = notificationTemplateRepository.findByNotiType("ORDER_PRODUCT");
+			PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
+			String title = notificationTemplateEntity.getTitle();
+			String body = notificationTemplateEntity.getBody().replace("[order_code]", orderEnity.getCodeOrders());
+			body = body.replace("[amount]", orderEnity.getTotalAmount().toString());
+			pushNotificationRequest.setTitle(title);
+			pushNotificationRequest.setBody(body);
+			pushNotificationRequest.setUserId(user.getId());
+			pushNotificationRequest.setNotificationTemplateId(notificationTemplateEntity.getId());
+			pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
+			fcmService.pushNotification(pushNotificationRequest);
 			if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
 				PaymentHistory paymentHistory = new PaymentHistory();
 				paymentHistory.setAmount(totalAmount);
