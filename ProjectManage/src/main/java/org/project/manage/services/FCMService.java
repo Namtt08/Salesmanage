@@ -54,22 +54,22 @@ public class FCMService {
         String response = null;
         try {
             response = FirebaseMessaging.getInstance().send(message);
-            
-            UserNotificationService.save(UserNotificationDto(pushNotificationRequest));
+            UserNotificationDto  userNotificationDto = convertDataUserNotification(pushNotificationRequest);
+            UserNotificationService.save(userNotificationDto);
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
         return response;
     }
 
-	private UserNotificationDto UserNotificationDto(PushNotificationRequest pushNotificationRequest) {
+	private UserNotificationDto convertDataUserNotification(PushNotificationRequest pushNotificationRequest) {
 		UserNotificationDto userNotificationDto=  new UserNotificationDto(); 
 		userNotificationDto.setUserId(pushNotificationRequest.getUserId());
 		userNotificationDto.setNotificationTemplateId(pushNotificationRequest.getNotificationTemplateId());
-		userNotificationDto.setContent(pushNotificationRequest.getContent());
+		userNotificationDto.setContent(pushNotificationRequest.getBody());
 		userNotificationDto.setCreatedDate(new Date());
 		userNotificationDto.setNotiType(pushNotificationRequest.getType());
-		userNotificationDto.setTitle(userNotificationDto.getTitle());
+		userNotificationDto.setTitle(pushNotificationRequest.getTitle());
 		
 		return userNotificationDto;
 	}

@@ -13,7 +13,7 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
 
 	List<UserNotificationEntity> findByUserId(Long userId);
 	
-	@Query(value = "select a.* from user_notification a where CONVERT(datetime, a.created_date,11)>= DATEADD(day,-7, GETDATE()) AND a.user_id = ?1", nativeQuery = true)
+	@Query(value = "select a.* from user_notification a where CONVERT(datetime, a.created_date,11)>= DATEADD(day,-7, GETDATE()) AND a.user_id = ?1 order by a.id desc", nativeQuery = true)
 	List<UserNotificationEntity> getAllNotificationByUserId(Long userId);
 	
 	Optional<UserNotificationEntity> findById(Long id);
