@@ -54,6 +54,8 @@ public class SystemConfigUtil {
 	
 	public static final String MAIL_PRODUCT = "MAIL_PRODUCT";
 	
+	public static final String MAIL_ORDER = "MAIL_ORDER";
+	
 	@PostConstruct
 	@Transactional
 	public void init() {

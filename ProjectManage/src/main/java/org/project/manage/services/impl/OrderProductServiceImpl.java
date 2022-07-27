@@ -557,6 +557,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 			pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
 			pushNotificationRequest.setToken(user.getTokenFirebase());
 			fcmService.pushNotification(pushNotificationRequest);
+			this.sendEmailOrder(SystemConfigUtil.MAIL_ORDER, orderEnity);
 			}
 			if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
 				PaymentHistory paymentHistory = new PaymentHistory();
@@ -573,6 +574,23 @@ public class OrderProductServiceImpl implements OrderProductService {
 		response.setOrderId(uuid);
 
 		return response;
+	}
+
+	private void sendEmailOrder(String code, OrderProduct orderEnity) {
+		User userSendMail = userRepository.findById(orderEnity.getPartnerId()).orElse(null);
+		MailTemplate mailTemplate = mailTemplateRepository.findByCode(code).orElse(null);
+		if (!Objects.isNull(userSendMail) && !Objects.isNull(mailTemplate) && StringUtils.isNotBlank(userSendMail.getEmail())) {
+			MailDto emailDto = new MailDto();
+			emailDto.setMailCc(mailTemplate.getCc());
+			emailDto.setMailBcc(mailTemplate.getBcc());
+			emailDto.setMailSubject(mailTemplate.getSubject());
+			String content = mailTemplate.getContent();
+			content = content.replace("[codeOrders]", orderEnity.getCodeOrders());
+			emailDto.setMailContent(content);
+			emailDto.setMailTo(userSendMail.getEmail());
+			emailService.sendEmail(emailDto);
+		}
+		
 	}
 
 	@Override
