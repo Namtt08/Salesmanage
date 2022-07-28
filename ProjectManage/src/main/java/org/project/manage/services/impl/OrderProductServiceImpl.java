@@ -395,7 +395,6 @@ public class OrderProductServiceImpl implements OrderProductService {
 	@Override
 	@Transactional
 	public PaymentOrderResponse paymentOrder(CartResponse request, User user) {
-
 		PaymentOrderResponse response = new PaymentOrderResponse();
 		SystemSetting systemSetting = systemSettingService.findByCode(SystemConfigUtil.SEND_EMAIL);
 		String uuid = UUID.randomUUID().toString();
@@ -414,6 +413,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 		}
 
 		Map<Long, List<CartDto>> mapCart = listCart.stream().collect(Collectors.groupingBy(CartDto::getPartnerId));
+		
 		mapCart.forEach((k, v) -> {
 			OrderProduct orderEnity = new OrderProduct();
 			orderEnity.setPromotionId(0L);// mặc đinh = 0
@@ -541,24 +541,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 			orderEnity.setPaymentMethod(request.getPaymentMethod());
 			orderEnity.setTotalAmount(totalAmount);
 			orderProductRepository.save(orderEnity);
-			// push noti
-			Optional<NotificationTemplateEntity>  notificationTemplateEntityOptional = notificationTemplateRepository.findByNotiType("ORDER_PRODUCT");
-			if(notificationTemplateEntityOptional.isPresent()) {
-			NotificationTemplateEntity notificationTemplateEntity= notificationTemplateEntityOptional.get();
-			PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
-			String title = notificationTemplateEntity.getTitle();
-			DecimalFormat formatter = new DecimalFormat("###,###,###");
-			String body = notificationTemplateEntity.getBody().replace("[order_code]", orderEnity.getCodeOrders());
-			body = body.replace("[amount]", formatter.format(orderEnity.getTotalAmount()));
-			pushNotificationRequest.setTitle(title);
-			pushNotificationRequest.setBody(body);
-			pushNotificationRequest.setUserId(user.getId());
-			pushNotificationRequest.setNotificationTemplateId(notificationTemplateEntity.getId());
-			pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
-			pushNotificationRequest.setToken(user.getTokenFirebase());
-			fcmService.pushNotification(pushNotificationRequest);
 			this.sendEmailOrder(SystemConfigUtil.MAIL_ORDER, orderEnity);
-			}
 			if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
 				PaymentHistory paymentHistory = new PaymentHistory();
 				paymentHistory.setAmount(totalAmount);
@@ -572,7 +555,27 @@ public class OrderProductServiceImpl implements OrderProductService {
 			}
 		});
 		response.setOrderId(uuid);
-
+		List<OrderProduct> listOder=  orderProductRepository.findByUuidId(uuid);
+		Long amountAll = 0L;
+		for (OrderProduct orderProduct : listOder) {
+			amountAll = amountAll + orderProduct.getTotalAmount();
+		}
+		// push noti
+		Optional<NotificationTemplateEntity>  notificationTemplateEntityOptional = notificationTemplateRepository.findByNotiType("ORDER_PRODUCT");
+		if(notificationTemplateEntityOptional.isPresent()) {
+		NotificationTemplateEntity notificationTemplateEntity= notificationTemplateEntityOptional.get();
+		PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
+		String title = notificationTemplateEntity.getTitle();
+		DecimalFormat formatter = new DecimalFormat("###,###,###");
+		String body = notificationTemplateEntity.getBody().replace("[amount]", formatter.format(amountAll));
+		pushNotificationRequest.setTitle(title);
+		pushNotificationRequest.setBody(body);
+		pushNotificationRequest.setUserId(user.getId());
+		pushNotificationRequest.setNotificationTemplateId(notificationTemplateEntity.getId());
+		pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
+		pushNotificationRequest.setToken(user.getTokenFirebase());
+		fcmService.pushNotification(pushNotificationRequest);
+		}
 		return response;
 	}
 
