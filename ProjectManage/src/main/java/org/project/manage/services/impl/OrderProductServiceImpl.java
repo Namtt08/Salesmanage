@@ -1,5 +1,6 @@
 package org.project.manage.services.impl;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,8 +20,10 @@ import org.project.manage.dto.OrderProductHistoryDto;
 import org.project.manage.dto.OrderStatusProducDto;
 import org.project.manage.dto.PromotionDto;
 import org.project.manage.dto.PromotionSearchDto;
+import org.project.manage.dto.PushNotificationRequest;
 import org.project.manage.entities.CartTemp;
 import org.project.manage.entities.MailTemplate;
+import org.project.manage.entities.NotificationTemplateEntity;
 import org.project.manage.entities.OrderProduct;
 import org.project.manage.entities.OrderProductHistory;
 import org.project.manage.entities.PaymentHistory;
@@ -37,6 +40,7 @@ import org.project.manage.enums.PaymentStatusEnum;
 import org.project.manage.exception.AppException;
 import org.project.manage.repository.CartTempRepository;
 import org.project.manage.repository.MailTemplateRepository;
+import org.project.manage.repository.NotificationTemplateRepository;
 import org.project.manage.repository.OrderProductHistoryRepository;
 import org.project.manage.repository.OrderProductRepository;
 import org.project.manage.repository.PaymentHistoryRepository;
@@ -57,6 +61,7 @@ import org.project.manage.response.PaymentOrderResponse;
 import org.project.manage.response.ProductCartResponse;
 import org.project.manage.response.PromotionProductOrderResponse;
 import org.project.manage.services.EmailService;
+import org.project.manage.services.FCMService;
 import org.project.manage.services.OrderProductService;
 import org.project.manage.services.SystemSettingService;
 import org.project.manage.util.AppConstants;
@@ -123,6 +128,12 @@ public class OrderProductServiceImpl implements OrderProductService {
 
 	@Autowired
 	private MailTemplateRepository mailTemplateRepository;
+	
+	@Autowired
+	private NotificationTemplateRepository notificationTemplateRepository;
+	
+    @Autowired
+    private FCMService fcmService;
 
 	@Override
 	public CartResponse addCart(CartAddRequest request, User user) {
@@ -384,7 +395,6 @@ public class OrderProductServiceImpl implements OrderProductService {
 	@Override
 	@Transactional
 	public PaymentOrderResponse paymentOrder(CartResponse request, User user) {
-
 		PaymentOrderResponse response = new PaymentOrderResponse();
 		SystemSetting systemSetting = systemSettingService.findByCode(SystemConfigUtil.SEND_EMAIL);
 		String uuid = UUID.randomUUID().toString();
@@ -403,6 +413,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 		}
 
 		Map<Long, List<CartDto>> mapCart = listCart.stream().collect(Collectors.groupingBy(CartDto::getPartnerId));
+		
 		mapCart.forEach((k, v) -> {
 			OrderProduct orderEnity = new OrderProduct();
 			orderEnity.setPromotionId(0L);// mặc đinh = 0
@@ -530,6 +541,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 			orderEnity.setPaymentMethod(request.getPaymentMethod());
 			orderEnity.setTotalAmount(totalAmount);
 			orderProductRepository.save(orderEnity);
+			this.sendEmailOrder(SystemConfigUtil.MAIL_ORDER, orderEnity);
 			if (StringUtils.equals(SystemConfigUtil.WALLET, request.getPaymentMethod())) {
 				PaymentHistory paymentHistory = new PaymentHistory();
 				paymentHistory.setAmount(totalAmount);
@@ -543,8 +555,45 @@ public class OrderProductServiceImpl implements OrderProductService {
 			}
 		});
 		response.setOrderId(uuid);
-
+		List<OrderProduct> listOder=  orderProductRepository.findByUuidId(uuid);
+		Long amountAll = 0L;
+		for (OrderProduct orderProduct : listOder) {
+			amountAll = amountAll + orderProduct.getTotalAmount();
+		}
+		// push noti
+		Optional<NotificationTemplateEntity>  notificationTemplateEntityOptional = notificationTemplateRepository.findByNotiType("ORDER_PRODUCT");
+		if(notificationTemplateEntityOptional.isPresent()) {
+		NotificationTemplateEntity notificationTemplateEntity= notificationTemplateEntityOptional.get();
+		PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
+		String title = notificationTemplateEntity.getTitle();
+		DecimalFormat formatter = new DecimalFormat("###,###,###");
+		String body = notificationTemplateEntity.getBody().replace("[amount]", formatter.format(amountAll));
+		pushNotificationRequest.setTitle(title);
+		pushNotificationRequest.setBody(body);
+		pushNotificationRequest.setUserId(user.getId());
+		pushNotificationRequest.setNotificationTemplateId(notificationTemplateEntity.getId());
+		pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
+		pushNotificationRequest.setToken(user.getTokenFirebase());
+		fcmService.pushNotification(pushNotificationRequest);
+		}
 		return response;
+	}
+
+	private void sendEmailOrder(String code, OrderProduct orderEnity) {
+		User userSendMail = userRepository.findById(orderEnity.getPartnerId()).orElse(null);
+		MailTemplate mailTemplate = mailTemplateRepository.findByCode(code).orElse(null);
+		if (!Objects.isNull(userSendMail) && !Objects.isNull(mailTemplate) && StringUtils.isNotBlank(userSendMail.getEmail())) {
+			MailDto emailDto = new MailDto();
+			emailDto.setMailCc(mailTemplate.getCc());
+			emailDto.setMailBcc(mailTemplate.getBcc());
+			emailDto.setMailSubject(mailTemplate.getSubject());
+			String content = mailTemplate.getContent();
+			content = content.replace("[codeOrders]", orderEnity.getCodeOrders());
+			emailDto.setMailContent(content);
+			emailDto.setMailTo(userSendMail.getEmail());
+			emailService.sendEmail(emailDto);
+		}
+		
 	}
 
 	@Override

@@ -41,6 +41,7 @@ public class User {
 	private Date dob;
 	private Long point_lv;
 	private Long point;
+	private String tokenFirebase ;
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), 

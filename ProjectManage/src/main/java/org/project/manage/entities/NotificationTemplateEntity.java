@@ -11,31 +11,20 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "voucher")
 @Data
-public class Voucher {
+@Table(name = "notification_template")
 
+public class NotificationTemplateEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	private String voucherCode;
+	private String notiType;
+	private String title;
+	private String body;
+	private int status;
+	private Date createdDate;
+	private Integer seen;
 	
-	private Long userId;
-	
-	private Date startDate;
-	
-	private Date endDate;
-
-	private Long point;
-
-	private boolean status;
-	
-	private String voucherName;
-	
-	private String description;
-	
-	private String bannerPath;
-	
-	
+	public NotificationTemplateEntity() {
+	}
 }

@@ -14,6 +14,7 @@ import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.NotificationDetailResponse;
 import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
+import org.project.manage.response.UpdateTokenResponse;
 import org.project.manage.response.UserUpdateNotificationResponse;
 
 public interface UserService {
@@ -47,4 +48,8 @@ public interface UserService {
 	public DocumentContractResponse getDocumentContract(User user);
 
 	UserUpdateNotificationResponse updateNotification(User user, String actionStatus, Long userNotificationId);
+	
+	UpdateTokenResponse updateToken(User user, String token);
+	
+	void testNoti(User user);
 }

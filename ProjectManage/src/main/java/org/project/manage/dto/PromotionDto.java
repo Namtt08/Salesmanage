@@ -43,6 +43,7 @@ public class PromotionDto {
 		this.promotionValue=model.getPromotionValue();
 		this.promotionTotal= model.getPromotionTotal();
 		this.maxAmount= model.getMaxAmount();
+		this.bannerPath = model.getBannerPath();
 		
 	}
 	
@@ -53,6 +54,7 @@ public class PromotionDto {
 		this.description= model.getDescription();
 		this.type =SystemConfigUtil.VOURCHER;
 		this.promotionValue=model.getPoint();
+		this.bannerPath = this.getBannerPath();
 	}
 
 	public PromotionDto() {

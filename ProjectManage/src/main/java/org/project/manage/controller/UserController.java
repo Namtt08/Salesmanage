@@ -27,6 +27,7 @@ import org.project.manage.response.MessageSuccessResponse;
 import org.project.manage.response.NotificationDetailResponse;
 import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
+import org.project.manage.response.UpdateTokenResponse;
 import org.project.manage.response.UserInfoResponse;
 import org.project.manage.response.UserUpdateNotificationResponse;
 import org.project.manage.services.SystemSettingService;
@@ -299,6 +300,42 @@ public class UserController {
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#updateNotification#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	
+	@GetMapping("/update/token")
+	public ApiResponse updateToken(String token) {
+		long start = System.currentTimeMillis();
+		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+
+			UpdateTokenResponse response = userService.updateToken(user, token);
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#updateToken#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	
+	@GetMapping("/test/noti")
+	public ApiResponse testNoti() {
+		long start = System.currentTimeMillis();
+		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+
+			UpdateTokenResponse response =null;
+					
+					userService.testNoti(user);
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#updateToken#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}
