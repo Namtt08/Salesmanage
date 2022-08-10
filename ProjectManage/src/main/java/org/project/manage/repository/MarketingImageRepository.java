@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface MarketingImageRepository extends JpaRepository<MarketingImageEntity, Long> {
 	
 	
-	@Query(value = "select a.* from setting_marketing_info a where a.delete_date is null", nativeQuery = true)
+	@Query(value = "select a.* from setting_marketing_info a where a.delete_date is null and status =1", nativeQuery = true)
 	List<MarketingImageEntity> getSettingMarketting();
 
 }
