@@ -38,7 +38,8 @@ public class GaraServiceImpl implements GaraService {
 				dto.setLongitude(entity.getLongitude());
 				dto.setGaraAddress(entity.getGaraAddress());
 				dto.setStatus(entity.isStatus());
-				dto.setDocPath(entity.getDocPath());
+				String url = garaRepository.getGaraAvatar(entity.getId());
+				dto.setDocPath(url);
 				listGaraInfo.add(dto);
 				
 			}
