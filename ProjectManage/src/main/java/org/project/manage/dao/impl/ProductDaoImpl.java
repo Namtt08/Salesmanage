@@ -94,7 +94,7 @@ public class ProductDaoImpl implements ProductDao {
 		builder.append("  ) a");
 		builder.append(" where 1=1");
 		builder.append(" and a.status = 1");
-		builder.append(" AND SYSDATETIME() BETWEEN A.start_date AND A.end_date");	
+		//builder.append(" AND SYSDATETIME() BETWEEN A.start_date AND A.end_date");	
 		if (StringUtils.isNotBlank(request.getProductType())) {
 			builder.append(" AND A.product_type =:productType");
 		}
@@ -129,4 +129,5 @@ public class ProductDaoImpl implements ProductDao {
 		setSearchFilter(request, query);
 		 return query.getSingleResult() != null ? Integer.parseInt(query.getSingleResult().toString()) : 0;
 	}
+	
 }
