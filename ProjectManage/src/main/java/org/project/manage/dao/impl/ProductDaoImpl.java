@@ -33,7 +33,8 @@ public class ProductDaoImpl implements ProductDao {
 		this.generateQuery(builder, request, false);
 		Query query = entityManager.createNativeQuery(builder.toString());
 		setSearchFilter(request, query);
-		query.setFirstResult((request.getPage() - 1) * request.getSize());
+		//query.setFirstResult((request.getPage() - 1) * request.getSize());
+		query.setFirstResult(request.getPage()-1);
 		query.setMaxResults(request.getSize());
 
 		List<Object[]> results = query.getResultList();

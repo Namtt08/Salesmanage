@@ -82,7 +82,8 @@ public class ProductServiceImpl implements ProductService {
 			List<ProductDto> listProduct = productDao.getListProduct(request);
 			int total = productDao.countListProduct(request);
 			for (ProductDto productDto : listProduct) {
-				
+				String bannerPath = productDocumentRepository.getdocPathProductByIdAndPosition(productDto.getProductId(), 1L);
+				productDto.setBannerPath(bannerPath);
 				List<ProductDocmentDto> listDocument = new ArrayList<ProductDocmentDto>();
 				List<ProductDocument> productDocumentList = productDocumentRepository.findByProductId(productDto.getProductId());
 				if (productDocumentList != null && !productDocumentList.isEmpty()) {
