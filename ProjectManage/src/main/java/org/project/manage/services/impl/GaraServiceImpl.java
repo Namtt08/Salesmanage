@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.project.manage.dto.GaraInfoDto;
 import org.project.manage.entities.GaraInfoEntity;
 import org.project.manage.repository.GaraRepository;
@@ -40,8 +41,9 @@ public class GaraServiceImpl implements GaraService {
 				dto.setStatus(entity.isStatus());
 				String url = garaRepository.getGaraAvatar(entity.getId());
 				dto.setDocPath(url);
+				if(!StringUtils.isBlank(url) && entity.getLatitude() !=null||entity.getLongitude() !=null) {
 				listGaraInfo.add(dto);
-				
+				}
 			}
 			response.setListGara(listGaraInfo);
 			}
