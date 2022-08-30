@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.project.manage.dao.ProductDao;
 import org.project.manage.dto.ProductAllNameDto;
 import org.project.manage.dto.ProductCategoryDto;
@@ -79,10 +80,15 @@ public class ProductServiceImpl implements ProductService {
 	public ListProductRespose getListProduct(ProductListRequest request, User user) {
 
 		try {
-			List<ProductDto> listProduct = productDao.getListProduct(request);
+			List<ProductDto> listProductTemp = productDao.getListProduct(request);
+			List<ProductDto> listProduct = new ArrayList<ProductDto>();
 			int total = productDao.countListProduct(request);
-			for (ProductDto productDto : listProduct) {
+			for (ProductDto productDto : listProductTemp) {
 				String bannerPath = productDocumentRepository.getdocPathProductByIdAndPosition(productDto.getProductId(), 1L);
+				if(StringUtils.isBlank(bannerPath)) {
+					total = total - 1;
+				}else {
+					listProduct.add(productDto);
 				productDto.setBannerPath(bannerPath);
 				List<ProductDocmentDto> listDocument = new ArrayList<ProductDocmentDto>();
 				List<ProductDocument> productDocumentList = productDocumentRepository.findByProductId(productDto.getProductId());
@@ -101,7 +107,7 @@ public class ProductServiceImpl implements ProductService {
 				productDto.setListPromotion(listPromotion);
 			}
 
-			
+			}
 			
 			return new ListProductRespose(total, listProduct);
 		} catch (Exception e) {
