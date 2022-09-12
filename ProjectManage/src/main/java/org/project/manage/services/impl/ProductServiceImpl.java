@@ -23,10 +23,12 @@ import org.project.manage.repository.ProductDocumentRepository;
 import org.project.manage.repository.ProductRepository;
 import org.project.manage.repository.PromotionRepository;
 import org.project.manage.repository.UserPromotionRepository;
+import org.project.manage.repository.VoucherRepository;
 import org.project.manage.request.ProductListRequest;
 import org.project.manage.response.GetAllProductNameListRespone;
 import org.project.manage.response.ListProductRespose;
 import org.project.manage.response.ProductDetailResponse;
+import org.project.manage.response.PromotionProductOrderResponse;
 import org.project.manage.services.ProductService;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
@@ -59,6 +61,10 @@ public class ProductServiceImpl implements ProductService {
 	
 	@Autowired
 	private UserPromotionRepository userPromotionRepository;
+	
+	@Autowired
+	private VoucherRepository voucherRepository;
+
 
 	@Override
 	public List<ProductCategoryDto> getAllProductCategory() {
@@ -180,6 +186,19 @@ public class ProductServiceImpl implements ProductService {
 						.stream()
 						//.filter(promotion -> (promotion.getPromotionTotal() == null? 9999L:promotion.getPromotionTotal()))
 						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
+				for (PromotionDto promotionDto : listPromotion) {
+					promotionDto.setBannerPath("\\opt\\application-data\\upload\\image-promotion-temp\\1111.jpg");
+					ProductCategory ProductCategory = productCategoryRepository
+							.getDataProductCategoryById(product.getProductCategoryId(), 1L);
+					promotionDto.setProductCateName(ProductCategory.getName());
+				}
+				
+				List<PromotionDto> listvoucher = voucherRepository.findByUserId(user.getId()).stream()
+						.map(voucher -> new PromotionDto(voucher)).collect(Collectors.toList());
+				for (PromotionDto promotionDto : listvoucher) {
+					promotionDto.setBannerPath("\\opt\\application-data\\upload\\image-promotion-temp\\1111.jpg");
+				}
+				listPromotion.addAll(listvoucher);
 				
 				response.setListPromotion(listPromotion);
 
