@@ -36,7 +36,7 @@ public class SystemConfigUtil {
 	
 	public static final String POINT_LV = "POINT_LV";
 	
-	public static final int STATUS_ACTIVE = 1;
+	public static final Long STATUS_ACTIVE = 1L;
 	
 	public static final String PROMOTION = "PROMOTION";
 	

@@ -34,7 +34,7 @@ public class Product {
 	private Long totalProduct;
 	private Date startDate;
 	private Date endDate;
-	private int status;
+	private Long status;
 	private String salesType;
 	private Long price;
 	private String productDesc;
