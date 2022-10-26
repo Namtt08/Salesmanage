@@ -42,6 +42,9 @@ public class User {
 	private Long point_lv;
 	private Long point;
 	private String tokenFirebase ;
+    private Date deleteDate;
+    private String deleteBy;
+	
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), 

@@ -9,6 +9,7 @@ public interface AppResultCode {
 	int AS_DB_ERROR = 501;
 	int AS_DEVICE_BLOCK = 502;
 	int AS_NOT_FOUND_RECORD = 506;
-	int AS_CONNECTION_TIMEOUT = 509;;
+	int AS_CONNECTION_TIMEOUT = 509;
+	int ACCOUNT_DELETE = 507;
 
 }

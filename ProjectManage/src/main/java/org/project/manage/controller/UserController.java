@@ -19,6 +19,7 @@ import org.project.manage.exception.AppException;
 import org.project.manage.repository.UserIntroducedRepository;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.request.UpdateUserInfo;
+import org.project.manage.response.AccountDeleteResponse;
 import org.project.manage.response.ApiResponse;
 import org.project.manage.response.DocumentContractResponse;
 import org.project.manage.response.DocumentInfoResponse;
@@ -341,4 +342,20 @@ public class UserController {
 		}
 	}
 	
+	@GetMapping("/delete/account")
+	public ApiResponse deleteAccount() {
+		long start = System.currentTimeMillis();
+		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+
+			AccountDeleteResponse response =userService.deleteAccount(user);					
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#deleteAccount#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
 }

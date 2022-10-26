@@ -89,12 +89,12 @@ public class ProductDaoImpl implements ProductDao {
 				" pd.sales_type, pd.status, ISNULL(pd.start_date,CONVERT(datetime,'1990-01-01',102)) start_date, ISNULL(pd.end_date,CONVERT(datetime,'9999-01-30',102)) end_date, pc.id product_category_id,pd.created_date,"
 				+ "pd.product_category_id as product_cate_id, pd.user_id as partner_id , pd.insurance, pd.product_desc,  pd.code, u.full_name ");
 		builder.append(" from product pd ");
-		builder.append(" left join product_category pc on pd.product_category_id = pc.id ");
+		builder.append(" left join product_category pc on pd.product_category_id = pc.id and pd.product_name is not null");
 		builder.append(" left join users u on u.id = pd.user_id ");
 		//builder.append(" left join product_document pdc on pd.id = pdc.product_id and pdc.position =1");
 		builder.append("  ) a");
 		builder.append(" where 1=1");
-		builder.append(" and a.status = 1");
+		builder.append(" and a.status = 1 and a.product_category_name is not null");
 		//builder.append(" AND SYSDATETIME() BETWEEN A.start_date AND A.end_date");	
 		if (StringUtils.isNotBlank(request.getProductType())) {
 			builder.append(" AND A.product_type =:productType");

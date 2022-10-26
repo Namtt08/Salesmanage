@@ -62,4 +62,6 @@ public interface MessageResult {
 	
 	String USER_INTRODUCED = "Tài khoản này đã được quét mã giới thiệu.";
 	
+	String GRD001_DELETE = "Tài khoản không tồn tại";
+	
 }

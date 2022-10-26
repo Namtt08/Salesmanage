@@ -9,6 +9,7 @@ import org.project.manage.dto.PresenterRequestDto;
 import org.project.manage.entities.User;
 import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.request.UserLoginRequest;
+import org.project.manage.response.AccountDeleteResponse;
 import org.project.manage.response.DocumentContractResponse;
 import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.NotificationDetailResponse;
@@ -52,4 +53,6 @@ public interface UserService {
 	UpdateTokenResponse updateToken(User user, String token);
 	
 	void testNoti(User user);
+	
+	AccountDeleteResponse deleteAccount(User user);
 }

@@ -48,6 +48,7 @@ import org.project.manage.request.DocumentRequest;
 import org.project.manage.request.FileContentRequest;
 import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.request.UserLoginRequest;
+import org.project.manage.response.AccountDeleteResponse;
 import org.project.manage.response.DocumentContractResponse;
 import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.DocumentResponse;
@@ -631,6 +632,19 @@ public class UserServiceImpl implements UserService {
 	public void testNoti(User user) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public AccountDeleteResponse deleteAccount(User user) {
+		AccountDeleteResponse  response = new AccountDeleteResponse();
+		Optional<User> userOptional = userRepository.findById(user.getId());
+		User users = userOptional.get();
+		users.setBlockUser(true);
+		users.setDeleteDate(new Date());
+		users.setDeleteBy(user.getUsername());
+		userRepository.save(users);
+		
+		return response;
 	}
 
 }

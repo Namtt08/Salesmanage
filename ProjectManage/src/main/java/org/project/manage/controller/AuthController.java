@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.project.manage.entities.CustomerLoginHistory;
 import org.project.manage.entities.DeviceOtp;
 import org.project.manage.entities.SystemSetting;
@@ -98,9 +99,13 @@ public class AuthController {
 			if (userCustomer == null) {
 				userCustomer = userService.createUserCustomer(userLoginRequest);
 			}
-			if (userCustomer.isBlockUser()) {
+			if (userCustomer.isBlockUser() && StringUtils.isBlank(userCustomer.getDeleteBy())) {
 				return successHandler.handlerSuccess(
 						new MessageResponse(AppResultCode.AS_NOT_FOUND_RECORD, MessageResult.GRD001_BLOCK), start);
+			}
+			if (userCustomer.isBlockUser() && !StringUtils.isBlank(userCustomer.getDeleteBy())) {
+				return successHandler.handlerSuccess(
+						new MessageResponse(AppResultCode.ACCOUNT_DELETE, MessageResult.GRD001_DELETE), start);
 			}
 
 			String jwt = jwtUtils.generateJwtToken(userLoginRequest.getCuid());
@@ -111,9 +116,10 @@ public class AuthController {
 				SimpleDateFormat formatter = new SimpleDateFormat(AppConstants.DATE_FORMAT);
 				dob = formatter.format(userCustomer.getDob());
 			}
+
 			return this.successHandler.handlerSuccess(new LoginView(userCustomer.getCuid(),
 					userCustomer.getPhoneNumber(), jwt, userCustomer.getEmail(), userCustomer.isBlockUser(),
-					userCustomer.getNationalId(), userCustomer.getGender(), userCustomer.getFullName(),userCustomer.getAvatar(), dob, userCustomer.getPhoneNumber2()), start);
+					userCustomer.getNationalId(), userCustomer.getGender(), userCustomer.getFullName(),userCustomer.getAvatar(), dob, userCustomer.getPhoneNumber2(), userCustomer.getUserType()), start);
 		} catch (Exception e) {
 			log.error("#authentication#ERROR#:" + e.getMessage());
 			e.printStackTrace();

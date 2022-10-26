@@ -18,9 +18,10 @@ public class LoginView extends MessageSuccessResponse {
 	private String avatar;
 	private String dob;
 	private String phoneNumber2;
+	private String userType;
 
 	public LoginView(String cuid, String phoneNumber, String token, String email,
-			boolean isBlockUser, String nationalId, String gender, String fullName, String avatar, String dob, String phoneNumber2) {
+			boolean isBlockUser, String nationalId, String gender, String fullName, String avatar, String dob, String phoneNumber2, String userType) {
 		this.cuid = cuid;
 		this.phoneNumber = phoneNumber;
 		this.token = token;
@@ -32,6 +33,7 @@ public class LoginView extends MessageSuccessResponse {
 		this.avatar = avatar;
 		this.dob = dob;
 		this.phoneNumber2 = phoneNumber2;
+		this.userType = userType;
 	}
 	
 }
