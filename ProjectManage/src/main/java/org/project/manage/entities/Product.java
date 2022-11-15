@@ -40,4 +40,9 @@ public class Product {
 	private String productDesc;
 	private String insurance;
 
+    private Date deletedDate;
+	
+	private String deletedBy;
+	
+	private String createdBy;
 }

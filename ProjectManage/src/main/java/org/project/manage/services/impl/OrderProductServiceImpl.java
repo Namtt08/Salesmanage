@@ -364,7 +364,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 						Promotion promotion = promotionRepository.findById(request.getPromotionDto().getId())
 								.orElseThrow(() -> new AppException(MessageResult.GRD011_ORDER));
 						if (promotion.getProductCategoryId() == product.getProductCategoryId()
-								&& StringUtils.equals(promotion.getUserType(), user.getUserType())) {
+								&& StringUtils.equals(promotion.getUserType(), user.getUserType())
+								&& StringUtils.equals(promotion.getCreatedBy(), product.getCreatedBy())
+								) {
 
 							if (StringUtils.equals(promotion.getPromotionType(), SystemConfigUtil.percentage)) {
 								float value = (float) (promotion.getPromotionValue()) / 100;

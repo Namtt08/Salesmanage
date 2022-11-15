@@ -216,7 +216,7 @@ public class ProductServiceImpl implements ProductService {
 	public GetAllProductNameListRespone getAllProductName() {
 		GetAllProductNameListRespone response= new GetAllProductNameListRespone();
 		List <ProductAllNameDto> productNameList = new ArrayList<>();
-		List<Product> listProduct = productRepository.findAll();		
+		List<Product> listProduct = productRepository.findByDeletedByIsNull();		
 		for (Product dto : listProduct) {
 			ProductAllNameDto productDto = new ProductAllNameDto();
 			productDto.setProductName(dto.getProductName());
