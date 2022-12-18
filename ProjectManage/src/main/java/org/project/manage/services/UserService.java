@@ -17,6 +17,7 @@ import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
 import org.project.manage.response.UpdateTokenResponse;
 import org.project.manage.response.UserUpdateNotificationResponse;
+import org.project.manage.response.WalletHistoryResponse;
 
 public interface UserService {
 
@@ -55,4 +56,6 @@ public interface UserService {
 	void testNoti(User user);
 	
 	AccountDeleteResponse deleteAccount(User user);
+	
+	WalletHistoryResponse walletHistory(User user);
 }

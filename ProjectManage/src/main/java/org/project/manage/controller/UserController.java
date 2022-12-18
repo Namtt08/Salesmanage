@@ -31,6 +31,7 @@ import org.project.manage.response.PresenterResponse;
 import org.project.manage.response.UpdateTokenResponse;
 import org.project.manage.response.UserInfoResponse;
 import org.project.manage.response.UserUpdateNotificationResponse;
+import org.project.manage.response.WalletHistoryResponse;
 import org.project.manage.services.SystemSettingService;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
@@ -351,6 +352,22 @@ public class UserController {
 					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
 
 			AccountDeleteResponse response =userService.deleteAccount(user);					
+			return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#deleteAccount#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+	@GetMapping("/wallet/history")
+	public ApiResponse walletHistory() {
+		long start = System.currentTimeMillis();
+		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+
+			WalletHistoryResponse response =userService.walletHistory(user);					
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#deleteAccount#ERROR#:" + e.getMessage());

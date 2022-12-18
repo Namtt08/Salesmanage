@@ -58,6 +58,7 @@ import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
 import org.project.manage.response.UpdateTokenResponse;
 import org.project.manage.response.UserUpdateNotificationResponse;
+import org.project.manage.response.WalletHistoryResponse;
 import org.project.manage.security.ERole;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
@@ -113,6 +114,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private DocumentContractRepository  documentContractRepository;
+	
 	
 	private static final String  LEASE_CONTRACT = "LEASE_CONTRACT";
 
@@ -525,9 +527,10 @@ public class UserServiceImpl implements UserService {
 					PaymentHistoryResponse dto = new PaymentHistoryResponse();
 					dto.setAmount(x.getAmount());
 					dto.setCodeOrders(x.getCodeOrders());
-					dto.setDescription(x.getDescription());
+					dto.setDescription(x.getDescription().isEmpty()? ChargeTypeEnum.getByValue(x.getChargeType()).getName(): x.getDescription());
 					dto.setCreatedDate(DateHelper.convertDateTime(x.getCreatedDate()));
-					dto.setChargeType(ChargeTypeEnum.getByValue(x.getChargeType()).getName());
+					dto.setChargeType(Integer.toString(x.getChargeType()));
+					dto.setChargeName(ChargeTypeEnum.getByValue(x.getChargeType()).getName());
 					return dto;
 				}).collect(Collectors.toList());
 		return listResponse;
@@ -644,6 +647,14 @@ public class UserServiceImpl implements UserService {
 		users.setDeleteBy(user.getUsername());
 		userRepository.save(users);
 		
+		return response;
+	}
+
+	@Override
+	public WalletHistoryResponse walletHistory(User user) {
+		WalletHistoryResponse response = new WalletHistoryResponse();
+		
+//		List<PaymentHistory> getHistoryPaymentByUserId(Long userId);
 		return response;
 	}
 

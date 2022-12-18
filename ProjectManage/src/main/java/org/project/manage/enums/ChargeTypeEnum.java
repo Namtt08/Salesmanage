@@ -3,7 +3,7 @@ package org.project.manage.enums;
 import java.util.stream.Stream;
 
 public enum ChargeTypeEnum {
-	RECHARGE(1, "Nạp tiền"), PAY(2, "Thanh toán"), REFUND(3, "Hoàn tiền");
+	RECHARGE(1, "Nạp tiền"), PAY(2, "Thanh toán"), REFUND(3, "Hoàn tiền"),MONEY_ADJUST(4,"Điều chỉnh trừ tiền");
 
 	private int value;
 	private String name;

@@ -15,4 +15,6 @@ public class PaymentHistoryResponse {
 	
 	private String createdDate;
 	
+	private String chargeName;
+	
 }
