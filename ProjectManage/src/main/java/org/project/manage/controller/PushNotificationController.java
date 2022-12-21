@@ -27,7 +27,7 @@ import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.MessageResponse;
 import org.project.manage.response.MessageSuccessResponse;
 import org.project.manage.response.NotificationDetailResponse;
-import org.project.manage.response.PaymentHistoryResponse;
+import org.project.manage.response.PaymentHistoryDto;
 import org.project.manage.response.PresenterResponse;
 import org.project.manage.response.UpdateTokenResponse;
 import org.project.manage.response.UserInfoResponse;

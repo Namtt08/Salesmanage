@@ -1,20 +1,16 @@
 package org.project.manage.response;
 
-import lombok.Data;
+import java.util.List;
 
-@Data
-public class PaymentHistoryResponse {
-	
-	private String codeOrders;
-	
-	private String chargeType;
-	
-	private Long amount;
-	
-	private String description;
-	
-	private String createdDate;
-	
-	private String chargeName;
-	
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@NoArgsConstructor
+public class PaymentHistoryResponse  extends MessageSuccessResponse{
+
+
+	private List<PaymentHistoryDto> listPayment;
 }

@@ -54,7 +54,7 @@ import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.DocumentResponse;
 import org.project.manage.response.FilePathRespone;
 import org.project.manage.response.NotificationDetailResponse;
-import org.project.manage.response.PaymentHistoryResponse;
+import org.project.manage.response.PaymentHistoryDto;
 import org.project.manage.response.PresenterResponse;
 import org.project.manage.response.UpdateTokenResponse;
 import org.project.manage.response.UserUpdateNotificationResponse;
@@ -521,10 +521,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<PaymentHistoryResponse> getHistoryPayment(User user) {
-		List<PaymentHistoryResponse> listResponse = paymentHistoryRepository
+	public List<PaymentHistoryDto> getHistoryPayment(User user) {
+		List<PaymentHistoryDto> listResponse = paymentHistoryRepository
 				.findByUserIdOrderByCreatedDateDesc(user.getId()).stream().map(x -> {
-					PaymentHistoryResponse dto = new PaymentHistoryResponse();
+					PaymentHistoryDto dto = new PaymentHistoryDto();
 					dto.setAmount(x.getAmount());
 					dto.setCodeOrders(x.getCodeOrders());
 					dto.setDescription(x.getDescription().isEmpty()? ChargeTypeEnum.getByValue(x.getChargeType()).getName(): x.getDescription());

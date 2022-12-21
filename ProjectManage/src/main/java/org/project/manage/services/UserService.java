@@ -13,7 +13,7 @@ import org.project.manage.response.AccountDeleteResponse;
 import org.project.manage.response.DocumentContractResponse;
 import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.NotificationDetailResponse;
-import org.project.manage.response.PaymentHistoryResponse;
+import org.project.manage.response.PaymentHistoryDto;
 import org.project.manage.response.PresenterResponse;
 import org.project.manage.response.UpdateTokenResponse;
 import org.project.manage.response.UserUpdateNotificationResponse;
@@ -41,7 +41,7 @@ public interface UserService {
 	
 	public Optional<User> findById(Long id);
 
-	public List<PaymentHistoryResponse> getHistoryPayment(User user);
+	public List<PaymentHistoryDto> getHistoryPayment(User user);
 	
 	PresenterResponse addPresenter(User user, PresenterRequestDto presenterRequestDto);
 	

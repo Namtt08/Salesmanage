@@ -26,6 +26,7 @@ import org.project.manage.response.DocumentInfoResponse;
 import org.project.manage.response.MessageResponse;
 import org.project.manage.response.MessageSuccessResponse;
 import org.project.manage.response.NotificationDetailResponse;
+import org.project.manage.response.PaymentHistoryDto;
 import org.project.manage.response.PaymentHistoryResponse;
 import org.project.manage.response.PresenterResponse;
 import org.project.manage.response.UpdateTokenResponse;
@@ -200,10 +201,12 @@ public class UserController {
 	public ApiResponse getHistoryPayment() {
 		long start = System.currentTimeMillis();
 		try {
+			PaymentHistoryResponse response= new PaymentHistoryResponse();
 			String name = SecurityContextHolder.getContext().getAuthentication().getName();
 			User user = userService.findByUsername(name)
 					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
-			List<PaymentHistoryResponse> response = userService.getHistoryPayment(user);
+			List<PaymentHistoryDto> data = userService.getHistoryPayment(user);
+			response.setListPayment(data);
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getHistoryPayment#ERROR#:" + e.getMessage());
