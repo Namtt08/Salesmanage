@@ -3,13 +3,18 @@ package org.project.manage.services.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
+import jdk.nashorn.internal.runtime.options.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.project.manage.dto.GaraInfoDto;
 import org.project.manage.entities.GaraInfoEntity;
+import org.project.manage.entities.User;
 import org.project.manage.repository.GaraRepository;
+import org.project.manage.response.GaraDetailResponse;
 import org.project.manage.response.GaraListResponse;
 import org.project.manage.services.GaraService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +59,23 @@ public class GaraServiceImpl implements GaraService {
 			throw e;
 		}
 
+	}
+
+	@Override
+	public GaraDetailResponse getGaraDetail(Long id, User user) {
+
+		GaraDetailResponse response = new GaraDetailResponse();
+
+		GaraInfoDto garaInfoDto = new GaraInfoDto();
+		Optional<GaraInfoEntity> garaInfoEntityOptional = garaRepository.findByIdAndDeleteByIsNull(id);
+		if(garaInfoEntityOptional.isPresent()) {
+			BeanUtils.copyProperties(garaInfoEntityOptional.get(), garaInfoDto, GaraInfoDto.class);
+			response.setGaraInfo(garaInfoDto);
+		}else {
+			response.setCodeStatus(99999);
+			response.setMessageStatus("No Data");
+		}
+		return response;
 	}
 
 

@@ -40,6 +40,8 @@ public class GaraInfoEntity {
     private Date createdDate;
     
     private String docPath;
-    
 
+    private String deleteBy;
+
+    private Date deteleDate;
 }

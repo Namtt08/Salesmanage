@@ -19,20 +19,8 @@ import org.project.manage.exception.AppException;
 import org.project.manage.repository.UserIntroducedRepository;
 import org.project.manage.repository.UserRepository;
 import org.project.manage.request.UpdateUserInfo;
-import org.project.manage.response.AccountDeleteResponse;
-import org.project.manage.response.ApiResponse;
-import org.project.manage.response.DocumentContractResponse;
-import org.project.manage.response.DocumentInfoResponse;
-import org.project.manage.response.MessageResponse;
-import org.project.manage.response.MessageSuccessResponse;
-import org.project.manage.response.NotificationDetailResponse;
-import org.project.manage.response.PaymentHistoryDto;
-import org.project.manage.response.PaymentHistoryResponse;
-import org.project.manage.response.PresenterResponse;
-import org.project.manage.response.UpdateTokenResponse;
-import org.project.manage.response.UserInfoResponse;
-import org.project.manage.response.UserUpdateNotificationResponse;
-import org.project.manage.response.WalletHistoryResponse;
+import org.project.manage.request.UserPaymentRequest;
+import org.project.manage.response.*;
 import org.project.manage.services.SystemSettingService;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
@@ -374,6 +362,22 @@ public class UserController {
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#deleteAccount#ERROR#:" + e.getMessage());
+			e.printStackTrace();
+			return this.errorHandler.handlerException(e, start);
+		}
+	}
+
+	@PostMapping("/payment/gara")
+	public ApiResponse userPayment(@RequestBody UserPaymentRequest userPaymentRequest) {
+		long start = System.currentTimeMillis();
+		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			User user = userService.findByUsername(name)
+					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+				UserPaymentlResponse response = userService.PayingForGarageService(user, userPaymentRequest);
+				return this.successHandler.handlerSuccess(response, start);
+		} catch (Exception e) {
+			log.error("#addPresenter#ERROR#:" + e.getMessage());
 			e.printStackTrace();
 			return this.errorHandler.handlerException(e, start);
 		}

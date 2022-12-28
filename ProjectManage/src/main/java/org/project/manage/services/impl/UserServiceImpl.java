@@ -21,44 +21,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.modelmapper.ModelMapper;
+import org.project.manage.dto.GaraInfoDto;
 import org.project.manage.dto.PresenterRequestDto;
-import org.project.manage.entities.Document;
-import org.project.manage.entities.DocumentContractEntity;
-import org.project.manage.entities.DocumentInfo;
-import org.project.manage.entities.DocumentType;
-import org.project.manage.entities.PaymentHistory;
-import org.project.manage.entities.Role;
-import org.project.manage.entities.User;
-import org.project.manage.entities.UserIntroducedEntity;
-import org.project.manage.entities.UserLeasedEntity;
-import org.project.manage.entities.UserNotificationEntity;
+import org.project.manage.entities.*;
 import org.project.manage.enums.ChargeTypeEnum;
 import org.project.manage.exception.AppException;
-import org.project.manage.repository.DocumentContractRepository;
-import org.project.manage.repository.DocumentInfoRepository;
-import org.project.manage.repository.DocumentRepository;
-import org.project.manage.repository.DocumentTypeRepository;
-import org.project.manage.repository.PaymentHistoryRepository;
-import org.project.manage.repository.RoleRepository;
-import org.project.manage.repository.UserIntroducedRepository;
-import org.project.manage.repository.UserLeasedRepository;
-import org.project.manage.repository.UserNotificationRepository;
-import org.project.manage.repository.UserRepository;
-import org.project.manage.request.DocumentRequest;
-import org.project.manage.request.FileContentRequest;
-import org.project.manage.request.UpdateUserInfo;
-import org.project.manage.request.UserLoginRequest;
-import org.project.manage.response.AccountDeleteResponse;
-import org.project.manage.response.DocumentContractResponse;
-import org.project.manage.response.DocumentInfoResponse;
-import org.project.manage.response.DocumentResponse;
-import org.project.manage.response.FilePathRespone;
-import org.project.manage.response.NotificationDetailResponse;
-import org.project.manage.response.PaymentHistoryDto;
-import org.project.manage.response.PresenterResponse;
-import org.project.manage.response.UpdateTokenResponse;
-import org.project.manage.response.UserUpdateNotificationResponse;
-import org.project.manage.response.WalletHistoryResponse;
+import org.project.manage.repository.*;
+import org.project.manage.request.*;
+import org.project.manage.response.*;
 import org.project.manage.security.ERole;
 import org.project.manage.services.UserService;
 import org.project.manage.util.AppConstants;
@@ -66,6 +36,7 @@ import org.project.manage.util.ContentType;
 import org.project.manage.util.DateHelper;
 import org.project.manage.util.FileStorageProperties;
 import org.project.manage.util.MessageResult;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -114,8 +85,10 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private DocumentContractRepository  documentContractRepository;
-	
-	
+
+	@Autowired
+	private GaraRepository garaRepository;
+
 	private static final String  LEASE_CONTRACT = "LEASE_CONTRACT";
 
 	@Bean
@@ -655,6 +628,46 @@ public class UserServiceImpl implements UserService {
 		WalletHistoryResponse response = new WalletHistoryResponse();
 		
 //		List<PaymentHistory> getHistoryPaymentByUserId(Long userId);
+		return response;
+	}
+
+	@Override
+	public UserPaymentlResponse PayingForGarageService(User user, UserPaymentRequest request) {
+		UserPaymentlResponse response = new UserPaymentlResponse();
+		if(request.getAmount()==null){
+			request.setAmount(0L);
+		}
+		Optional<User> userGaraOptional = userRepository.getUserDetailById(request.getGaraId(),false);
+		Optional<User> userPaymentOptional = userRepository.getUserDetailById(user.getId(),false);
+		if(userGaraOptional.isPresent()) {
+			if(StringUtils.equalsIgnoreCase("ROLE_GARA", userGaraOptional.get().getUserType())){
+				User userPayment =userPaymentOptional.get();
+				User userGara =userGaraOptional.get();
+				if(userPayment.getPoint() == null||userPayment.getPoint()<request.getAmount()){
+					userPayment.setPoint(0L);
+					response.setCodeStatus(99999);
+					response.setMessageStatus("Tài khoản của bạn không đủ để thực hiện giao dịch, vui lòng liên hệ admin để nạp thêm tiền vào ví");
+					return response;
+				}else {
+					userPayment.setPoint(userPayment.getPoint() - request.getAmount());
+					userRepository.save(userPayment);
+					userGara.setPoint(userGara.getPoint() + request.getAmount());
+					userRepository.save(userGara);
+					response.setCodeStatus(0);
+					response.setMessageStatus("Giao dịch thành công!");
+
+				}
+
+			}else {
+				response.setCodeStatus(99999);
+				response.setMessageStatus("Đây không phải tài khoản GARA, Bạn không thể thanh toán cho tài khoản này!");
+				return response;
+			}
+		}else {
+			response.setCodeStatus(99999);
+			response.setMessageStatus("Không tìm thấy thông tin Gara");
+			return response;
+		}
 		return response;
 	}
 

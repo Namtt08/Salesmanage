@@ -9,15 +9,8 @@ import org.project.manage.dto.PresenterRequestDto;
 import org.project.manage.entities.User;
 import org.project.manage.request.UpdateUserInfo;
 import org.project.manage.request.UserLoginRequest;
-import org.project.manage.response.AccountDeleteResponse;
-import org.project.manage.response.DocumentContractResponse;
-import org.project.manage.response.DocumentInfoResponse;
-import org.project.manage.response.NotificationDetailResponse;
-import org.project.manage.response.PaymentHistoryDto;
-import org.project.manage.response.PresenterResponse;
-import org.project.manage.response.UpdateTokenResponse;
-import org.project.manage.response.UserUpdateNotificationResponse;
-import org.project.manage.response.WalletHistoryResponse;
+import org.project.manage.request.UserPaymentRequest;
+import org.project.manage.response.*;
 
 public interface UserService {
 
@@ -58,4 +51,6 @@ public interface UserService {
 	AccountDeleteResponse deleteAccount(User user);
 	
 	WalletHistoryResponse walletHistory(User user);
+
+	UserPaymentlResponse PayingForGarageService (User user, UserPaymentRequest request);
 }
