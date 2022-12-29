@@ -6,6 +6,6 @@ import org.project.manage.dto.GaraInfoDto;
 @Data
 public class UserPaymentlResponse extends MessageSuccessResponse {
 	
-	private GaraInfoDto data;
+	private String timeTransaction;
 
 }

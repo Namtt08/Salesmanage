@@ -14,6 +14,7 @@ import org.project.manage.repository.GaraRepository;
 import org.project.manage.response.GaraDetailResponse;
 import org.project.manage.response.GaraListResponse;
 import org.project.manage.services.GaraService;
+import org.project.manage.util.AppResultCode;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,7 +73,7 @@ public class GaraServiceImpl implements GaraService {
 			BeanUtils.copyProperties(garaInfoEntityOptional.get(), garaInfoDto, GaraInfoDto.class);
 			response.setGaraInfo(garaInfoDto);
 		}else {
-			response.setCodeStatus(99999);
+			response.setCodeStatus(AppResultCode.ERROR);
 			response.setMessageStatus("No Data");
 		}
 		return response;

@@ -31,11 +31,7 @@ import org.project.manage.request.*;
 import org.project.manage.response.*;
 import org.project.manage.security.ERole;
 import org.project.manage.services.UserService;
-import org.project.manage.util.AppConstants;
-import org.project.manage.util.ContentType;
-import org.project.manage.util.DateHelper;
-import org.project.manage.util.FileStorageProperties;
-import org.project.manage.util.MessageResult;
+import org.project.manage.util.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -639,32 +635,37 @@ public class UserServiceImpl implements UserService {
 		}
 		Optional<User> userGaraOptional = userRepository.getUserDetailById(request.getGaraId(),false);
 		Optional<User> userPaymentOptional = userRepository.getUserDetailById(user.getId(),false);
+		Date date = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+		String strDate = formatter.format(date);
 		if(userGaraOptional.isPresent()) {
 			if(StringUtils.equalsIgnoreCase("ROLE_GARA", userGaraOptional.get().getUserType())){
 				User userPayment =userPaymentOptional.get();
 				User userGara =userGaraOptional.get();
 				if(userPayment.getPoint() == null||userPayment.getPoint()<request.getAmount()){
 					userPayment.setPoint(0L);
-					response.setCodeStatus(99999);
+					response.setCodeStatus(AppResultCode.ERROR);
 					response.setMessageStatus("Tài khoản của bạn không đủ để thực hiện giao dịch, vui lòng liên hệ admin để nạp thêm tiền vào ví");
+					response.setTimeTransaction(strDate);
 					return response;
 				}else {
 					userPayment.setPoint(userPayment.getPoint() - request.getAmount());
 					userRepository.save(userPayment);
 					userGara.setPoint(userGara.getPoint() + request.getAmount());
 					userRepository.save(userGara);
-					response.setCodeStatus(0);
 					response.setMessageStatus("Giao dịch thành công!");
+					response.setTimeTransaction(strDate);
 
 				}
 
 			}else {
-				response.setCodeStatus(99999);
+				response.setCodeStatus(AppResultCode.ERROR);
 				response.setMessageStatus("Đây không phải tài khoản GARA, Bạn không thể thanh toán cho tài khoản này!");
+				response.setTimeTransaction(strDate);
 				return response;
 			}
 		}else {
-			response.setCodeStatus(99999);
+			response.setCodeStatus(AppResultCode.ERROR);
 			response.setMessageStatus("Không tìm thấy thông tin Gara");
 			return response;
 		}
