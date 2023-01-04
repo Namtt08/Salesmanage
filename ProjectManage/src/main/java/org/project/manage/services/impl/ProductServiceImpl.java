@@ -108,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
 				List<PromotionDto> listPromotion = promotionRepository
 						.findByAndProductCategoryIdAndUserType(productDto.getProductCateId(), user.getUserType())
 						.stream().filter(promotion -> (promotion.getPromotionTotal() == null? 9999L:promotion.getPromotionTotal()) > userPromotion.size())
-						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
+						.map(promote -> new PromotionDto(promote, productDto.getProductCategoryName())).collect(Collectors.toList());
 				
 				productDto.setListPromotion(listPromotion);
 			}
@@ -185,7 +185,7 @@ public class ProductServiceImpl implements ProductService {
 						.findByAndProductCategoryIdAndUserType(product.getProductCategoryId(), user.getUserType())
 						.stream()
 						//.filter(promotion -> (promotion.getPromotionTotal() == null? 9999L:promotion.getPromotionTotal()))
-						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
+						.map(promote -> new PromotionDto(promote, response.getProductCategoryName())).collect(Collectors.toList());
 				for (PromotionDto promotionDto : listPromotion) {
 					promotionDto.setBannerPath("\\opt\\application-data\\upload\\image-promotion-temp\\1111.jpg");
 					ProductCategory ProductCategory = productCategoryRepository

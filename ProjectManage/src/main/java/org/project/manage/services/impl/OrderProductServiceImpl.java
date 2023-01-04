@@ -631,7 +631,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 						.filter(promotion -> (promotion.getPromotionTotal() == null ? 9999L
 								: promotion.getPromotionTotal()) > (userPromotionRepository
 										.findByUserIdAndPromotionId(user.getId(), promotion.getId())).size())
-						.map(promote -> new PromotionDto(promote)).collect(Collectors.toList());
+						.map(promote -> new PromotionDto(promote, null)).collect(Collectors.toList());
 				for (PromotionDto promotionDto : listPromotion) {
 					promotionDto.setBannerPath("\\opt\\application-data\\upload\\image-promotion-temp\\1111.jpg");
 					ProductCategory ProductCategory = productCategoryRepository

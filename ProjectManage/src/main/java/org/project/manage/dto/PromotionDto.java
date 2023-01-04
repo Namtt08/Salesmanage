@@ -33,7 +33,7 @@ public class PromotionDto {
 	
 	private String productCateName;
 
-	public PromotionDto(Promotion model) {
+	public PromotionDto(Promotion model, String productCateName) {
 		this.id = model.getId();
 		this.code = model.getPromotionCode();
 		this.name= model.getPromotionName();
@@ -44,7 +44,7 @@ public class PromotionDto {
 		this.promotionTotal= model.getPromotionTotal();
 		this.maxAmount= model.getMaxAmount();
 		this.bannerPath = model.getBannerPath();
-		
+		this.productCateName = productCateName;
 	}
 	
 	public PromotionDto(Voucher model) {
