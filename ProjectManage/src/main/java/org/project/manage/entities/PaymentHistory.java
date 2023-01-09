@@ -32,6 +32,10 @@ public class PaymentHistory {
 	private Date createdDate;
 	
 	private String createdBy;
+
+	private Long discountService;
+
+	private Long garaId;
 	
 
 }

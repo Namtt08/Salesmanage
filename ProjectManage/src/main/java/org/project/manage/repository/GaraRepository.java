@@ -15,4 +15,6 @@ public interface GaraRepository extends JpaRepository<GaraInfoEntity, Long> {
 	String getGaraAvatar(Long id);
 
 	Optional<GaraInfoEntity>findByIdAndDeleteByIsNull(Long Id);
+
+	Optional<GaraInfoEntity>findByUserIdAndDeleteByIsNull(Long userId);
 }

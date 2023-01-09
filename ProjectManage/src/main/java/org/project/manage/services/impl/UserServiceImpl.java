@@ -1,8 +1,10 @@
 package org.project.manage.services.impl;
 
+import java.text.DecimalFormat;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.modelmapper.ModelMapper;
 import org.project.manage.dto.GaraInfoDto;
 import org.project.manage.dto.PresenterRequestDto;
+import org.project.manage.dto.PushNotificationRequest;
 import org.project.manage.entities.*;
 import org.project.manage.enums.ChargeTypeEnum;
 import org.project.manage.exception.AppException;
@@ -30,6 +33,7 @@ import org.project.manage.repository.*;
 import org.project.manage.request.*;
 import org.project.manage.response.*;
 import org.project.manage.security.ERole;
+import org.project.manage.services.FCMService;
 import org.project.manage.services.UserService;
 import org.project.manage.util.*;
 import org.springframework.beans.BeanUtils;
@@ -86,6 +90,12 @@ public class UserServiceImpl implements UserService {
 	private GaraRepository garaRepository;
 
 	private static final String  LEASE_CONTRACT = "LEASE_CONTRACT";
+
+	@Autowired
+	private FCMService fcmService;
+
+	@Autowired
+	private NotificationTemplateRepository notificationTemplateRepository;
 
 	@Bean
 	public ModelMapper modelMapper() {
@@ -630,11 +640,13 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserPaymentlResponse PayingForGarageService(User user, UserPaymentRequest request) {
 		UserPaymentlResponse response = new UserPaymentlResponse();
+		double amountPayment =0L;
 		if(request.getAmount()==null){
 			request.setAmount(0L);
 		}
 		Optional<User> userGaraOptional = userRepository.getUserDetailById(request.getGaraId(),false);
 		Optional<User> userPaymentOptional = userRepository.getUserDetailById(user.getId(),false);
+
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
 		String strDate = formatter.format(date);
@@ -642,20 +654,62 @@ public class UserServiceImpl implements UserService {
 			if(StringUtils.equalsIgnoreCase("ROLE_GARA", userGaraOptional.get().getUserType())){
 				User userPayment =userPaymentOptional.get();
 				User userGara =userGaraOptional.get();
-				if(userPayment.getPoint() == null||userPayment.getPoint()<request.getAmount()){
-					userPayment.setPoint(0L);
+				Optional<GaraInfoEntity> garaInfo= garaRepository.findByUserIdAndDeleteByIsNull(request.getGaraId());
+				GaraInfoEntity garaInfoEntity = garaInfo.get();
+				double percent= 0L;
+				if (garaInfoEntity.getDiscount()==null|| garaInfoEntity.getDiscount() == 0 ){
+					percent =1L;
+				}else {
+					percent = (double)garaInfoEntity.getDiscount()/100;
+				}
+				amountPayment = request.getAmount() - (double)request.getAmount()*percent;
+				if(userPayment.getPoint() == null||userPayment.getPoint()<amountPayment){
 					response.setCodeStatus(AppResultCode.ERROR);
 					response.setMessageStatus("Tài khoản của bạn không đủ để thực hiện giao dịch, vui lòng liên hệ admin để nạp thêm tiền vào ví");
 					response.setTimeTransaction(strDate);
 					return response;
 				}else {
-					userPayment.setPoint(userPayment.getPoint() - request.getAmount());
+
+					userPayment.setPoint(userPayment.getPoint() - (long)amountPayment);
 					userRepository.save(userPayment);
-					userGara.setPoint(userGara.getPoint() + request.getAmount());
+					userGara.setPoint(userGara.getPoint() + (long)amountPayment);
 					userRepository.save(userGara);
 					response.setMessageStatus("Giao dịch thành công!");
 					response.setTimeTransaction(strDate);
 
+					PaymentHistory paymentHistory = new PaymentHistory();
+					paymentHistory.setUserId(user.getId());
+					paymentHistory.setCodeOrders(UUID.randomUUID().toString());
+					paymentHistory.setChargeType(ChargeTypeEnum.PAY.getValue());
+					paymentHistory.setAmount((long)amountPayment);
+					paymentHistory.setDescription("Thanh toán dịch vụ tại Gara :"+garaInfo.get().getGaraName());
+					paymentHistory.setCreatedDate(new Date());
+					paymentHistory.setCreatedBy(user.getUsername());
+					paymentHistory.setDiscountService(garaInfoEntity.getDiscount()== null ? 0 : garaInfoEntity.getDiscount());
+					paymentHistory.setGaraId(garaInfo.get().getId());
+					paymentHistoryRepository.save(paymentHistory);
+					// push noti
+					try {
+						Optional<NotificationTemplateEntity> notificationTemplateEntityOptional = notificationTemplateRepository.findByNotiType("PAYMENT_SERVICE_GARA");
+						if (notificationTemplateEntityOptional.isPresent()) {
+							NotificationTemplateEntity notificationTemplateEntity = notificationTemplateEntityOptional.get();
+							PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
+							String title = notificationTemplateEntity.getTitle();
+							DecimalFormat formats = new DecimalFormat("###,###,###");
+							String body = notificationTemplateEntity.getBody().replace("[amount]", formats.format(amountPayment));
+							body = body.replace("[garaname]", garaInfo.get().getGaraName());
+							pushNotificationRequest.setTitle(title);
+							pushNotificationRequest.setBody(body);
+							pushNotificationRequest.setUserId(user.getId());
+							pushNotificationRequest.setNotificationTemplateId(notificationTemplateEntity.getId());
+							pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
+							pushNotificationRequest.setToken(user.getTokenFirebase());
+							fcmService.pushNotification(pushNotificationRequest);
+
+						}
+					}catch (Exception e){
+						e.printStackTrace();
+					}
 				}
 
 			}else {

@@ -563,20 +563,25 @@ public class OrderProductServiceImpl implements OrderProductService {
 			amountAll = amountAll + orderProduct.getTotalAmount();
 		}
 		// push noti
-		Optional<NotificationTemplateEntity>  notificationTemplateEntityOptional = notificationTemplateRepository.findByNotiType("ORDER_PRODUCT");
-		if(notificationTemplateEntityOptional.isPresent()) {
-		NotificationTemplateEntity notificationTemplateEntity= notificationTemplateEntityOptional.get();
-		PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
-		String title = notificationTemplateEntity.getTitle();
-		DecimalFormat formatter = new DecimalFormat("###,###,###");
-		String body = notificationTemplateEntity.getBody().replace("[amount]", formatter.format(amountAll));
-		pushNotificationRequest.setTitle(title);
-		pushNotificationRequest.setBody(body);
-		pushNotificationRequest.setUserId(user.getId());
-		pushNotificationRequest.setNotificationTemplateId(notificationTemplateEntity.getId());
-		pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
-		pushNotificationRequest.setToken(user.getTokenFirebase());
-		fcmService.pushNotification(pushNotificationRequest);
+		try {
+			Optional<NotificationTemplateEntity> notificationTemplateEntityOptional = notificationTemplateRepository.findByNotiType("ORDER_PRODUCT");
+			if (notificationTemplateEntityOptional.isPresent()) {
+				NotificationTemplateEntity notificationTemplateEntity = notificationTemplateEntityOptional.get();
+				PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
+				String title = notificationTemplateEntity.getTitle();
+				DecimalFormat formatter = new DecimalFormat("###,###,###");
+				String body = notificationTemplateEntity.getBody().replace("[amount]", formatter.format(amountAll));
+				pushNotificationRequest.setTitle(title);
+				pushNotificationRequest.setBody(body);
+				pushNotificationRequest.setUserId(user.getId());
+				pushNotificationRequest.setNotificationTemplateId(notificationTemplateEntity.getId());
+				pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
+				pushNotificationRequest.setToken(user.getTokenFirebase());
+				fcmService.pushNotification(pushNotificationRequest);
+
+			}
+		}catch (Exception e){
+			e.printStackTrace();
 		}
 		return response;
 	}
