@@ -517,15 +517,19 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public PresenterResponse addPresenter(User user,PresenterRequestDto presenterRequestDto) {
-		
 		PresenterResponse response = new PresenterResponse();
-		UserIntroducedEntity userIntroducedEntity = new UserIntroducedEntity();
-		userIntroducedEntity.setCreatedBy(user.getUsername());
-		userIntroducedEntity.setCreatedDate(new Date());
-		userIntroducedEntity.setType(presenterRequestDto.getType());
-		userIntroducedEntity.setUserIntroducedId(presenterRequestDto.getUserIntroduceId());
-		userIntroducedEntity.setUserId(user.getId());
-		userIntroducedRepository.save(userIntroducedEntity);
+		try {
+
+			UserIntroducedEntity userIntroducedEntity = new UserIntroducedEntity();
+			userIntroducedEntity.setCreatedBy(user.getUsername());
+			userIntroducedEntity.setCreatedDate(new Date());
+			userIntroducedEntity.setUserType(presenterRequestDto.getType());
+			userIntroducedEntity.setUserIntroducedId(presenterRequestDto.getUserIntroduceId());
+			userIntroducedEntity.setUserId(user.getId());
+			userIntroducedRepository.save(userIntroducedEntity);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 		return response;
 	}
 
@@ -644,17 +648,17 @@ public class UserServiceImpl implements UserService {
 		if(request.getAmount()==null){
 			request.setAmount(0L);
 		}
-		Optional<User> userGaraOptional = userRepository.getUserDetailById(request.getGaraId(),false);
-		Optional<User> userPaymentOptional = userRepository.getUserDetailById(user.getId(),false);
+		Optional<GaraInfoEntity> garaInfo= garaRepository.findByIdAndDeleteByIsNull(request.getGaraId());
 
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
 		String strDate = formatter.format(date);
-		if(userGaraOptional.isPresent()) {
+		if(garaInfo.isPresent()) {
+			Optional<User> userGaraOptional = userRepository.getUserDetailById(garaInfo.get().getUserId(),false);
+			Optional<User> userPaymentOptional = userRepository.getUserDetailById(user.getId(),false);
 			if(StringUtils.equalsIgnoreCase("ROLE_GARA", userGaraOptional.get().getUserType())){
 				User userPayment =userPaymentOptional.get();
 				User userGara =userGaraOptional.get();
-				Optional<GaraInfoEntity> garaInfo= garaRepository.findByUserIdAndDeleteByIsNull(request.getGaraId());
 				GaraInfoEntity garaInfoEntity = garaInfo.get();
 				double percent= 0L;
 				if (garaInfoEntity.getDiscount()==null|| garaInfoEntity.getDiscount() == 0 ){

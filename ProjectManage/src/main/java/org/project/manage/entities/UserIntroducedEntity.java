@@ -26,7 +26,7 @@ public class UserIntroducedEntity {
 	    
 	    private Long userIntroducedId;
 
-	    private String type;
+	    private String userType;
 	    
 	    private String createdBy;
 	    

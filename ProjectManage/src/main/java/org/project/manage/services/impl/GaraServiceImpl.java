@@ -25,59 +25,74 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GaraServiceImpl implements GaraService {
 
-	@Autowired
-	private GaraRepository garaRepository;
+    @Autowired
+    private GaraRepository garaRepository;
 
-	@Override
-	public GaraListResponse getAllGaraInfo() {
-		GaraListResponse response =  new GaraListResponse();
-		List <GaraInfoDto> listGaraInfo = new ArrayList<>() ;
-		try {
-			List<GaraInfoEntity>  listGara = garaRepository.findAll();
-			if(!Objects.isNull(listGara)) {
-			for (GaraInfoEntity entity : listGara) {
-				GaraInfoDto  dto = new GaraInfoDto();
-				dto.setId(entity.getId());
-				dto.setGaraCode(entity.getGaraCode());
-				dto.setGaraName(entity.getGaraName());
-				dto.setPhone(entity.getPhone());
-				dto.setLatitude(entity.getLatitude());
-				dto.setLongitude(entity.getLongitude());
-				dto.setGaraAddress(entity.getGaraAddress());
-				dto.setStatus(entity.isStatus());
-				String url = garaRepository.getGaraAvatar(entity.getId());
-				dto.setDocPath(url);
-				if(!StringUtils.isBlank(url) && entity.getLatitude() !=null||entity.getLongitude() !=null) {
-				listGaraInfo.add(dto);
-				}
-			}
-			response.setListGara(listGaraInfo);
-			}
-			return response;
-		} catch (Exception e) {
-			log.error("#getAllProductCategory#ERROR#:" + e.getMessage());
-			e.printStackTrace();
-			throw e;
-		}
+    @Override
+    public GaraListResponse getAllGaraInfo() {
+        GaraListResponse response = new GaraListResponse();
+        List<GaraInfoDto> listGaraInfo = new ArrayList<>();
+        try {
+            List<GaraInfoEntity> listGara = garaRepository.findAll();
+            if (!Objects.isNull(listGara)) {
+                for (GaraInfoEntity entity : listGara) {
+                    if (StringUtils.isBlank(entity.getDeleteBy()) && entity.isStatus()) {
+                        GaraInfoDto dto = new GaraInfoDto();
+                        dto.setId(entity.getId());
+                        dto.setGaraCode(entity.getGaraCode());
+                        dto.setGaraName(entity.getGaraName());
+                        dto.setPhone(entity.getPhone());
+                        dto.setLatitude(entity.getLatitude());
+                        dto.setLongitude(entity.getLongitude());
+                        dto.setGaraAddress(entity.getGaraAddress());
+                        dto.setStatus(entity.isStatus());
+                        if (entity.getDiscount() == null) {
+                            dto.setDiscountRate((double) 0);
+                        } else {
+                            dto.setDiscountRate((double) entity.getDiscount());
+                        }
 
-	}
+                        String url = garaRepository.getGaraAvatar(entity.getId());
+                        dto.setDocPath(url);
+                        if (!StringUtils.isBlank(url) && entity.getLatitude() != null || entity.getLongitude() != null) {
+                            listGaraInfo.add(dto);
+                        }
+                    }
+                }
+                response.setListGara(listGaraInfo);
+            }
+            return response;
+        } catch (Exception e) {
+            log.error("#getAllProductCategory#ERROR#:" + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
 
-	@Override
-	public GaraDetailResponse getGaraDetail(Long id, User user) {
+    }
 
-		GaraDetailResponse response = new GaraDetailResponse();
+    @Override
+    public GaraDetailResponse getGaraDetail(Long id, User user) {
 
-		GaraInfoDto garaInfoDto = new GaraInfoDto();
-		Optional<GaraInfoEntity> garaInfoEntityOptional = garaRepository.findByIdAndDeleteByIsNull(id);
-		if(garaInfoEntityOptional.isPresent()) {
-			BeanUtils.copyProperties(garaInfoEntityOptional.get(), garaInfoDto, GaraInfoDto.class);
-			response.setGaraInfo(garaInfoDto);
-		}else {
-			response.setCodeStatus(AppResultCode.ERROR);
-			response.setMessageStatus("No Data");
-		}
-		return response;
-	}
+        GaraDetailResponse response = new GaraDetailResponse();
+
+        GaraInfoDto garaInfoDto = new GaraInfoDto();
+        Optional<GaraInfoEntity> garaInfoEntityOptional = garaRepository.findByIdAndDeleteByIsNull(id);
+        if (garaInfoEntityOptional.isPresent()) {
+            GaraInfoEntity entity = garaInfoEntityOptional.get();
+            BeanUtils.copyProperties(garaInfoEntityOptional.get(), garaInfoDto, GaraInfoDto.class);
+            if (entity.getDiscount() == null) {
+                garaInfoDto.setDiscountRate((double) 0);
+            } else {
+                garaInfoDto.setDiscountRate((double) entity.getDiscount());
+            }
+
+            response.setGaraInfo(garaInfoDto);
+        } else {
+            response.setCodeStatus(AppResultCode.ERROR);
+            response.setMessageStatus("No Data");
+        }
+        return response;
+    }
 
 
 }

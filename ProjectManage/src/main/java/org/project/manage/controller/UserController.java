@@ -211,7 +211,7 @@ public class UserController {
 			User user = userService.findByUsername(name)
 					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
 
-			Optional<UserIntroducedEntity> userIntroduced = userIntroducedRepository.findByUserId(user.getId());
+			Optional<UserIntroducedEntity> userIntroduced = userIntroducedRepository.getUserIntroducedById(user.getId());
 
 			if (userIntroduced.isPresent()) {
 				return successHandler

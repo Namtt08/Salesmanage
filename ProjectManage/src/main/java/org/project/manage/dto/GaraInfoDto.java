@@ -28,4 +28,6 @@ public class GaraInfoDto {
     private Date createdDate;
     
     private String docPath;
+
+    private  Double discountRate;
 }
