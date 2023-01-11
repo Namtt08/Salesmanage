@@ -526,7 +526,30 @@ public class UserServiceImpl implements UserService {
 			userIntroducedEntity.setUserType(presenterRequestDto.getType());
 			userIntroducedEntity.setUserIntroducedId(presenterRequestDto.getUserIntroduceId());
 			userIntroducedEntity.setUserId(user.getId());
+			userIntroducedEntity.setRewardPoint(10000L);
 			userIntroducedRepository.save(userIntroducedEntity);
+
+			// push noti
+			try {
+				Optional<NotificationTemplateEntity> notificationTemplateEntityOptional = notificationTemplateRepository.findByNotiType("GIOI_THIEU_USER_MOI");
+				if (notificationTemplateEntityOptional.isPresent()) {
+					NotificationTemplateEntity notificationTemplateEntity = notificationTemplateEntityOptional.get();
+					PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
+					String title = notificationTemplateEntity.getTitle();
+					DecimalFormat formatter = new DecimalFormat("###,###,###");
+					String body = notificationTemplateEntity.getBody().replace("[amount]", formatter.format(10000));
+					pushNotificationRequest.setTitle(title);
+					pushNotificationRequest.setBody(body);
+					pushNotificationRequest.setUserId(user.getId());
+					pushNotificationRequest.setNotificationTemplateId(notificationTemplateEntity.getId());
+					pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
+					pushNotificationRequest.setToken(user.getTokenFirebase());
+					fcmService.pushNotification(pushNotificationRequest);
+
+				}
+			}catch (Exception e){
+				e.printStackTrace();
+			}
 		}catch (Exception e){
 			e.printStackTrace();
 		}

@@ -31,6 +31,8 @@ public class UserIntroducedEntity {
 	    private String createdBy;
 	    
 	    private Date createdDate;
+
+		private Long rewardPoint;
     
 
 }
