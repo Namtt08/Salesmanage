@@ -8,4 +8,6 @@ public class PresenterRequestDto {
 	private Long userIntroduceId;
 	
 	private String type;
+	
+	private String cuid; // của nguoiwff giới thiệu
 }

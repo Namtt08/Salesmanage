@@ -116,6 +116,9 @@ public class AuthController {
 				SimpleDateFormat formatter = new SimpleDateFormat(AppConstants.DATE_FORMAT);
 				dob = formatter.format(userCustomer.getDob());
 			}
+			if(StringUtils.equalsIgnoreCase("USER_COOPERATIVE", userCustomer.getUserType())) {
+				userCustomer.setUserType("USER_VIP");
+			}
 
 			return this.successHandler.handlerSuccess(new LoginView(userCustomer.getCuid(),
 					userCustomer.getPhoneNumber(), jwt, userCustomer.getEmail(), userCustomer.isBlockUser(),

@@ -30,4 +30,6 @@ public class GaraInfoDto {
     private String docPath;
 
     private  Double discountRate;
+    
+    
 }

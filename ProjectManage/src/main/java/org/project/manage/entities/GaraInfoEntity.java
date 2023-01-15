@@ -43,7 +43,7 @@ public class GaraInfoEntity {
 
     private String deleteBy;
 
-    private Date deteleDate;
+    private Date deleteDate;
 
     private Long discount;
 
