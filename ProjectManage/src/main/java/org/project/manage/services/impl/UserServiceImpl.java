@@ -24,6 +24,7 @@ import org.apache.tika.Tika;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.modelmapper.ModelMapper;
 import org.project.manage.dto.GaraInfoDto;
+import org.project.manage.dto.MailDto;
 import org.project.manage.dto.PresenterRequestDto;
 import org.project.manage.dto.PushNotificationRequest;
 import org.project.manage.entities.*;
@@ -33,6 +34,7 @@ import org.project.manage.repository.*;
 import org.project.manage.request.*;
 import org.project.manage.response.*;
 import org.project.manage.security.ERole;
+import org.project.manage.services.EmailService;
 import org.project.manage.services.FCMService;
 import org.project.manage.services.UserService;
 import org.project.manage.util.*;
@@ -96,6 +98,15 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private NotificationTemplateRepository notificationTemplateRepository;
+
+	@Autowired
+	private MailTemplateRepository mailTemplateRepository;
+
+	@Autowired
+	private EmailService emailService;
+
+	@Autowired
+	private SystemSettingRepository systemSettingRepository;
 
 	@Bean
 	public ModelMapper modelMapper() {
@@ -667,7 +678,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserPaymentlResponse PayingForGarageService(User user, UserPaymentRequest request) {
 		UserPaymentlResponse response = new UserPaymentlResponse();
+		DecimalFormat formats = new DecimalFormat("###,###,###");
 		double amountPayment =0L;
+		String discountStr ="";
 		if(request.getAmount()==null){
 			request.setAmount(0L);
 		}
@@ -686,8 +699,10 @@ public class UserServiceImpl implements UserService {
 				double percent= 0L;
 				if (garaInfoEntity.getDiscount()==null|| garaInfoEntity.getDiscount() == 0 ){
 					percent =1L;
+					discountStr = "0";
 				}else {
 					percent = (double)garaInfoEntity.getDiscount()/100;
+					discountStr = String.valueOf(garaInfoEntity.getDiscount());
 				}
 				amountPayment = request.getAmount() - (double)request.getAmount()*percent;
 				if(userPayment.getPoint() == null||userPayment.getPoint()<amountPayment){
@@ -722,7 +737,6 @@ public class UserServiceImpl implements UserService {
 							NotificationTemplateEntity notificationTemplateEntity = notificationTemplateEntityOptional.get();
 							PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
 							String title = notificationTemplateEntity.getTitle();
-							DecimalFormat formats = new DecimalFormat("###,###,###");
 							String body = notificationTemplateEntity.getBody().replace("[amount]", formats.format(amountPayment));
 							body = body.replace("[garaname]", garaInfo.get().getGaraName());
 							pushNotificationRequest.setTitle(title);
@@ -736,6 +750,34 @@ public class UserServiceImpl implements UserService {
 						}
 					}catch (Exception e){
 						e.printStackTrace();
+					}
+//					// gui Email
+//					if()
+					try {
+//						User userSendMail = userRepository.findById(product.getUserId()).orElse(null);
+
+						Optional<SystemSetting> systemSettingOption = systemSettingRepository.findByCode("EMAIL_SYSTEM");
+						if (systemSettingOption.isPresent()) {
+							SystemSetting systemSetting = systemSettingOption.get();
+							if(StringUtils.isNoneBlank(systemSetting.getValue())) {
+								MailTemplate mailTemplate = mailTemplateRepository.findByCode("MAIL_PAYMENT_GARA").orElse(null);
+								MailDto emailDto = new MailDto();
+								emailDto.setMailCc(mailTemplate.getCc());
+								emailDto.setMailBcc(mailTemplate.getBcc());
+								emailDto.setMailSubject(mailTemplate.getSubject());
+								String content = mailTemplate.getContent();
+								content = content.replace("[user]", userPayment.getUsername());
+								content = content.replace("[gara]", garaInfo.get().getGaraName());
+								content = content.replace("[discount]", discountStr);
+								content = content.replace("[amount]", formats.format(amountPayment));
+								emailDto.setMailContent(content);
+								emailDto.setMailTo(systemSetting.getValue());
+								emailService.sendEmail(emailDto);
+							}
+						}
+
+					} catch (Exception e) {
+						log.error(e.getMessage());
 					}
 				}
 
