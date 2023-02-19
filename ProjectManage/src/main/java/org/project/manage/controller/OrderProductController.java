@@ -2,6 +2,8 @@ package org.project.manage.controller;
 
 import java.util.List;
 
+import com.google.api.client.json.Json;
+import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.project.manage.dto.OrderPaymentDto;
 import org.project.manage.dto.PromotionDto;
@@ -146,6 +148,7 @@ public class OrderProductController {
 	@PostMapping("/payment-order")
 	public ApiResponse paymentOrder(@RequestBody CartResponse request) {
 		long start = System.currentTimeMillis();
+		log.info("request paymentOrder: {}", new Gson().toJson(request));
 		try {
 			User user = getUserFromAuthentication();
 			PaymentOrderResponse response =orderProductService.paymentOrder(request, user);
