@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.gson.Gson;
 import org.project.manage.dto.PresenterRequestDto;
 import org.project.manage.entities.SystemSetting;
 import org.project.manage.entities.User;
@@ -48,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/user")
-@PreAuthorize("hasRole('ROLE_USER')")
+//@PreAuthorize("hasRole('ROLE_USER')or hasRole('USER_COOPERATIVE')")
 @Slf4j
 public class UserController {
 
@@ -69,6 +70,8 @@ public class UserController {
 	
 	@Autowired
 	private UserIntroducedRepository  userIntroducedRepository;
+
+	Gson gson = new Gson();
 
 	@PostMapping("/update-user-info")
 	public ApiResponse updateUserInfo(@RequestBody UpdateUserInfo otpLoginRequest) {
@@ -206,6 +209,7 @@ public class UserController {
 	@PostMapping("/presenter")
 	public ApiResponse addPresenter(@RequestBody PresenterRequestDto presenterRequestDto) {
 		long start = System.currentTimeMillis();
+		log.info("addPresenter request In:{}", gson.toJson(presenterRequestDto));
 		try {
 			String name = SecurityContextHolder.getContext().getAuthentication().getName();
 			User user = userService.findByUsername(name)
@@ -218,6 +222,7 @@ public class UserController {
 						.handlerSuccess(new MessageResponse(AppResultCode.ERROR, MessageResult.USER_INTRODUCED), start);
 			} else {
 				PresenterResponse response = userService.addPresenter(user, presenterRequestDto);
+				log.info("addPresenter request OUT:{}", gson.toJson(response));
 				return this.successHandler.handlerSuccess(response, start);
 			}
 		} catch (Exception e) {
