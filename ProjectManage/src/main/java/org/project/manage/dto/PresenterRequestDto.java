@@ -9,5 +9,5 @@ public class PresenterRequestDto {
 	
 	private String type;
 	
-	private String cuid; // của nguoiwff giới thiệu
+	private String uuid; // của nguoiwff giới thiệu
 }

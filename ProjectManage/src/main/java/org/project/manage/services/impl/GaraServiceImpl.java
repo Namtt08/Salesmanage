@@ -71,7 +71,7 @@ public class GaraServiceImpl implements GaraService {
     }
 
     @Override
-    public GaraDetailResponse getGaraDetail(Long id, User user) {
+    public GaraDetailResponse getGaraDetail(Long id) {
 
         GaraDetailResponse response = new GaraDetailResponse();
 

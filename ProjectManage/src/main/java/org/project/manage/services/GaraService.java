@@ -8,7 +8,7 @@ import org.project.manage.response.GaraListResponse;
 public interface GaraService {
 
 	GaraListResponse getAllGaraInfo();
-	GaraDetailResponse getGaraDetail(Long id, User user);
+	GaraDetailResponse getGaraDetail(Long id);
 
 
 }

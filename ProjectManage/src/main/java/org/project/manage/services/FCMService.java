@@ -27,25 +27,56 @@ import com.google.firebase.messaging.Notification;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Transactional
 public class FCMService {
-	 
+
     private Logger logger = LoggerFactory.getLogger(FCMService.class);
-    
+
     @Autowired
     private UserNotificationService UserNotificationService;
-    
+
     public String pushNotification(PushNotificationRequest pushNotificationRequest) {
-    	
-    	
-    	PnsRequestDto pnsRequest =  new PnsRequestDto();
-    	pnsRequest.setFcmToken(pushNotificationRequest.getToken());
-    	pnsRequest.setContent(pushNotificationRequest.getBody());
-    	Notification notification = new Notification (pushNotificationRequest.getTitle(),pushNotificationRequest.getBody());
-    	
-    	Message message = Message.builder()
+        // Tạo một ExecutorService với một thread
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        // Sử dụng CompletableFuture để bắn notification
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> pushNoti(pushNotificationRequest), executor);
+
+        try {
+            future.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Đóng ExecutorService khi không cần thiết nữa
+        executor.shutdown();
+        return null;
+    }
+
+    private UserNotificationDto convertDataUserNotification(PushNotificationRequest pushNotificationRequest) {
+        UserNotificationDto userNotificationDto = new UserNotificationDto();
+        userNotificationDto.setUserId(pushNotificationRequest.getUserId());
+        userNotificationDto.setNotificationTemplateId(pushNotificationRequest.getNotificationTemplateId());
+        userNotificationDto.setContent(pushNotificationRequest.getBody());
+        userNotificationDto.setCreatedDate(new Date());
+        userNotificationDto.setNotiType(pushNotificationRequest.getType());
+        userNotificationDto.setTitle(pushNotificationRequest.getTitle());
+
+        return userNotificationDto;
+    }
+
+    private String pushNoti(PushNotificationRequest pushNotificationRequest){
+        PnsRequestDto pnsRequest = new PnsRequestDto();
+        pnsRequest.setFcmToken(pushNotificationRequest.getToken());
+        pnsRequest.setContent(pushNotificationRequest.getBody());
+        Notification notification = new Notification(pushNotificationRequest.getTitle(), pushNotificationRequest.getBody());
+
+        Message message = Message.builder()
                 .putData("content", pnsRequest.getContent())
                 .setToken(pnsRequest.getFcmToken())
                 .setNotification(notification)
@@ -54,24 +85,11 @@ public class FCMService {
         String response = null;
         try {
             response = FirebaseMessaging.getInstance().send(message);
-            UserNotificationDto  userNotificationDto = convertDataUserNotification(pushNotificationRequest);
+            UserNotificationDto userNotificationDto = convertDataUserNotification(pushNotificationRequest);
             UserNotificationService.save(userNotificationDto);
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
         return response;
     }
-
-	private UserNotificationDto convertDataUserNotification(PushNotificationRequest pushNotificationRequest) {
-		UserNotificationDto userNotificationDto=  new UserNotificationDto(); 
-		userNotificationDto.setUserId(pushNotificationRequest.getUserId());
-		userNotificationDto.setNotificationTemplateId(pushNotificationRequest.getNotificationTemplateId());
-		userNotificationDto.setContent(pushNotificationRequest.getBody());
-		userNotificationDto.setCreatedDate(new Date());
-		userNotificationDto.setNotiType(pushNotificationRequest.getType());
-		userNotificationDto.setTitle(pushNotificationRequest.getTitle());
-		
-		return userNotificationDto;
-	}
-
 }

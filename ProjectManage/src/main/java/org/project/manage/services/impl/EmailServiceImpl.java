@@ -1,6 +1,9 @@
 package org.project.manage.services.impl;
 
 import java.io.File;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -30,6 +33,17 @@ public class EmailServiceImpl implements EmailService {
 
 	@Override
 	public void sendEmail(MailDto mail) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		CompletableFuture<Void> future = CompletableFuture.runAsync(() -> pushMail(mail), executor);
+		try {
+			future.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		executor.shutdown();
+	}
+
+	private void pushMail(MailDto mail){
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
 
 		try {
@@ -59,5 +73,4 @@ public class EmailServiceImpl implements EmailService {
 		}
 
 	}
-
 }

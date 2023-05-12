@@ -2,6 +2,7 @@ package org.project.manage.controller;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.project.manage.dto.ProductCategoryDto;
 import org.project.manage.entities.User;
 import org.project.manage.exception.AppException;
@@ -48,10 +49,14 @@ public class ProductController {
 	public ApiResponse getProduct(@RequestBody ProductListRequest request) {
 		long start = System.currentTimeMillis();
 		try {
+			User user =new User();
 			String name = SecurityContextHolder.getContext().getAuthentication().getName();
-			User user = userService.findByUsername(name)
-					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
-			ListProductRespose response = this.productService.getListProduct(request, user); 
+			if(!StringUtils.equalsIgnoreCase("anonymousUser",name)){
+				user = userService.findByUsername(name)
+						.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+			}
+			ListProductRespose response = this.productService.getListProduct(request, user);
+
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getProduct#ERROR#:" + e.getMessage());
@@ -77,9 +82,12 @@ public class ProductController {
 	public ApiResponse getProductDetail(@RequestParam(value = "id", required = true) Long id) {
 		long start = System.currentTimeMillis();
 		try {
+			User user =new User();
 			String name = SecurityContextHolder.getContext().getAuthentication().getName();
-			User user = userService.findByUsername(name)
-					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+			if(!StringUtils.equalsIgnoreCase("anonymousUser",name)){
+				user = userService.findByUsername(name)
+						.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
+			}
 			ProductDetailResponse response = this.productService.getProductDetail(id, user); 
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {

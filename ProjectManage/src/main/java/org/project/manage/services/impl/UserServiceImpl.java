@@ -530,7 +530,7 @@ public class UserServiceImpl implements UserService {
 	public PresenterResponse addPresenter(User user,PresenterRequestDto presenterRequestDto) {
 		PresenterResponse response = new PresenterResponse();
 		try {
-			Optional<User> userOptional = userRepository.findByCuid(presenterRequestDto.getCuid());
+			Optional<User> userOptional = userRepository.findByCuid(presenterRequestDto.getUuid());
 			UserIntroducedEntity userIntroducedEntity = new UserIntroducedEntity();
 			userIntroducedEntity.setCreatedBy(user.getUsername());
 			userIntroducedEntity.setCreatedDate(new Date());

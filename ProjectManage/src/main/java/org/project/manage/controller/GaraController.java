@@ -52,10 +52,7 @@ public class GaraController {
 	public ApiResponse getGaraDetail(@RequestParam(value = "id", required = true) Long id) {
 		long start = System.currentTimeMillis();
 		try {
-			String name = SecurityContextHolder.getContext().getAuthentication().getName();
-			User user = userService.findByUsername(name)
-					.orElseThrow(() -> new AppException(MessageResult.GRD004_NOT_FOUND));
-			GaraDetailResponse response = this.garaService.getGaraDetail(id, user);
+			GaraDetailResponse response = this.garaService.getGaraDetail(id);
 			return this.successHandler.handlerSuccess(response, start);
 		} catch (Exception e) {
 			log.error("#getProductDetail#ERROR#:" + e.getMessage());
