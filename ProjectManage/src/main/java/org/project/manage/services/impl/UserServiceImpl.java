@@ -551,10 +551,10 @@ public class UserServiceImpl implements UserService {
 					String body = notificationTemplateEntity.getBody().replace("[amount]", formatter.format(10000));
 					pushNotificationRequest.setTitle(title);
 					pushNotificationRequest.setBody(body);
-					pushNotificationRequest.setUserId(user.getId());
+					pushNotificationRequest.setUserId(userOptional.get().getId());
 					pushNotificationRequest.setNotificationTemplateId(notificationTemplateEntity.getId());
 					pushNotificationRequest.setType(notificationTemplateEntity.getNotiType());
-					pushNotificationRequest.setToken(user.getTokenFirebase());
+					pushNotificationRequest.setToken(userOptional.get().getTokenFirebase());
 					fcmService.pushNotification(pushNotificationRequest);
 
 				}
